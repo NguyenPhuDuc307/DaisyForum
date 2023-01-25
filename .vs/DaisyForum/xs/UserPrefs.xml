@@ -1,0 +1,6 @@
+﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal FirstBuild="True" />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer FirstBuild="True" PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.ViewModels FirstBuild="True" />
+</Properties>
