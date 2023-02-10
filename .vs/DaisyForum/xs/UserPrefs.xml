@@ -1,16 +1,23 @@
-﻿<Properties StartupConfiguration="{D412BE71-6C27-422E-93BB-86D79142DDDB}|https">
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs">
+﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Program.cs">
     <Files>
       <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" Line="22" Column="28" />
+      <File FileName="DaisyForum.BackendServer/Program.cs" Line="70" Column="1" />
+      <File FileName="DaisyForum.BackendServer/appsettings.Development.json" Line="3" Column="23" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DaisyForum" expanded="True">
             <Node name="DaisyForum.BackendServer" expanded="True">
-              <Node name="Data" expanded="True" selected="True">
+              <Node name="Dependencies" expanded="True" />
+              <Node name="Data" expanded="True">
                 <Node name="Migrations" expanded="True" />
               </Node>
+              <Node name="appsettings.json" expanded="True" />
             </Node>
           </Node>
         </State>
@@ -18,11 +25,8 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.DaisyForum.ViewModels FirstBuild="True" />
+  <MultiItemStartupConfigurations />
 </Properties>

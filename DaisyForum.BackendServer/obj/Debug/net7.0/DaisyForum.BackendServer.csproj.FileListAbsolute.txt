@@ -34,6 +34,10 @@
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Microsoft.SqlServer.Server.dll
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Microsoft.Win32.SystemEvents.dll
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Mono.TextTemplating.dll
+/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Serilog.dll
+/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Serilog.Extensions.Hosting.dll
+/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Serilog.Extensions.Logging.dll
+/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Serilog.Sinks.Console.dll
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Swashbuckle.AspNetCore.Swagger.dll
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/bin/Debug/net7.0/Swashbuckle.AspNetCore.SwaggerUI.dll
