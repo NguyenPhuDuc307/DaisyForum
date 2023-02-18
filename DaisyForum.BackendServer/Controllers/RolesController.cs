@@ -36,20 +36,26 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 201
                 return CreatedAtAction(nameof(GetRole), new { id = request.RoleId }, request);
             else
-                return BadRequest(result.Errors.First().Description);
+                return BadRequest(result.Errors);
         }
 
         // URL: GET: https://localhost:5000/api/roles
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles()
+        public async Task<IActionResult> GetRoles()
         {
-            var roles = await _roleManager.Roles.Select(role => new { roleId = role.Id, roleName = role.Name }).ToListAsync();
-            return Ok(roles);
+            var roles = await _roleManager.Roles.ToListAsync();
+
+            var roleViewModel = roles.Select(r => new RoleViewModel()
+            {
+                RoleId = r.Id,
+                RoleName = r.Name
+            });
+            return Ok(roleViewModel);
         }
 
         // URL: GET: https://localhost:5000/api/roles?keyword=value&page=1&pageSize=10
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles(string keyword, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetRoles(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _roleManager.Roles;
 
@@ -64,12 +70,12 @@ namespace DaisyForum.BackendServer.Controllers
                 RoleName = x.Name
             }).ToListAsync();
 
-            var currentPage = await query.CountAsync();
+            var totalRecords = await query.CountAsync();
 
             var pagination = new Pagination<RoleViewModel>
             {
                 Items = item,
-                CurrentPage = currentPage
+                TotalRecords = totalRecords
             };
 
             return Ok(pagination);
@@ -113,7 +119,7 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 204
                 return NoContent();
 
-            return BadRequest(result.Equals(false) ? result.Errors.First() : null);
+            return BadRequest(result.Errors);
         }
 
         // URL: DELETE: https://localhost:5000/api/roles/{id}
@@ -136,7 +142,7 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 200
                 return Ok(RoleViewModel);
             }
-            return BadRequest(result.Equals(false) ? result.Errors.First() : null);
+            return BadRequest(result.Errors);
         }
     }
 }
