@@ -18,7 +18,6 @@ namespace DaisyForum.BackendServer.Controllers
             _roleManager = roleManager;
         }
 
-
         // URL: POST: https://localhost:5000/api/roles
         [HttpPost]
         public async Task<IActionResult> CreateRole(RoleViewModel request)
