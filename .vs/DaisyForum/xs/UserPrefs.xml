@@ -2,6 +2,7 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer.UnitTest FirstBuild="True" />
   <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Program.cs">
     <Files>
       <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" />
@@ -11,15 +12,7 @@
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="DaisyForum" expanded="True">
-            <Node name="DaisyForum.BackendServer" expanded="True">
-              <Node name="Dependencies" expanded="True" />
-              <Node name="Data" expanded="True">
-                <Node name="Migrations" expanded="True" />
-              </Node>
-              <Node name="appsettings.json" expanded="True" />
-            </Node>
-          </Node>
+          <Node name="DaisyForum" expanded="True" />
         </State>
       </Pad>
     </Pads>
@@ -28,5 +21,5 @@
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
 </Properties>

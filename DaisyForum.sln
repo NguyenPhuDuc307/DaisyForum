@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaisyForum.WebPortal", "Dai
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaisyForum.ViewModels", "DaisyForum.ViewModels\DaisyForum.ViewModels.csproj", "{CC2E587F-2075-43BD-B248-262AFF995A63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaisyForum.BackendServer.UnitTest", "DaisyForum.BackendServer.UnitTest\DaisyForum.BackendServer.UnitTest.csproj", "{F38C67C8-2FED-464D-9524-A5B113E32D11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CC2E587F-2075-43BD-B248-262AFF995A63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC2E587F-2075-43BD-B248-262AFF995A63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC2E587F-2075-43BD-B248-262AFF995A63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F38C67C8-2FED-464D-9524-A5B113E32D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F38C67C8-2FED-464D-9524-A5B113E32D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F38C67C8-2FED-464D-9524-A5B113E32D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F38C67C8-2FED-464D-9524-A5B113E32D11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
