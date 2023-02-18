@@ -54,7 +54,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         // URL: GET: https://localhost:5000/api/roles?keyword=value&page=1&pageSize=10
-        [HttpGet]
+        [HttpGet("filter")]
         public async Task<IActionResult> GetRoles(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _roleManager.Roles;
