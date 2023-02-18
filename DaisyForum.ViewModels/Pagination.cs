@@ -8,6 +8,6 @@ namespace DaisyForum.ViewModels
     public class Pagination<T>
     {
         public List<T>? Items { get; set; }
-        public int CurrentPage { get; set; }
+        public int TotalRecords { get; set; }
     }
 }
