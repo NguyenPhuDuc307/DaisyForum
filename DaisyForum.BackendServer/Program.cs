@@ -33,21 +33,10 @@ Log.Logger = new LoggerConfiguration()
 .WriteTo.Console()
 .CreateLogger();
 
-
-
-
 // Add services to the container.
-
-
-
 builder.Services.AddControllers();
 
-
-
 builder.Services.AddTransient<DbInitializer>();
-
-
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

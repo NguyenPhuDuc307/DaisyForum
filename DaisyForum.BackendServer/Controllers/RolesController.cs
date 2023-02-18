@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DaisyForum.BackendServer.Controllers
 {
@@ -17,7 +19,6 @@ namespace DaisyForum.BackendServer.Controllers
         {
             _roleManager = roleManager;
         }
-
 
         // URL: POST: https://localhost:5000/api/roles
         [HttpPost]
@@ -38,7 +39,43 @@ namespace DaisyForum.BackendServer.Controllers
                 return BadRequest(result.Errors.First().Description);
         }
 
-        //URL: GET: https://localhost:5000/api/roles
+        // URL: GET: https://localhost:5000/api/roles
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoles()
+        {
+            var roles = await _roleManager.Roles.Select(role => new { roleId = role.Id, roleName = role.Name }).ToListAsync();
+            return Ok(roles);
+        }
+
+        // URL: GET: https://localhost:5000/api/roles?keyword=value&page=1&pageSize=10
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoles(string keyword, int page = 1, int pageSize = 10)
+        {
+            var query = _roleManager.Roles;
+
+            if (!String.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(x => x.Id.Contains(keyword) || string.IsNullOrEmpty(x.Name) ? true : x.Name.Contains(keyword));
+            }
+
+            var item = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new RoleViewModel()
+            {
+                RoleId = x.Id,
+                RoleName = x.Name
+            }).ToListAsync();
+
+            var currentPage = await query.CountAsync();
+
+            var pagination = new Pagination<RoleViewModel>
+            {
+                Items = item,
+                CurrentPage = currentPage
+            };
+
+            return Ok(pagination);
+        }
+
+        //URL: GET: https://localhost:5000/api/roles/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRole(string id)
         {
@@ -55,7 +92,7 @@ namespace DaisyForum.BackendServer.Controllers
             return Ok(RoleViewModel);
         }
 
-        //URL: PUT: https://localhost:5000/api/roles/{id}
+        // URL: PUT: https://localhost:5000/api/roles/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleViewModel roleViewModel)
         {
@@ -67,7 +104,7 @@ namespace DaisyForum.BackendServer.Controllers
             if (role == null)
                 // code: 404
                 return NotFound();
-                
+
             role.Name = roleViewModel.RoleName;
             role.NormalizedName = roleViewModel.RoleName != null ? roleViewModel.RoleName.ToUpper() : null;
             var result = await _roleManager.UpdateAsync(role);
@@ -76,6 +113,29 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 204
                 return NoContent();
 
+            return BadRequest(result.Equals(false) ? result.Errors.First() : null);
+        }
+
+        // URL: DELETE: https://localhost:5000/api/roles/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+                // code: 404
+                return NotFound();
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
+            {
+                var RoleViewModel = new RoleViewModel()
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name
+                };
+                // code: 200
+                return Ok(RoleViewModel);
+            }
             return BadRequest(result.Equals(false) ? result.Errors.First() : null);
         }
     }
