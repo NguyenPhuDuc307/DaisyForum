@@ -1,24 +1,50 @@
-﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
+﻿<Properties StartupConfiguration="{F38C67C8-2FED-464D-9524-A5B113E32D11}|Default">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal PreferredExecutionTarget="/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app" />
-  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer.UnitTest FirstBuild="True" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Program.cs">
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer.UnitTest PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Controllers/RolesController.cs">
     <Files>
-      <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" />
+      <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" Line="1" Column="1" />
       <File FileName="DaisyForum.BackendServer/Program.cs" Line="65" Column="1" />
-      <File FileName="DaisyForum.BackendServer/appsettings.Development.json" />
+      <File FileName="DaisyForum.BackendServer/appsettings.Development.json" Line="1" Column="1" />
+      <File FileName="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" Line="115" Column="1" />
+      <File FileName="DaisyForum.ViewModels/Pagination.cs" Line="11" Column="33" />
+      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="73" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="DaisyForum" expanded="True" />
+          <Node name="DaisyForum" expanded="True">
+            <Node name="DaisyForum.BackendServer" expanded="True">
+              <Node name="Controllers" expanded="True" />
+              <Node name="Data" expanded="True" />
+              <Node name="appsettings.json" expanded="True" />
+            </Node>
+            <Node name="DaisyForum.BackendServer.UnitTest" expanded="True">
+              <Node name="Controllers" expanded="True" />
+            </Node>
+            <Node name="DaisyForum.ViewModels" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="DaisyForum" expanded="True" selected="True">
+            <Node name="DaisyForum.BackendServer.UnitTest" expanded="True">
+              <Node name="DaisyForum.BackendServer.UnitTest.Controllers" expanded="True">
+                <Node name="RolesControllerTest" expanded="True" />
+              </Node>
+            </Node>
+          </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" relfile="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" line="115" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
