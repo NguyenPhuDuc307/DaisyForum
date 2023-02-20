@@ -1,9 +1,12 @@
-﻿using DaisyForum.BackendServer.Data;
+using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.IdentityServer;
+using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels.Systems;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -17,6 +20,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //2. Setup identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddIdentityServer(options =>
+{
+    options.Events.RaiseErrorEvents = true;
+    options.Events.RaiseInformationEvents = true;
+    options.Events.RaiseFailureEvents = true;
+    options.Events.RaiseSuccessEvents = true;
+})
+.AddInMemoryApiResources(Config.Apis)
+.AddInMemoryClients(Config.Clients)
+.AddInMemoryIdentityResources(Config.Ids)
+.AddAspNetIdentity<User>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -38,18 +53,18 @@ Log.Logger = new LoggerConfiguration()
 .CreateLogger();
 
 // Add services to the container.
-builder.Services.AddControllers();
-
-
+builder.Services.AddControllersWithViews();
 
 // Add validator to the service collection
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<RoleViewModelValidator>();
 
-
+builder.Services.AddRazorPages();
 
 builder.Services.AddTransient<DbInitializer>();
+
+builder.Services.AddTransient<IEmailSender, EmailSenderService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -67,11 +82,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
+
+app.UseIdentityServer();
+
+app.UseAuthentication();
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseRouting();
+
+app.MapDefaultControllerRoute();
+
+app.MapRazorPages();
 
 app.UseSwagger();
 

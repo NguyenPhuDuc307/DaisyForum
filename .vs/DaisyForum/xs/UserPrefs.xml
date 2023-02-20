@@ -1,4 +1,5 @@
 ﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Controllers/RolesController.cs">
     <Files>
       <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" />
@@ -6,13 +7,14 @@
       <File FileName="DaisyForum.BackendServer/appsettings.Development.json" />
       <File FileName="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" />
       <File FileName="DaisyForum.ViewModels/Pagination.cs" />
-      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="63" Column="14" />
+      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="9" Column="24" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DaisyForum" expanded="True">
             <Node name="DaisyForum.BackendServer" expanded="True">
+              <Node name="Dependencies" expanded="True" />
               <Node name="Controllers" expanded="True" />
               <Node name="Data" expanded="True" />
               <Node name="appsettings.json" expanded="True" />
@@ -26,18 +28,17 @@
       </Pad>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
-          <Node name="DaisyForum" expanded="True" />
+          <Node name="DaisyForum" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" relfile="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" line="115" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
 </Properties>
