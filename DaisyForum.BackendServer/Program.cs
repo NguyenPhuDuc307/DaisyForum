@@ -1,9 +1,12 @@
-﻿using DaisyForum.BackendServer.Data;
+using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.IdentityServer;
+using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels.Systems;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -17,6 +20,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //2. Setup identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddIdentityServer(options =>
+{
+    options.Events.RaiseErrorEvents = true;
+    options.Events.RaiseInformationEvents = true;
+    options.Events.RaiseFailureEvents = true;
+    options.Events.RaiseSuccessEvents = true;
+})
+.AddInMemoryApiResources(Config.Apis)
+.AddInMemoryApiScopes(Config.ApiScopes)
+.AddInMemoryClients(Config.Clients)
+.AddInMemoryIdentityResources(Config.Ids)
+.AddAspNetIdentity<User>()
+.AddDeveloperSigningCredential();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -38,24 +55,78 @@ Log.Logger = new LoggerConfiguration()
 .CreateLogger();
 
 // Add services to the container.
-builder.Services.AddControllers();
-
-
+builder.Services.AddControllersWithViews();
 
 // Add validator to the service collection
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<RoleViewModelValidator>();
 
+builder.Services.AddAuthentication()
+.AddLocalApi("Bearer", option =>
+{
+    option.ExpectedScope = "api.daisyforum";
+});
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Bearer", policy =>
+    {
+        policy.AddAuthenticationSchemes("Bearer");
+        policy.RequireAuthenticatedUser();
+    });
+});
+
+
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AddAreaFolderRouteModelConvention("Identity", "/Account/", model =>
+    {
+        foreach (var selector in model.Selectors)
+        {
+            var attributeRouteModel = selector.AttributeRouteModel;
+            if (attributeRouteModel != null)
+            {
+                attributeRouteModel.Order = -1;
+                if (attributeRouteModel.Template != null)
+                    attributeRouteModel.Template = attributeRouteModel.Template.Remove(0, "Identity".Length);
+            }
+        }
+    });
+});
 
 builder.Services.AddTransient<DbInitializer>();
 
+builder.Services.AddTransient<IEmailSender, EmailSenderService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DaisyForum API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
+        {
+            Implicit = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = new Uri("https://localhost:5000/connect/authorize"),
+                Scopes = new Dictionary<string, string> { { "api.daisyforum", "DaisyForum API" } }
+            },
+        },
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new List<string>{ "api.daisyforum" }
+        }
+    });
 });
 
 var app = builder.Build();
@@ -63,20 +134,30 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
+
+app.UseStaticFiles();
+
+app.UseIdentityServer();
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapDefaultControllerRoute();
+
+app.MapRazorPages();
 
 app.UseSwagger();
 
 app.UseSwaggerUI(c =>
 {
+    c.OAuthClientId("swagger");
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "DaisyForum API");
 });
 

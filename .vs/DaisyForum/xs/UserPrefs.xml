@@ -1,12 +1,9 @@
 ﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Controllers/RolesController.cs">
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/IdentityServer/Config.cs">
     <Files>
-      <File FileName="DaisyForum.BackendServer/Data/DesignTimeDbContextFactory.cs" />
-      <File FileName="DaisyForum.BackendServer/Program.cs" />
-      <File FileName="DaisyForum.BackendServer/appsettings.Development.json" />
-      <File FileName="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" />
-      <File FileName="DaisyForum.ViewModels/Pagination.cs" />
-      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="63" Column="14" />
+      <File FileName="DaisyForum.BackendServer/Program.cs" Line="85" Column="1" />
+      <File FileName="DaisyForum.BackendServer/IdentityServer/Config.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,6 +12,9 @@
             <Node name="DaisyForum.BackendServer" expanded="True">
               <Node name="Controllers" expanded="True" />
               <Node name="Data" expanded="True" />
+              <Node name="IdentityServer" expanded="True">
+                <Node name="Config.cs" selected="True" />
+              </Node>
               <Node name="appsettings.json" expanded="True" />
             </Node>
             <Node name="DaisyForum.BackendServer.UnitTest" expanded="True">
@@ -24,20 +24,16 @@
           </Node>
         </State>
       </Pad>
-      <Pad Id="MonoDevelop.UnitTesting.TestPad">
-        <State name="__root__">
-          <Node name="DaisyForum" expanded="True" />
-        </State>
-      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" relfile="DaisyForum.BackendServer.UnitTest/Controllers/RolesControllerTest.cs" line="115" column="1" />
+      <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/Program.cs" relfile="DaisyForum.BackendServer/Program.cs" line="85" column="1" />
+      <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/Program.cs" relfile="DaisyForum.BackendServer/Program.cs" line="98" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
