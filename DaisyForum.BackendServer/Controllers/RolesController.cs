@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace DaisyForum.BackendServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize("Bearer")]
     public class RolesController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
