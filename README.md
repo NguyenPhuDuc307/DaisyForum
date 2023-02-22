@@ -16,3 +16,5 @@ Website tin tức, diễn đàn DaisyForum
 4. Test API - RoleController
 5. Add Swagger
 6. Validate with Fluent Validation
+7. 7. Config Identity Server
+8. Config Identity Server for Swagger
