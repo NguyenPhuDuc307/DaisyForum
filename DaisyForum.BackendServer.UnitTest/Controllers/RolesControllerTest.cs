@@ -75,8 +75,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetRoles();
             var okResult = result as OkObjectResult;
-            var roleVms = okResult != null ? okResult.Value as IEnumerable<RoleViewModel> : null;
-            Assert.True((roleVms != null ? roleVms.Count() : 0) > 0);
+            var roleViewModels = okResult != null ? okResult.Value as IEnumerable<RoleViewModel> : null;
+            Assert.True((roleViewModels != null ? roleViewModels.Count() : 0) > 0);
         }
 
         [Fact]
@@ -99,9 +99,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetRolesPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
-            var roleVms = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
-            Assert.Equal(4, (roleVms != null ? roleVms.TotalRecords : 0));
-            Assert.Equal(2, (roleVms != null ? (roleVms.Items != null ? roleVms.Items.Count() : 0) : 0));
+            var roleViewModels = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
+            Assert.Equal(4, roleViewModels != null ? roleViewModels.TotalRecords : 0);
+            Assert.Equal(2, roleViewModels != null ? (roleViewModels.Items != null ? roleViewModels.Items.Count() : 0) : 0);
         }
 
         [Fact]
@@ -114,11 +114,11 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetRolesPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
-            var roleVms = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
-            Assert.Equal(1, (roleVms != null ? roleVms.TotalRecords : 0));
-            if (roleVms != null)
-                if (roleVms.Items != null)
-                    Assert.Single(roleVms.Items);
+            var roleViewModels = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
+            Assert.Equal(1, roleViewModels != null ? roleViewModels.TotalRecords : 0);
+            if (roleViewModels != null)
+                if (roleViewModels.Items != null)
+                    Assert.Single(roleViewModels.Items);
         }
 
         [Fact]
@@ -145,9 +145,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
 
-            var roleVm = okResult.Value as RoleViewModel;
+            var roleViewModel = okResult.Value as RoleViewModel;
 
-            Assert.Equal("test1", roleVm != null ? roleVm.RoleName : null);
+            Assert.Equal("test1", roleViewModel != null ? roleViewModel.RoleName : null);
         }
 
         [Fact]
