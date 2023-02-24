@@ -1,20 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DaisyForum.BackendServer.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Authorize("Bearer")]
-    public class RolesController : ControllerBase
+    public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         public RolesController(RoleManager<IdentityRole> roleManager)
@@ -22,16 +14,9 @@ namespace DaisyForum.BackendServer.Controllers
             _roleManager = roleManager;
         }
 
-        // URL: POST: https://localhost:5000/api/roles
         [HttpPost]
-        public async Task<IActionResult> CreateRole(RoleViewModel request)
+        public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                // code: 400
-                return BadRequest(ModelState);
-            }
-
             var role = new IdentityRole()
             {
                 Id = request.RoleId != null ? request.RoleId : Guid.NewGuid().ToString(),
@@ -42,12 +27,11 @@ namespace DaisyForum.BackendServer.Controllers
             var result = await _roleManager.CreateAsync(role);
             if (result.Succeeded)
                 // code: 201
-                return CreatedAtAction(nameof(GetRole), new { id = request.RoleId }, request);
+                return CreatedAtAction(nameof(GetRoleById), new { id = request.RoleId }, request);
             else
                 return BadRequest(result.Errors);
         }
 
-        // URL: GET: https://localhost:5000/api/roles
         [HttpGet]
         public async Task<IActionResult> GetRoles()
         {
@@ -61,9 +45,8 @@ namespace DaisyForum.BackendServer.Controllers
             return Ok(roleViewModel);
         }
 
-        // URL: GET: https://localhost:5000/api/roles?keyword=value&page=1&pageSize=10
         [HttpGet("filter")]
-        public async Task<IActionResult> GetRoles(string? keyword, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetRolesPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _roleManager.Roles;
 
@@ -89,9 +72,8 @@ namespace DaisyForum.BackendServer.Controllers
             return Ok(pagination);
         }
 
-        //URL: GET: https://localhost:5000/api/roles/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetRole(string id)
+        public async Task<IActionResult> GetRoleById(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null)
@@ -106,17 +88,10 @@ namespace DaisyForum.BackendServer.Controllers
             return Ok(RoleViewModel);
         }
 
-        // URL: PUT: https://localhost:5000/api/roles/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleViewModel roleViewModel)
+        public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                // code: 400
-                return BadRequest(ModelState);
-            }
-
-            if (id != roleViewModel.RoleId)
+            if (id != request.RoleId)
                 // code: 400
                 return BadRequest();
 
@@ -125,8 +100,8 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 404
                 return NotFound();
 
-            role.Name = roleViewModel.RoleName;
-            role.NormalizedName = roleViewModel.RoleName != null ? roleViewModel.RoleName.ToUpper() : null;
+            role.Name = request.RoleName;
+            role.NormalizedName = request.RoleName != null ? request.RoleName.ToUpper() : null;
             var result = await _roleManager.UpdateAsync(role);
 
             if (result.Succeeded)
@@ -136,7 +111,6 @@ namespace DaisyForum.BackendServer.Controllers
             return BadRequest(result.Errors);
         }
 
-        // URL: DELETE: https://localhost:5000/api/roles/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole(string id)
         {

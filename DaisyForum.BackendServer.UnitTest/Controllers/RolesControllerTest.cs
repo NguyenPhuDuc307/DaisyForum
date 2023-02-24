@@ -39,7 +39,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Success);
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.CreateRole(new RoleViewModel()
+            var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 RoleId = "test",
                 RoleName = "test"
@@ -56,7 +56,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.CreateRole(new RoleViewModel()
+            var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 RoleId = "test",
                 RoleName = "test"
@@ -97,7 +97,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                                      .BuildMock());
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.GetRoles(null, 1, 2);
+            var result = await rolesController.GetRolesPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
             var roleVms = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
             Assert.Equal(4, (roleVms != null ? roleVms.TotalRecords : 0));
@@ -112,7 +112,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                                      .BuildMock());
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.GetRoles("test3", 1, 2);
+            var result = await rolesController.GetRolesPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
             var roleVms = okResult != null ? okResult.Value as Pagination<RoleViewModel> : null;
             Assert.Equal(1, (roleVms != null ? roleVms.TotalRecords : 0));
@@ -128,7 +128,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
 
             var rolesController = new RolesController(_mockRoleManager.Object);
 
-            await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetRoles(null, 1, 1));
+            await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetRolesPaging(null, 1, 1));
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                     Name = "test1"
                 });
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.GetRole("test1");
+            var result = await rolesController.GetRoleById("test1");
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
 
@@ -157,7 +157,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
 
             var rolesController = new RolesController(_mockRoleManager.Object);
 
-            await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetRole("test1"));
+            await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetRoleById("test1"));
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             _mockRoleManager.Setup(x => x.UpdateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Success);
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.UpdateRole("test", new RoleViewModel()
+            var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 RoleId = "test",
                 RoleName = "test"
@@ -197,7 +197,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.UpdateRole("test", new RoleViewModel()
+            var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 RoleId = "test",
                 RoleName = "test"
