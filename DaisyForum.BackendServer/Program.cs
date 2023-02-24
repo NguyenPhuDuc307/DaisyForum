@@ -2,7 +2,7 @@ using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.IdentityServer;
 using DaisyForum.BackendServer.Services;
-using DaisyForum.ViewModels.Systems;
+using DaisyForum.ViewModels.Systems.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
@@ -60,7 +60,7 @@ builder.Services.AddControllersWithViews();
 // Add validator to the service collection
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<RoleViewModelValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RoleCreateRequestValidator>();
 
 builder.Services.AddAuthentication()
 .AddLocalApi("Bearer", option =>
@@ -99,8 +99,6 @@ builder.Services.AddTransient<DbInitializer>();
 
 builder.Services.AddTransient<IEmailSender, EmailSenderService>();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-// builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DaisyForum API", Version = "v1" });
