@@ -19,3 +19,4 @@ Website tin tức, diễn đàn DaisyForum
 7. Config Identity Server
 8. Config Identity Server for Swagger
 9. API - UserController
+10. Test API - RoleController
