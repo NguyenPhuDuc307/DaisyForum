@@ -18,3 +18,4 @@ Website tin tức, diễn đàn DaisyForum
 6. Validate with Fluent Validation
 7. Config Identity Server
 8. Config Identity Server for Swagger
+9. API - UserController
