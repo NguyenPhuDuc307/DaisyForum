@@ -2,13 +2,13 @@
 
 Website tin tức, diễn đàn DaisyForum
 
-# Công nghệ sử dụng
+## Công nghệ sử dụng
 
 1. Backend: .NET CORE 7, Identity 4
 2. Fontend: AngularJS 8
 3. CSDL: Microsoft SQL Server 2019
 
-# Tiến độ thực hiện
+## Tiến độ thực hiện
 
 1. Create entities and configurations
 2. Migration add Seed data
