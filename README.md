@@ -21,3 +21,4 @@ Website tin tức, diễn đàn DaisyForum
 9. API - UserController
 10. Test API - RoleController
 11. API - FunctionController
+12. Test API - FunctionController
