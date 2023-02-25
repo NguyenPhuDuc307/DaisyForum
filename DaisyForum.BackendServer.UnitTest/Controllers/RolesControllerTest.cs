@@ -41,8 +41,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.PostRole(new RoleCreateRequest()
             {
-                RoleId = "test",
-                RoleName = "test"
+                Id = "test",
+                Name = "test"
             });
 
             Assert.NotNull(result);
@@ -58,8 +58,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.PostRole(new RoleCreateRequest()
             {
-                RoleId = "test",
-                RoleName = "test"
+                Id = "test",
+                Name = "test"
             });
 
             Assert.NotNull(result);
@@ -147,7 +147,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
 
             var roleViewModel = okResult.Value as RoleViewModel;
 
-            Assert.Equal("test1", roleViewModel != null ? roleViewModel.RoleName : null);
+            Assert.Equal("test1", roleViewModel != null ? roleViewModel.Name : null);
         }
 
         [Fact]
@@ -175,8 +175,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
-                RoleId = "test",
-                RoleName = "test"
+                Id = "test",
+                Name = "test"
             });
 
             Assert.NotNull(result);
@@ -199,8 +199,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
-                RoleId = "test",
-                RoleName = "test"
+                Id = "test",
+                Name = "test"
             });
 
             Assert.NotNull(result);

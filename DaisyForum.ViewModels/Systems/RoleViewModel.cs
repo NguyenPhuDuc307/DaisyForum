@@ -2,7 +2,7 @@ namespace DaisyForum.ViewModels.Systems
 {
     public class RoleViewModel
     {
-        public string? RoleId { get; set; }
-        public string? RoleName { get; set; }
+        public string? Id { get; set; }
+        public string? Name { get; set; }
     }
 }
