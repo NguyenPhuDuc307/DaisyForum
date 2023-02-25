@@ -51,7 +51,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             var userViewModels = await users.Select(u => new UserViewModel()
             {
-                UserId = u.Id,
+                Id = u.Id,
                 UserName = u.UserName,
                 Dob = u.Dob,
                 Email = u.Email,
@@ -77,7 +77,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             var item = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new UserViewModel()
             {
-                UserId = x.Id,
+                Id = x.Id,
                 UserName = x.UserName,
                 Dob = x.Dob,
                 Email = x.Email,
@@ -106,7 +106,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             var userViewModel = new UserViewModel()
             {
-                UserId = user.Id,
+                Id = user.Id,
                 UserName = user.UserName,
                 Dob = user.Dob,
                 Email = user.Email,
@@ -126,7 +126,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             var userViewModel = new UserViewModel()
             {
-                UserId = user.Id,
+                Id = user.Id,
                 UserName = user.UserName,
                 Dob = user.Dob,
                 Email = user.Email,
@@ -172,7 +172,7 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 var userViewModel = new UserViewModel()
                 {
-                    UserId = user.Id,
+                    Id = user.Id,
                     UserName = user.UserName,
                     Dob = user.Dob,
                     Email = user.Email,

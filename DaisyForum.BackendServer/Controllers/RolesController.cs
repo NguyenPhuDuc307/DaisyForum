@@ -19,15 +19,15 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var role = new IdentityRole()
             {
-                Id = request.RoleId != null ? request.RoleId : Guid.NewGuid().ToString(),
-                Name = request.RoleName,
-                NormalizedName = request.RoleName != null ? request.RoleName.ToUpper() : string.Empty
+                Id = request.Id != null ? request.Id : Guid.NewGuid().ToString(),
+                Name = request.Name,
+                NormalizedName = request.Name != null ? request.Name.ToUpper() : string.Empty
             };
 
             var result = await _roleManager.CreateAsync(role);
             if (result.Succeeded)
                 // code: 201
-                return CreatedAtAction(nameof(GetRoleById), new { id = request.RoleId }, request);
+                return CreatedAtAction(nameof(GetRoleById), new { id = request.Id }, request);
             else
                 return BadRequest(result.Errors);
         }
@@ -39,8 +39,8 @@ namespace DaisyForum.BackendServer.Controllers
 
             var roleViewModel = roles.Select(r => new RoleViewModel()
             {
-                RoleId = r.Id,
-                RoleName = r.Name
+                Id = r.Id,
+                Name = r.Name
             });
             return Ok(roleViewModel);
         }
@@ -57,8 +57,8 @@ namespace DaisyForum.BackendServer.Controllers
 
             var item = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new RoleViewModel()
             {
-                RoleId = x.Id,
-                RoleName = x.Name
+                Id = x.Id,
+                Name = x.Name
             }).ToListAsync();
 
             var totalRecords = await query.CountAsync();
@@ -81,8 +81,8 @@ namespace DaisyForum.BackendServer.Controllers
                 return NotFound();
             var RoleViewModel = new RoleViewModel()
             {
-                RoleId = role.Id,
-                RoleName = role.Name
+                Id = role.Id,
+                Name = role.Name
             };
             // code: 200
             return Ok(RoleViewModel);
@@ -91,7 +91,7 @@ namespace DaisyForum.BackendServer.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest request)
         {
-            if (id != request.RoleId)
+            if (id != request.Id)
                 // code: 400
                 return BadRequest();
 
@@ -100,8 +100,8 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 404
                 return NotFound();
 
-            role.Name = request.RoleName;
-            role.NormalizedName = request.RoleName != null ? request.RoleName.ToUpper() : null;
+            role.Name = request.Name;
+            role.NormalizedName = request.Name != null ? request.Name.ToUpper() : null;
             var result = await _roleManager.UpdateAsync(role);
 
             if (result.Succeeded)
@@ -124,8 +124,8 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 var RoleViewModel = new RoleViewModel()
                 {
-                    RoleId = role.Id,
-                    RoleName = role.Name
+                    Id = role.Id,
+                    Name = role.Name
                 };
                 // code: 200
                 return Ok(RoleViewModel);
