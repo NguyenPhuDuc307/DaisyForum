@@ -23,6 +23,10 @@ namespace DaisyForum.BackendServer.Controllers
         [HttpPost]
         public async Task<IActionResult> PostFunction([FromBody] FunctionCreateRequest request)
         {
+            var dbFunction = await _context.Functions.FindAsync(request.Id);
+            if (dbFunction != null)
+                return BadRequest($"Function with id {request.Id} is existed.");
+
             var function = new Function()
             {
                 Id = request.Id,
@@ -62,15 +66,16 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> GetFunctionsPaging(string filter, int page, int pageSize)
+        public async Task<IActionResult> GetFunctionsPaging(string? keyword, int page, int pageSize)
         {
             var query = _context.Functions.AsQueryable();
-            if (!string.IsNullOrEmpty(filter))
+            if (!string.IsNullOrEmpty(keyword))
             {
-                query = query.Where(x => x.Id != null ? x.Id.Contains(filter) : true
-                || x.Name.Contains(filter)
-                || x.Url.Contains(filter));
+                query = query.Where(x => x.Id != null ? x.Id.Contains(keyword) : true
+                || x.Name.Contains(keyword)
+                || x.Url.Contains(keyword));
             }
+            var i = await query.ToListAsync();
             var totalRecords = await query.CountAsync();
             var items = await query.Skip((page - 1 * pageSize))
                 .Take(pageSize)
