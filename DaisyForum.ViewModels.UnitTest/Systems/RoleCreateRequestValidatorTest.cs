@@ -16,8 +16,8 @@ namespace DaisyForum.ViewModels.UnitTest.Systems
         {
             request = new RoleCreateRequest()
             {
-                RoleId = "admin",
-                RoleName = "admin"
+                Id = "admin",
+                Name = "admin"
             };
             validator = new RoleCreateRequestValidator();
         }
@@ -32,7 +32,7 @@ namespace DaisyForum.ViewModels.UnitTest.Systems
         [Fact]
         public void Should_Error_Result_When_Request_Miss_RoleId()
         {
-            request.RoleId = string.Empty;
+            request.Id = string.Empty;
             var result = validator.Validate(request);
             Assert.False(result.IsValid);
         }
@@ -40,7 +40,7 @@ namespace DaisyForum.ViewModels.UnitTest.Systems
         [Fact]
         public void Should_Error_Result_When_Request_Miss_RoleName()
         {
-            request.RoleName = string.Empty;
+            request.Name = string.Empty;
             var result = validator.Validate(request);
             Assert.False(result.IsValid);
         }
@@ -48,8 +48,8 @@ namespace DaisyForum.ViewModels.UnitTest.Systems
         [Fact]
         public void Should_Error_Result_When_Request_Role_Empty()
         {
-            request.RoleId = string.Empty;
-            request.RoleName = string.Empty;
+            request.Id = string.Empty;
+            request.Name = string.Empty;
             var result = validator.Validate(request);
             Assert.False(result.IsValid);
         }
