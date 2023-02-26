@@ -26,8 +26,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         [Fact]
         public async Task PostFunction_ValidInput_Success()
         {
-            var usersController = new FunctionsController(_context);
-            var result = await usersController.PostFunction(new FunctionCreateRequest()
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.PostFunction(new FunctionCreateRequest()
             {
                 Id = "PostFunction_ValidInput_Success",
                 ParentId = null,
@@ -40,16 +40,50 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         }
 
         [Fact]
-        public async Task PostUser_ValidInput_Failed()
+        public async Task PostCommandToFunction_ValidInput_Success()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "GetCommandsInFunction_ReturnSuccess",
+                    ParentId = null,
+                    Name = "GetCommandsInFunction_ReturnSuccess",
+                    SortOrder = 3,
+                    Url ="/GetCommandsInFunction_ReturnSuccess"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                }
+            });
+
+            await _context.SaveChangesAsync();
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.PostCommandToFunction("GetCommandsInFunction_ReturnSuccess", new AddCommandToFunctionRequest()
+            {
+                CommandId = "CREATE",
+                FunctionId = "GetCommandsInFunction_ReturnSuccess",
+            });
+
+            Assert.IsType<CreatedAtActionResult>(result);
+        }
+
+        [Fact]
+        public async Task PostFunction_ValidInput_Failed()
         {
             _context.Functions.AddRange(new List<Function>()
             {
                 new Function(){
-                    Id = "PostUser_ValidInput_Failed",
+                    Id = "PostFunction_ValidInput_Failed",
                     ParentId = null,
-                    Name = "PostUser_ValidInput_Failed",
+                    Name = "PostFunction_ValidInput_Failed",
                     SortOrder =1,
-                    Url ="/PostUser_ValidInput_Failed"
+                    Url ="/PostFunction_ValidInput_Failed"
                 }
             });
             await _context.SaveChangesAsync();
@@ -57,11 +91,54 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
 
             var result = await functionsController.PostFunction(new FunctionCreateRequest()
             {
-                Id = "PostUser_ValidInput_Failed",
+                Id = "PostFunction_ValidInput_Failed",
                 ParentId = null,
-                Name = "PostUser_ValidInput_Failed",
+                Name = "PostFunction_ValidInput_Failed",
                 SortOrder = 5,
-                Url = "/PostUser_ValidInput_Failed"
+                Url = "/PostFunction_ValidInput_Failed"
+            });
+
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task PostCommandToFunction_ValidInput_Failed()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "GetCommandsInFunction_ReturnSuccess",
+                    ParentId = null,
+                    Name = "GetCommandsInFunction_ReturnSuccess",
+                    SortOrder = 3,
+                    Url ="/GetCommandsInFunction_ReturnSuccess"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                }
+            });
+
+            _context.CommandInFunctions.AddRange(new List<CommandInFunction>()
+            {
+                new CommandInFunction(){
+                    CommandId = "CREATE",
+                    FunctionId = "GetCommandsInFunction_ReturnSuccess"
+                }
+            });
+
+            await _context.SaveChangesAsync();
+            var functionsController = new FunctionsController(_context);
+
+            var result = await functionsController.PostCommandToFunction("GetCommandsInFunction_ReturnSuccess", new AddCommandToFunctionRequest()
+            {
+                CommandId = "CREATE",
+                FunctionId = "GetCommandsInFunction_ReturnSuccess",
             });
 
             Assert.IsType<BadRequestObjectResult>(result);
@@ -107,9 +184,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var functionsController = new FunctionsController(_context);
             var result = await functionsController.GetFunctionsPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
-            var userViewModels = okResult != null ? okResult.Value as Pagination<FunctionViewModel> : null;
-            Assert.Equal(4, userViewModels != null ? userViewModels.TotalRecords : 0);
-            Assert.Equal(2, userViewModels != null ? (userViewModels.Items != null ? userViewModels.Items.Count() : 0) : 0);
+            var functionViewModels = okResult != null ? okResult.Value as Pagination<FunctionViewModel> : null;
+            Assert.Equal(4, functionViewModels != null ? functionViewModels.TotalRecords : 0);
+            Assert.Equal(2, functionViewModels != null ? (functionViewModels.Items != null ? functionViewModels.Items.Count() : 0) : 0);
         }
 
         [Fact]
@@ -129,33 +206,136 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var functionsController = new FunctionsController(_context);
             var result = await functionsController.GetFunctions();
             var okResult = result as OkObjectResult;
-            var UserViewModels = okResult != null ? okResult.Value as IEnumerable<FunctionViewModel> : null;
-            Assert.True(UserViewModels != null ? UserViewModels.Count() > 0 : false);
+            var functionViewModels = okResult != null ? okResult.Value as IEnumerable<FunctionViewModel> : null;
+            Assert.True(functionViewModels != null ? functionViewModels.Count() > 0 : false);
         }
 
         [Fact]
-        public async Task GetUsersPaging_HasFilter_ReturnSuccess()
+        public async Task GetFunctionsPaging_HasFilter_ReturnSuccess()
         {
             _context.Functions.AddRange(new List<Function>()
             {
                 new Function(){
-                    Id = "GetUsersPaging_HasFilter_ReturnSuccess",
+                    Id = "GetFunctionsPaging_HasFilter_ReturnSuccess",
                     ParentId = null,
-                    Name = "GetUsersPaging_HasFilter_ReturnSuccess",
+                    Name = "GetFunctionsPaging_HasFilter_ReturnSuccess",
                     SortOrder = 3,
-                    Url ="/GetUsersPaging_HasFilter_ReturnSuccess"
+                    Url ="/GetFunctionsPaging_HasFilter_ReturnSuccess"
                 }
             });
             await _context.SaveChangesAsync();
 
             var functionsController = new FunctionsController(_context);
-            var result = await functionsController.GetFunctionsPaging("GetUsersPaging_HasFilter_ReturnSuccess", 1, 2);
+            var result = await functionsController.GetFunctionsPaging("GetFunctionsPaging_HasFilter_ReturnSuccess", 1, 2);
             var okResult = result as OkObjectResult;
-            var userViewModels = okResult != null ? okResult.Value as Pagination<FunctionViewModel> : null;
-            Assert.Equal(1, userViewModels != null ? userViewModels.TotalRecords : 0);
-            if (userViewModels != null)
-                if (userViewModels.Items != null)
-                    Assert.Single(userViewModels.Items);
+            var functionViewModels = okResult != null ? okResult.Value as Pagination<FunctionViewModel> : null;
+            Assert.Equal(1, functionViewModels != null ? functionViewModels.TotalRecords : 0);
+            if (functionViewModels != null)
+                if (functionViewModels.Items != null)
+                    Assert.Single(functionViewModels.Items);
+        }
+
+        [Fact]
+        public async Task GetCommandsInFunction_ReturnSuccess()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "GetCommandsInFunction_ReturnSuccess",
+                    ParentId = null,
+                    Name = "GetCommandsInFunction_ReturnSuccess",
+                    SortOrder = 3,
+                    Url ="/GetCommandsInFunction_ReturnSuccess"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                },
+                new Command(){
+                    Id = "UPDATE",
+                    Name = "Cập nhật"
+                },
+                new Command(){
+                    Id = "DELETE",
+                    Name = "Xoá"
+                }
+            });
+
+            _context.CommandInFunctions.AddRange(new List<CommandInFunction>()
+            {
+                new CommandInFunction(){
+                    CommandId = "CREATE",
+                    FunctionId = "GetCommandsInFunction_ReturnSuccess"
+                },
+                new CommandInFunction(){
+                    CommandId = "UPDATE",
+                    FunctionId = "GetCommandsInFunction_ReturnSuccess"
+                },
+                new CommandInFunction(){
+                    CommandId = "DELETE",
+                    FunctionId = "GetCommandsInFunction_ReturnSuccess"
+                }
+            });
+            await _context.SaveChangesAsync();
+
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.GetCommandsInFunction("GetCommandsInFunction_ReturnSuccess");
+
+            var okResult = result as OkObjectResult;
+            var commandViewModels = okResult != null ? okResult.Value as IEnumerable<CommandViewModel> : null;
+            Assert.Equal(3, commandViewModels != null ? commandViewModels.Count() : 0);
+        }
+
+        [Fact]
+        public async Task GetCommandsNotInFunction_ReturnSuccess()
+        {
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "GetCommandsNotInFunction_ReturnSuccess",
+                    ParentId = null,
+                    Name = "GetCommandsNotInFunction_ReturnSuccess",
+                    SortOrder = 3,
+                    Url ="/GetCommandsNotInFunction_ReturnSuccess"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                },
+                new Command(){
+                    Id = "UPDATE",
+                    Name = "Cập nhật"
+                },
+                new Command(){
+                    Id = "DELETE",
+                    Name = "Xoá"
+                }
+            });
+
+            _context.CommandInFunctions.AddRange(new List<CommandInFunction>()
+            {
+                new CommandInFunction(){
+                    CommandId = "CREATE",
+                    FunctionId = "GetCommandsNotInFunction_ReturnSuccess"
+                }
+            });
+            await _context.SaveChangesAsync();
+
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.GetCommandsNotInFunction("GetCommandsNotInFunction_ReturnSuccess");
+
+            var okResult = result as OkObjectResult;
+            var commandViewModels = okResult != null ? okResult.Value as IEnumerable<CommandViewModel> : null;
+            Assert.Equal(2, commandViewModels != null ? commandViewModels.Count() : 0);
         }
 
         [Fact]
@@ -177,75 +357,141 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
 
-            var userViewModel = okResult.Value as FunctionViewModel;
-            if (userViewModel != null)
-                Assert.Equal("GetById_HasData_ReturnSuccess", userViewModel.Id);
+            var functionViewModel = okResult.Value as FunctionViewModel;
+            if (functionViewModel != null)
+                Assert.Equal("GetById_HasData_ReturnSuccess", functionViewModel.Id);
         }
 
         [Fact]
-        public async Task PutUser_ValidInput_Success()
+        public async Task PutFunction_ValidInput_Success()
         {
             _context.Functions.AddRange(new List<Function>()
             {
                 new Function(){
-                    Id = "PutUser_ValidInput_Success",
+                    Id = "PutFunction_ValidInput_Success",
                     ParentId = null,
-                    Name = "PutUser_ValidInput_Success",
+                    Name = "PutFunction_ValidInput_Success",
                     SortOrder =1,
-                    Url ="/PutUser_ValidInput_Success"
+                    Url ="/PutFunction_ValidInput_Success"
                 }
             });
             await _context.SaveChangesAsync();
             var functionsController = new FunctionsController(_context);
-            var result = await functionsController.PutFunction("PutUser_ValidInput_Success", new FunctionCreateRequest()
+            var result = await functionsController.PutFunction("PutFunction_ValidInput_Success", new FunctionCreateRequest()
             {
                 ParentId = null,
-                Name = "PutUser_ValidInput_Success updated",
+                Name = "PutFunction_ValidInput_Success updated",
                 SortOrder = 6,
-                Url = "/PutUser_ValidInput_Success"
+                Url = "/PutFunction_ValidInput_Success"
             });
             Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task PutUser_ValidInput_Failed()
+        public async Task PutFunction_ValidInput_Failed()
         {
             var functionsController = new FunctionsController(_context);
 
-            var result = await functionsController.PutFunction("PutUser_ValidInput_Failed", new FunctionCreateRequest()
+            var result = await functionsController.PutFunction("PutFunction_ValidInput_Failed", new FunctionCreateRequest()
             {
                 ParentId = null,
-                Name = "PutUser_ValidInput_Failed update",
+                Name = "PutFunction_ValidInput_Failed update",
                 SortOrder = 6,
-                Url = "/PutUser_ValidInput_Failed"
+                Url = "/PutFunction_ValidInput_Failed"
             });
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task DeleteUser_ValidInput_Success()
+        public async Task DeleteFunction_ValidInput_Success()
         {
             _context.Functions.AddRange(new List<Function>()
             {
                 new Function(){
-                    Id = "DeleteUser_ValidInput_Success",
+                    Id = "DeleteFunction_ValidInput_Success",
                     ParentId = null,
-                    Name = "DeleteUser_ValidInput_Success",
+                    Name = "DeleteFunction_ValidInput_Success",
                     SortOrder =1,
-                    Url ="/DeleteUser_ValidInput_Success"
+                    Url ="/DeleteFunction_ValidInput_Success"
                 }
             });
             await _context.SaveChangesAsync();
             var functionsController = new FunctionsController(_context);
-            var result = await functionsController.DeleteFunction("DeleteUser_ValidInput_Success");
+            var result = await functionsController.DeleteFunction("DeleteFunction_ValidInput_Success");
             Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteUser_ValidInput_Failed()
+        public async Task DeleteCommandInFunction_ValidInput_Success()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "DeleteCommandToFunction_ValidInput_Success",
+                    ParentId = null,
+                    Name = "DeleteCommandToFunction_ValidInput_Success",
+                    SortOrder = 3,
+                    Url ="/DeleteCommandToFunction_ValidInput_Success"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                }
+            });
+
+            _context.CommandInFunctions.AddRange(new List<CommandInFunction>()
+            {
+                new CommandInFunction(){
+                    CommandId = "CREATE",
+                    FunctionId = "DeleteCommandToFunction_ValidInput_Success"
+                }
+            });
+
+            await _context.SaveChangesAsync();
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.DeleteCommandInFunction("DeleteCommandToFunction_ValidInput_Success", "CREATE");
+            Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteFunction_ValidInput_Failed()
         {
             var functionsController = new FunctionsController(_context);
-            var result = await functionsController.DeleteFunction("DeleteUser_ValidInput_Failed");
+            var result = await functionsController.DeleteFunction("DeleteFunction_ValidInput_Failed");
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteCommandInFunction_ValidInput_Failed()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Functions.AddRange(new List<Function>()
+            {
+                new Function(){
+                    Id = "DeleteCommandToFunction_ValidInput_Success",
+                    ParentId = null,
+                    Name = "DeleteCommandToFunction_ValidInput_Success",
+                    SortOrder = 3,
+                    Url ="/DeleteCommandToFunction_ValidInput_Success"
+                }
+            });
+
+            _context.Commands.AddRange(new List<Command>()
+            {
+                new Command(){
+                    Id = "CREATE",
+                    Name = "Thêm"
+                }
+            });
+
+            await _context.SaveChangesAsync();
+            var functionsController = new FunctionsController(_context);
+            var result = await functionsController.DeleteCommandInFunction("DeleteCommandToFunction_ValidInput_Success", "CREATE");
             Assert.IsType<NotFoundResult>(result);
         }
     }

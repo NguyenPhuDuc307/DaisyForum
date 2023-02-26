@@ -235,23 +235,18 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{functionId}/commands/{commandId}")]
-        public async Task<IActionResult> PostCommandToFunction(string functionId, string commandId)
+        public async Task<IActionResult> DeleteCommandInFunction(string functionId, string commandId)
         {
-            var commandInFunction = await _context.CommandInFunctions.FindAsync(functionId, commandId);
+            var commandInFunction = await _context.CommandInFunctions.FindAsync(commandId, functionId);
             if (commandInFunction == null)
-                return BadRequest($"This command is not existed in function");
+                return NotFound();
 
-            var entity = new CommandInFunction()
-            {
-                CommandId = commandId,
-                FunctionId = functionId
-            };
-            _context.CommandInFunctions.Remove(entity);
+            _context.CommandInFunctions.Remove(commandInFunction);
             var result = await _context.SaveChangesAsync();
 
             if (result > 0)
             {
-                return Ok();
+                return Ok(commandInFunction);
             }
             else
             {
