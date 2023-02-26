@@ -52,7 +52,9 @@ namespace DaisyForum.BackendServer.Controllers
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                query = query.Where(x => x.Id.Contains(keyword) || string.IsNullOrEmpty(x.Name) ? true : x.Name.Contains(keyword));
+                query = query.Where(x =>
+                    (x.Id != null && x.Id.Contains(keyword))
+                    || (x.Name != null && x.Name.Contains(keyword)));
             }
 
             var item = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new RoleViewModel()
