@@ -70,9 +70,10 @@ namespace DaisyForum.BackendServer.Controllers
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                query = query.Where(x => string.IsNullOrEmpty(x.UserName) ? true : x.UserName.Contains(keyword)
-                || string.IsNullOrEmpty(x.Email) ? true : x.Email.Contains(keyword)
-                || string.IsNullOrEmpty(x.PhoneNumber) ? true : x.PhoneNumber.Contains(keyword));
+                query = query.Where(x =>
+                    (x.UserName != null && x.UserName.Contains(keyword))
+                    || (x.Email != null && x.Email.Contains(keyword))
+                    || (x.PhoneNumber != null && x.PhoneNumber.Contains(keyword)));
             }
 
             var item = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(x => new UserViewModel()
