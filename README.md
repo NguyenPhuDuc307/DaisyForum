@@ -24,3 +24,4 @@ Website tin tức, diễn đàn DaisyForum
 12. Test API - FunctionController
 13. API - CommandController - CommandInFunction
 14. Test API - CommandController - CommandInFunction
+15. API - PermissionController
