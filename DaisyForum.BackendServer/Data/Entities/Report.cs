@@ -11,7 +11,7 @@ namespace DaisyForum.BackendServer.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int? KnowledgeBaseId { get; set; }
+        public int KnowledgeBaseId { get; set; }
 
         [MaxLength(500)]
         public string? Content { get; set; }
