@@ -98,6 +98,7 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddTransient<DbInitializer>();
 builder.Services.AddTransient<IEmailSender, EmailSenderService>();
 builder.Services.AddTransient<ISequenceService, SequenceService>();
+builder.Services.AddTransient<IStorageService, FileStorageService>();
 
 builder.Services.AddSwaggerGen(c =>
 {

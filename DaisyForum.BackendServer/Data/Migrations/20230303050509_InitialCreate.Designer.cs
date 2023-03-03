@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DaisyForum.BackendServer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230125123432_InitialCreate")]
+    [Migration("20230303050509_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace DaisyForum.BackendServer.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.2")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -77,9 +77,6 @@ namespace DaisyForum.BackendServer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
@@ -101,16 +98,11 @@ namespace DaisyForum.BackendServer.Data.Migrations
                         .HasMaxLength(4)
                         .HasColumnType("varchar(4)");
 
-                    b.Property<int?>("KnowledgeBaseId")
+                    b.Property<int>("KnowledgeBaseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
 
                     b.HasKey("Id");
 
@@ -206,7 +198,7 @@ namespace DaisyForum.BackendServer.Data.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OwnwerUserId")
+                    b.Property<string>("OwnerUserId")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
@@ -246,10 +238,7 @@ namespace DaisyForum.BackendServer.Data.Migrations
             modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.KnowledgeBase", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -374,9 +363,6 @@ namespace DaisyForum.BackendServer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -387,17 +373,13 @@ namespace DaisyForum.BackendServer.Data.Migrations
                     b.Property<bool>("IsProcessed")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("KnowledgeBaseId")
+                    b.Property<int>("KnowledgeBaseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ReportUserId")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Type")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 

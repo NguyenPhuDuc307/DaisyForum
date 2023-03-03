@@ -27,3 +27,4 @@ Website tin tức, diễn đàn DaisyForum
 15. API - PermissionController
 16. API - KnowledgeBasesController
 17. API - Comment, Vote, Report, Category
+18. Update Migrations and Api Attachment
