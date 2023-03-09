@@ -1,3 +1,5 @@
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.ViewModels;
@@ -21,6 +23,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
         public async Task<IActionResult> PostUser(UserCreateRequest request)
         {
             var user = new User()
@@ -50,6 +53,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsers()
         {
             var users = _userManager.Users;
@@ -69,6 +73,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsersPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _userManager.Users;
@@ -104,6 +109,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -144,6 +150,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UserCreateRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -165,7 +172,23 @@ namespace DaisyForum.BackendServer.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPut("{id}/change-password")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
+        public async Task<IActionResult> PutUserPassword(string id, [FromBody]UserPasswordChangeRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors);
+        }
+
         [HttpDelete("{id}")]
+                [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);

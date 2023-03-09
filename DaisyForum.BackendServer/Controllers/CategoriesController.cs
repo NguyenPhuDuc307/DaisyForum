@@ -4,6 +4,8 @@ using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 
 namespace DaisyForum.BackendServer.Controllers
 {
@@ -17,6 +19,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.CREATE)]
         public async Task<IActionResult> PostCategory([FromBody] CategoryCreateRequest request)
         {
             var category = new Category()
@@ -41,6 +44,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await _context.Categories.ToListAsync();
@@ -51,6 +55,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetCategoriesPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _context.Categories.AsQueryable();
@@ -73,6 +78,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -85,6 +91,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.UPDATE)]
         public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryCreateRequest request)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -113,6 +120,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);

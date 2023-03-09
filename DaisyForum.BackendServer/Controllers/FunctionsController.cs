@@ -1,3 +1,5 @@
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.ViewModels;
@@ -17,6 +19,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.CREATE)]
         public async Task<IActionResult> PostFunction([FromBody] FunctionCreateRequest request)
         {
             var dbFunction = await _context.Functions.FindAsync(request.Id);
@@ -45,6 +48,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetFunctions()
         {
             var functions = _context.Functions;
@@ -62,6 +66,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetFunctionsPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _context.Functions.AsQueryable();
@@ -94,6 +99,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -112,6 +118,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.UPDATE)]
         public async Task<IActionResult> PutFunction(string id, [FromBody] FunctionCreateRequest request)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -134,6 +141,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteFunction(string id)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -158,6 +166,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{functionId}/commands")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandsInFunction(string functionId)
         {
             var query = from a in _context.Commands
@@ -184,6 +193,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{functionId}/commands/not-in-function")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandsNotInFunction(string functionId)
         {
             var query = from a in _context.Commands
@@ -210,6 +220,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost("{functionId}/commands")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.CREATE)]
         public async Task<IActionResult> PostCommandToFunction(string functionId, [FromBody] AddCommandToFunctionRequest request)
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(request.CommandId, request.FunctionId);
@@ -235,6 +246,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{functionId}/commands/{commandId}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.UPDATE)]
         public async Task<IActionResult> DeleteCommandInFunction(string functionId, string commandId)
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(commandId, functionId);

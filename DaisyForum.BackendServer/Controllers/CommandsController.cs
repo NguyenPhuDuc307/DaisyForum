@@ -17,6 +17,10 @@ namespace DaisyForum.BackendServer.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetCommands()
         {
+            if (User.Identity != null)
+            {
+                var user = User.Identity.Name;
+            }
             var commands = _context.Commands;
 
             var commandViewModels = await commands.Select(u => new CommandViewModel()
@@ -24,7 +28,6 @@ namespace DaisyForum.BackendServer.Controllers
                 Id = u.Id,
                 Name = u.Name,
             }).ToListAsync();
-
             return Ok(commandViewModels);
         }
     }
