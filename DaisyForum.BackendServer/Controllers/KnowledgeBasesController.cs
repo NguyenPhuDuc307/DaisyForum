@@ -1,4 +1,6 @@
 using System.Net.Http.Headers;
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Controllers;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
@@ -28,6 +30,7 @@ namespace DaisyForum.BackendServer.Controllers
         #region Knowledge Base
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.CREATE)]
         public async Task<IActionResult> PostKnowledgeBase([FromForm] KnowledgeBaseCreateRequest request)
         {
             var knowledgeBase = new KnowledgeBase()
@@ -135,6 +138,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.VIEW)]
         public async Task<IActionResult> GetKnowledgeBases()
         {
             var knowledgeBases = _context.KnowledgeBases;
@@ -152,6 +156,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.VIEW)]
         public async Task<IActionResult> GetKnowledgeBasesPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _context.KnowledgeBases.AsQueryable();
@@ -181,6 +186,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(int id)
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
@@ -193,6 +199,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.UPDATE)]
         public async Task<IActionResult> PutKnowledgeBase(int id, [FromBody] KnowledgeBaseCreateRequest request)
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
@@ -237,6 +244,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteKnowledgeBase(string id)
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
@@ -300,6 +308,7 @@ namespace DaisyForum.BackendServer.Controllers
         #region Comments
 
         [HttpGet("{knowledgeBaseId}/comments/filter")]
+        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommentsPaging(int knowledgeBaseId, string filter, int pageIndex, int pageSize)
         {
             var query = _context.Comments.Where(x => x.KnowledgeBaseId == knowledgeBaseId).AsQueryable();
@@ -330,6 +339,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{knowledgeBaseId}/comments/{commentId}")]
+        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommentDetail(int commentId)
         {
             var comment = await _context.Comments.FindAsync(commentId);
@@ -350,6 +360,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost("{knowledgeBaseId}/comments")]
+        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.CREATE)]
         public async Task<IActionResult> PostComment(int knowledgeBaseId, [FromBody] CommentCreateRequest request)
         {
             var comment = new Comment()
@@ -378,6 +389,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{knowledgeBaseId}/comments/{commentId}")]
+        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.UPDATE)]
         public async Task<IActionResult> PutComment(int commentId, [FromBody] CommentCreateRequest request)
         {
             var comment = await _context.Comments.FindAsync(commentId);
@@ -400,6 +412,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{knowledgeBaseId}/comments/{commentId}")]
+        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteComment(int knowledgeBaseId, int commentId)
         {
             var comment = await _context.Comments.FindAsync(commentId);
@@ -483,7 +496,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpDelete("{knowledgeBaseId}/votes/{userId}")]
-        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, string userId)
+        public async Task<IActionResult> DeleteVotes(int knowledgeBaseId, string userId)
         {
             var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
             if (vote == null)
