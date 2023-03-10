@@ -1,4 +1,6 @@
 using System.Data;
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.ViewModels.Systems;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +18,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandViews()
         {
             using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))

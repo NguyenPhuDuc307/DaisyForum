@@ -4,6 +4,9 @@ using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
+using DaisyForum.BackendServer.Helpers;
 
 namespace DaisyForum.BackendServer.Controllers
 {
@@ -17,6 +20,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.CREATE)]
         public async Task<IActionResult> PostCategory([FromBody] CategoryCreateRequest request)
         {
             var category = new Category()
@@ -36,11 +40,12 @@ namespace DaisyForum.BackendServer.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Create category failed"));
             }
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await _context.Categories.ToListAsync();
@@ -51,6 +56,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetCategoriesPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _context.Categories.AsQueryable();
@@ -73,11 +79,12 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             CategoryViewModel categoryViewModel = CreateCategoryViewModel(category);
 
@@ -85,15 +92,16 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.UPDATE)]
         public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryCreateRequest request)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             if (id == request.ParentId)
             {
-                return BadRequest("Category cannot be a child itself.");
+                return BadRequest(new ApiBadRequestResponse("Category cannot be a child itself."));
             }
 
             category.Name = request.Name;
@@ -109,15 +117,16 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Update category failed"));
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             _context.Categories.Remove(category);
             var result = await _context.SaveChangesAsync();
@@ -126,7 +135,7 @@ namespace DaisyForum.BackendServer.Controllers
                 CategoryViewModel categoryViewModel = CreateCategoryViewModel(category);
                 return Ok(categoryViewModel);
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Delete category failed"));
         }
 
         private static CategoryViewModel CreateCategoryViewModel(Category category)

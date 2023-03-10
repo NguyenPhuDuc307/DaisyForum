@@ -399,7 +399,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                 SortOrder = 6,
                 Url = "/PutFunction_ValidInput_Failed"
             });
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
@@ -463,7 +463,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         {
             var functionsController = new FunctionsController(_context);
             var result = await functionsController.DeleteFunction("DeleteFunction_ValidInput_Failed");
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
@@ -492,7 +492,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             await _context.SaveChangesAsync();
             var functionsController = new FunctionsController(_context);
             var result = await functionsController.DeleteCommandInFunction("DeleteCommandToFunction_ValidInput_Success", "CREATE");
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
     }
 }

@@ -1,5 +1,8 @@
+using DaisyForum.BackendServer.Authorization;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +22,8 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
             var role = new IdentityRole()
@@ -33,10 +38,11 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 201
                 return CreatedAtAction(nameof(GetRoleById), new { id = request.Id }, request);
             else
-                return BadRequest(result.Errors);
+                return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _roleManager.Roles.ToListAsync();
@@ -50,6 +56,7 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRolesPaging(string? keyword, int page = 1, int pageSize = 10)
         {
             var query = _roleManager.Roles;
@@ -79,12 +86,13 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRoleById(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null)
                 // code: 404
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
             var RoleViewModel = new RoleViewModel()
             {
                 Id = role.Id,
@@ -95,16 +103,17 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.UPDATE)]
         public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest request)
         {
             if (id != request.Id)
                 // code: 400
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Role id not match"));
 
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null)
                 // code: 404
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
             role.Name = request.Name;
             role.NormalizedName = request.Name != null ? request.Name.ToUpper() : null;
@@ -114,16 +123,17 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 204
                 return NoContent();
 
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> DeleteRole(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null)
                 // code: 404
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
             var result = await _roleManager.DeleteAsync(role);
             if (result.Succeeded)
@@ -136,10 +146,11 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 200
                 return Ok(RoleViewModel);
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpGet("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetPermissionByRoleId(string roleId)
         {
             var permissions = from p in _context.Permissions
@@ -157,6 +168,8 @@ namespace DaisyForum.BackendServer.Controllers
         }
 
         [HttpPut("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
         {
             //create new permission list from user changed
@@ -175,7 +188,7 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Save permission failed"));
         }
     }
 }

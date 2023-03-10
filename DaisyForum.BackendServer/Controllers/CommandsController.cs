@@ -14,7 +14,7 @@ namespace DaisyForum.BackendServer.Controllers
             _context = context;
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetCommands()
         {
             var commands = _context.Commands;
@@ -24,7 +24,6 @@ namespace DaisyForum.BackendServer.Controllers
                 Id = u.Id,
                 Name = u.Name,
             }).ToListAsync();
-
             return Ok(commandViewModels);
         }
     }
