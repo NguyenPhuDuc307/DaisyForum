@@ -1,26 +1,18 @@
 ﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Controllers/FunctionsController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Program.cs">
     <Files>
-      <File FileName="DaisyForum.BackendServer/Program.cs" />
-      <File FileName="DaisyForum.BackendServer.UnitTest/Controllers/UsersControllerTest.cs" />
-      <File FileName="DaisyForum.BackendServer/Controllers/UsersController.cs" />
-      <File FileName="DaisyForum.ViewModels/Systems/UserCreateRequest.cs" />
-      <File FileName="DaisyForum.BackendServer.UnitTest/Controllers/FunctionsControllerTest.cs" Line="213" Column="1" />
-      <File FileName="DaisyForum.BackendServer.UnitTest/InMemoryDbContextFactory.cs" />
-      <File FileName="DaisyForum.ViewModels.UnitTest/Systems/FunctionCreateRequestValidatorTest.cs" Line="38" Column="42" />
-      <File FileName="DaisyForum.BackendServer/Controllers/FunctionsController.cs" Line="204" Column="14" />
+      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="47" Column="1" />
+      <File FileName="DaisyForum.BackendServer/Program.cs" Line="138" Column="37" />
+      <File FileName="DaisyForum.BackendServer/Controllers/ReportsController.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DaisyForum" expanded="True">
             <Node name="DaisyForum.BackendServer" expanded="True">
-              <Node name="Controllers" expanded="True">
-                <Node name="FunctionsController.cs" selected="True" />
-              </Node>
+              <Node name="Controllers" expanded="True" />
+              <Node name="Program.cs" selected="True" />
             </Node>
             <Node name="DaisyForum.BackendServer.UnitTest" expanded="True">
               <Node name="Controllers" expanded="True" />
@@ -33,22 +25,15 @@
       </Pad>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
-          <Node name="DaisyForum" expanded="True">
-            <Node name="DaisyForum.BackendServer.UnitTest" expanded="True">
-              <Node name="DaisyForum.BackendServer.UnitTest.Controllers" expanded="True">
-                <Node name="CommandsControllerTest" expanded="True" />
-                <Node name="FunctionsControllerTest" expanded="True">
-                  <Node name="GetFunction_HasData_ReturnSuccess" selected="True" />
-                </Node>
-              </Node>
-            </Node>
-          </Node>
+          <Node name="DaisyForum" expanded="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
