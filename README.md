@@ -29,3 +29,4 @@ Website tin tức, diễn đàn DaisyForum
 17. API - Comment, Vote, Report, Category
 18. Update Migrations and Api Attachment
 19. Permission for Claim API
+20. REST Api and add package Serilog
