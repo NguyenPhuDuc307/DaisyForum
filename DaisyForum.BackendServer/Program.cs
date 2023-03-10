@@ -14,7 +14,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 //1. Setup entity framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
