@@ -1,5 +1,6 @@
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.IdentityServer;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels.Systems.Validators;
@@ -7,6 +8,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -32,8 +34,8 @@ builder.Services.AddIdentityServer(options =>
 .AddInMemoryApiScopes(Config.ApiScopes)
 .AddInMemoryClients(Config.Clients)
 .AddInMemoryIdentityResources(Config.Ids)
-.AddProfileService<IdentityProfileService>()
 .AddAspNetIdentity<User>()
+.AddProfileService<IdentityProfileService>()
 .AddDeveloperSigningCredential();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -54,6 +56,11 @@ Log.Logger = new LoggerConfiguration()
 .Enrich.FromLogContext()
 .WriteTo.Console()
 .CreateLogger();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -136,6 +143,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+
+app.UseErrorWrapping();
 
 app.UseStaticFiles();
 

@@ -2,6 +2,7 @@ using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,7 @@ namespace DaisyForum.BackendServer.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse($"Create function is failed"));
             }
         }
 
@@ -104,7 +105,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var function = await _context.Functions.FindAsync(id);
             if (function == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found function with id {id}"));
 
             var functionViewModel = new FunctionViewModel()
             {
@@ -119,11 +120,12 @@ namespace DaisyForum.BackendServer.Controllers
 
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.UPDATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PutFunction(string id, [FromBody] FunctionCreateRequest request)
         {
             var function = await _context.Functions.FindAsync(id);
             if (function == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found function with id {id}"));
 
             function.Name = request.Name;
             function.ParentId = request.ParentId;
@@ -137,7 +139,7 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Create function failed"));
         }
 
         [HttpDelete("{id}")]
@@ -146,7 +148,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var function = await _context.Functions.FindAsync(id);
             if (function == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found function with id {id}"));
 
             _context.Functions.Remove(function);
             var result = await _context.SaveChangesAsync();
@@ -162,7 +164,7 @@ namespace DaisyForum.BackendServer.Controllers
                 };
                 return Ok(functionViewModel);
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Delete function failed"));
         }
 
         [HttpGet("{functionId}/commands")]
@@ -221,6 +223,7 @@ namespace DaisyForum.BackendServer.Controllers
 
         [HttpPost("{functionId}/commands")]
         [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostCommandToFunction(string functionId, [FromBody] AddCommandToFunctionRequest request)
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(request.CommandId, request.FunctionId);
@@ -241,7 +244,7 @@ namespace DaisyForum.BackendServer.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Delete command to function failed"));
             }
         }
 
@@ -251,7 +254,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(commandId, functionId);
             if (commandInFunction == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found the command with commandId: {commandId}"));
 
             _context.CommandInFunctions.Remove(commandInFunction);
             var result = await _context.SaveChangesAsync();
@@ -262,7 +265,7 @@ namespace DaisyForum.BackendServer.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Delete command to function failed"));
             }
         }
     }

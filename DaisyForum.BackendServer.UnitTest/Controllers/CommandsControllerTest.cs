@@ -26,8 +26,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var CommandsController = new CommandsController(_context);
-            var result = await CommandsController.GetCommands();
+            var commandsController = new CommandsController(_context);
+            var result = await commandsController.GetCommands();
             var okResult = result as OkObjectResult;
             var UserViewModels = okResult != null ? okResult.Value as IEnumerable<CommandViewModel> : null;
             Assert.True(UserViewModels != null ? UserViewModels.Count() > 0 : false);

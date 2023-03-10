@@ -2,6 +2,7 @@ using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +25,7 @@ namespace DaisyForum.BackendServer.Controllers
 
         [HttpPost]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostUser(UserCreateRequest request)
         {
             var user = new User()
@@ -38,7 +40,7 @@ namespace DaisyForum.BackendServer.Controllers
             };
 
             if (request.Password == null)
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Password is required"));
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
@@ -48,7 +50,7 @@ namespace DaisyForum.BackendServer.Controllers
             }
             else
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ApiBadRequestResponse(result));
             }
         }
 
@@ -114,7 +116,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             var userViewModel = new UserViewModel()
             {
@@ -134,7 +136,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with email: {email}"));
 
             var userViewModel = new UserViewModel()
             {
@@ -156,7 +158,7 @@ namespace DaisyForum.BackendServer.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 // code: 400
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
@@ -169,7 +171,7 @@ namespace DaisyForum.BackendServer.Controllers
                 // code: 200
                 return NoContent();
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpPut("{id}/change-password")]
@@ -178,15 +180,16 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
+
             if (request.CurrentPassword == null || request.NewPassword == null)
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("The current password and new password cannot be null."));
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
             if (result.Succeeded)
             {
                 return NoContent();
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpDelete("{id}")]
@@ -195,7 +198,7 @@ namespace DaisyForum.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             var result = await _userManager.DeleteAsync(user);
 
@@ -213,7 +216,7 @@ namespace DaisyForum.BackendServer.Controllers
                 };
                 return Ok(userViewModel);
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpGet("{userId}/menu")]
@@ -222,7 +225,7 @@ namespace DaisyForum.BackendServer.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
             }
             var roles = await _userManager.GetRolesAsync(user);
             var query = from f in _context.Functions

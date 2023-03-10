@@ -14,13 +14,9 @@ namespace DaisyForum.BackendServer.Controllers
             _context = context;
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetCommands()
         {
-            if (User.Identity != null)
-            {
-                var user = User.Identity.Name;
-            }
             var commands = _context.Commands;
 
             var commandViewModels = await commands.Select(u => new CommandViewModel()
