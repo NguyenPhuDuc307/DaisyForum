@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UsersComponent } from './users/users.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
+import { FunctionsComponent } from './functions/functions.component';
 
 const routes: Routes = [
     {
@@ -20,6 +21,10 @@ const routes: Routes = [
     {
         path: 'permissions',
         component: PermissionsComponent
+    },
+    {
+        path: 'functions',
+        component: FunctionsComponent
     }
 ];
 
