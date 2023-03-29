@@ -6,19 +6,18 @@ import { environment } from '@environments/environment';
 import { User } from '../models';
 import { UtilitiesService } from './utilities.service';
 
-@Injectable({ providedIn: "root" })
-export class UserService extends BaseService {
+@Injectable({ providedIn: 'root' })
+export class UsersService extends BaseService {
   constructor(private http: HttpClient, private utilitiesService: UtilitiesService) {
     super();
   }
   getAll() {
     const httpOptions = {
       headers: new HttpHeaders({
-        "Content-Type": "application/json",
-      }),
+        'Content-Type': 'application/json'
+      })
     };
-    return this.http
-      .get<User[]>(`${environment.apiUrl}/api/users`, httpOptions)
+    return this.http.get<User[]>(`${environment.apiUrl}/api/users`, httpOptions)
       .pipe(catchError(this.handleError));
   }
 

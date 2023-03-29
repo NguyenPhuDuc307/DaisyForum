@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { UsersComponent } from './users/users.component';
+import { FunctionsComponent } from './functions/functions.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
-import { FunctionsComponent } from './functions/functions.component';
 
 const routes: Routes = [
     {
@@ -15,16 +15,16 @@ const routes: Routes = [
         component: UsersComponent
     },
     {
+        path: 'functions',
+        component: FunctionsComponent
+    },
+    {
         path: 'roles',
         component: RolesComponent
     },
     {
         path: 'permissions',
         component: PermissionsComponent
-    },
-    {
-        path: 'functions',
-        component: FunctionsComponent
     }
 ];
 
@@ -32,4 +32,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class SystemsRoutingModule {}
+export class SystemsRoutingModule { }
