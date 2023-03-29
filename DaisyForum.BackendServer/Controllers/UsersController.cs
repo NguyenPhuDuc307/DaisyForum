@@ -32,7 +32,7 @@ namespace DaisyForum.BackendServer.Controllers
             {
                 Id = Guid.NewGuid().ToString(),
                 Email = request.Email,
-                Dob = request.Dob,
+                Dob = request.Dob != null ? DateTime.Parse(request.Dob) : DateTime.Now,
                 UserName = request.UserName,
                 LastName = request.LastName,
                 FirstName = request.FirstName,
@@ -162,7 +162,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
-            user.Dob = request.Dob;
+            user.Dob = request.Dob != null ? DateTime.Parse(request.Dob) : DateTime.Now;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -249,6 +249,57 @@ namespace DaisyForum.BackendServer.Controllers
                 .ThenBy(x => x.SortOrder)
                 .ToListAsync();
             return Ok(data);
+        }
+
+        [HttpGet("{userId}/roles")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
+        public async Task<IActionResult> GetUserRoles(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles);
+        }
+
+        [HttpPost("{userId}/roles")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
+        public async Task<IActionResult> PostRolesToUserUser(string userId, [FromBody] RoleAssignRequest request)
+        {
+            if (request.RoleNames == null)
+            {
+                return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
+            var result = await _userManager.AddToRolesAsync(user, request.RoleNames);
+            if (result.Succeeded)
+                return Ok();
+
+            return BadRequest(new ApiBadRequestResponse(result));
+        }
+
+        [HttpDelete("{userId}/roles")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
+        public async Task<IActionResult> RemoveRolesFromUser(string userId, [FromQuery] RoleAssignRequest request)
+        {
+            if (request.RoleNames == null)
+            {
+                return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
+            }
+            if (request.RoleNames.Length == 1 && request.RoleNames[0] == SystemConstants.Roles.Admin)
+            {
+                return BadRequest(new ApiBadRequestResponse($"Cannot remove {SystemConstants.Roles.Admin} role"));
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
+            var result = await _userManager.RemoveFromRolesAsync(user, request.RoleNames);
+            if (result.Succeeded)
+                return Ok();
+
+            return BadRequest(new ApiBadRequestResponse(result));
         }
     }
 }
