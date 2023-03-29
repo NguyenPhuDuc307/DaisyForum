@@ -33,3 +33,4 @@ Website tin tức, diễn đàn DaisyForum
 21. Create a application angular and config Identity Server
 22. Dynamic functions menu
 23. Role manager
+24. UsesRole manager

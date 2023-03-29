@@ -16,7 +16,7 @@ namespace DaisyForum.ViewModels.UnitTest.Systems
         {
             request = new UserCreateRequest()
             {
-                Dob = DateTime.Now,
+                Dob = DateTime.Now.ToString(),
                 Email = "admin.ssdaisy@gmail.com",
                 FirstName = "Test",
                 LastName = "test",
