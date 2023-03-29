@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UserService, AuthService } from '@app/shared/services';
+import { UsersService, AuthService } from '@app/shared/services';
 import { Function } from '@app/shared/models';
 
 @Component({
@@ -19,7 +19,7 @@ export class SidebarComponent implements OnInit {
     @Output() collapsedEvent = new EventEmitter<boolean>();
 
     constructor(private translate: TranslateService,
-        public router: Router, private userService: UserService,
+        public router: Router, private usersService: UsersService,
         private authService: AuthService) {
         this.loadMenu();
         this.router.events.subscribe((val) => {
@@ -31,7 +31,7 @@ export class SidebarComponent implements OnInit {
 
     loadMenu() {
         const profile = this.authService.profile;
-        this.userService.getMenuByUser(profile.sub).subscribe((response: Function[]) => {
+        this.usersService.getMenuByUser(profile.sub).subscribe((response: Function[]) => {
             this.functions = response;
         });
     }

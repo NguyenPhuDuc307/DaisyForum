@@ -32,3 +32,4 @@ Website tin tức, diễn đàn DaisyForum
 20. REST Api and add package Serilog
 21. Create a application angular and config Identity Server
 22. Dynamic functions menu
+23. Role manager
