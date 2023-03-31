@@ -35,3 +35,4 @@ Website tin tức, diễn đàn DaisyForum
 23. Role manager
 24. UsesRole manager
 25. Function manager
+26. Permission manager
