@@ -8,6 +8,6 @@ namespace DaisyForum.ViewModels.Systems
         public string? PhoneNumber { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public DateTime Dob { get; set; }
+        public string? Dob { get; set; }
     }
 }

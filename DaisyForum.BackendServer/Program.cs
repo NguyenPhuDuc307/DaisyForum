@@ -14,6 +14,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+var DaisyForumSpecificOrigins = "DaisyForumSpecificOrigins";
+var allowOrigins = builder.Configuration.GetValue<string>("AllowOrigins");
 builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 //1. Setup entity framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -32,11 +34,23 @@ builder.Services.AddIdentityServer(options =>
 })
 .AddInMemoryApiResources(Config.Apis)
 .AddInMemoryApiScopes(Config.ApiScopes)
-.AddInMemoryClients(Config.Clients)
+.AddInMemoryClients(builder.Configuration.GetSection("IdentityServer:Clients"))
 .AddInMemoryIdentityResources(Config.Ids)
 .AddAspNetIdentity<User>()
 .AddProfileService<IdentityProfileService>()
 .AddDeveloperSigningCredential();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(DaisyForumSpecificOrigins,
+    builder =>
+    {
+        if (allowOrigins != null)
+            builder.WithOrigins(allowOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+    });
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -155,6 +169,8 @@ app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors(DaisyForumSpecificOrigins);
 
 app.UseAuthorization();
 

@@ -236,8 +236,15 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
              .ReturnsAsync(new User()
              {
-                UserName = "test1"
+                 UserName = "test1"
              });
+
+            _mockUserManager.Setup(x => x.GetUsersInRoleAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<User>(){
+                new User()
+                {
+                    UserName = "test1"
+                }});
 
             _mockUserManager.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
