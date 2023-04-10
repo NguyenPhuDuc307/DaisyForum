@@ -2,13 +2,20 @@ using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace DaisyForum.BackendServer.Controllers
 {
@@ -30,9 +37,15 @@ namespace DaisyForum.BackendServer.Controllers
         [HttpPost]
         [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.CREATE)]
         [ApiValidationFilter]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> PostKnowledgeBase([FromForm] KnowledgeBaseCreateRequest request)
         {
             KnowledgeBase knowledgeBase = CreateKnowledgeBaseEntity(request);
+            knowledgeBase.OwnerUserId = User.GetUserId();
+            if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
+            {
+                knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title);
+            }
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
 
             //Process attachment
@@ -47,7 +60,7 @@ namespace DaisyForum.BackendServer.Controllers
             _context.KnowledgeBases.Add(knowledgeBase);
 
             //Process label
-            if (!string.IsNullOrEmpty(request.Labels))
+            if (request.Labels?.Length > 0)
             {
                 await ProcessLabel(request, knowledgeBase);
             }
@@ -59,7 +72,7 @@ namespace DaisyForum.BackendServer.Controllers
                 return CreatedAtAction(nameof(GetById), new
                 {
                     id = knowledgeBase.Id
-                }, request);
+                });
             }
             else
             {
@@ -89,21 +102,24 @@ namespace DaisyForum.BackendServer.Controllers
         [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.VIEW)]
         public async Task<IActionResult> GetKnowledgeBasesPaging(string filter, int pageIndex, int pageSize)
         {
-            var query = _context.KnowledgeBases.AsQueryable();
+            var query = from k in _context.KnowledgeBases
+                        join c in _context.Categories on k.CategoryId equals c.Id
+                        select new { k, c };
             if (!string.IsNullOrEmpty(filter))
             {
-                query = query.Where(x => x.Title != null && x.Title.Contains(filter));
+                query = query.Where(x => x.k.Title != null && x.k.Title.Contains(filter));
             }
             var totalRecords = await query.CountAsync();
             var items = await query.Skip((pageIndex - 1 * pageSize))
                 .Take(pageSize)
                 .Select(u => new KnowledgeBaseQuickViewModel()
                 {
-                    Id = u.Id,
-                    CategoryId = u.CategoryId,
-                    Description = u.Description,
-                    SeoAlias = u.SeoAlias,
-                    Title = u.Title
+                    Id = u.k.Id,
+                    CategoryId = u.k.CategoryId,
+                    Description = u.k.Description,
+                    SeoAlias = u.k.SeoAlias,
+                    Title = u.k.Title,
+                    CategoryName = u.c.Name
                 })
                 .ToListAsync();
 
@@ -123,7 +139,18 @@ namespace DaisyForum.BackendServer.Controllers
             if (knowledgeBase == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id: {id}"));
 
+            var attachments = await _context.Attachments
+                .Where(x => x.KnowledgeBaseId == id)
+                .Select(x => new AttachmentViewModel()
+                {
+                    FileName = x.FileName,
+                    FilePath = x.FilePath,
+                    FileSize = x.FileSize,
+                    Id = x.Id,
+                    FileType = x.FileType
+                }).ToListAsync();
             var knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
+            knowledgeBaseViewModel.Attachments = attachments;
 
             return Ok(knowledgeBaseViewModel);
         }
@@ -131,16 +158,27 @@ namespace DaisyForum.BackendServer.Controllers
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.UPDATE)]
         [ApiValidationFilter]
-        public async Task<IActionResult> PutKnowledgeBase(int id, [FromBody] KnowledgeBaseCreateRequest request)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> PutKnowledgeBase(int id, [FromForm] KnowledgeBaseCreateRequest request)
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
             if (knowledgeBase == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id {id}"));
             UpdateKnowledgeBase(request, knowledgeBase);
 
+            //Process attachment
+            if (request.Attachments != null && request.Attachments.Count > 0)
+            {
+                foreach (var attachment in request.Attachments)
+                {
+                    var attachmentEntity = await SaveFile(knowledgeBase.Id, attachment);
+                    _context.Attachments.Add(attachmentEntity);
+                }
+            }
+
             _context.KnowledgeBases.Update(knowledgeBase);
 
-            if (!string.IsNullOrEmpty(request.Labels))
+            if (request.Labels?.Length > 0)
             {
                 await ProcessLabel(request, knowledgeBase);
             }
@@ -155,7 +193,7 @@ namespace DaisyForum.BackendServer.Controllers
 
         [HttpDelete("{id}")]
         [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.DELETE)]
-        public async Task<IActionResult> DeleteKnowledgeBase(string id)
+        public async Task<IActionResult> DeleteKnowledgeBase(int id)
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
             if (knowledgeBase == null)
@@ -201,7 +239,7 @@ namespace DaisyForum.BackendServer.Controllers
 
                 OwnerUserId = knowledgeBase.OwnerUserId,
 
-                Labels = knowledgeBase.Labels,
+                Labels = !string.IsNullOrEmpty(knowledgeBase.Labels) ? knowledgeBase.Labels.Split(',') : null,
 
                 CreateDate = knowledgeBase.CreateDate,
 
@@ -217,7 +255,7 @@ namespace DaisyForum.BackendServer.Controllers
 
         private static KnowledgeBase CreateKnowledgeBaseEntity(KnowledgeBaseCreateRequest request)
         {
-            return new KnowledgeBase()
+            var entity = new KnowledgeBase()
             {
                 CategoryId = request.CategoryId,
 
@@ -237,10 +275,13 @@ namespace DaisyForum.BackendServer.Controllers
 
                 Workaround = request.Workaround,
 
-                Note = request.Note,
-
-                Labels = request.Labels,
+                Note = request.Note
             };
+            if (request.Labels?.Length > 0)
+            {
+                entity.Labels = string.Join(',', request.Labels);
+            }
+            return entity;
         }
 
         private async Task<Attachment> SaveFile(int knowledgeBaseId, IFormFile file)
@@ -248,7 +289,7 @@ namespace DaisyForum.BackendServer.Controllers
             if (ContentDispositionHeaderValue.TryParse(file.ContentDisposition, out var contentDisposition))
             {
                 var originalFileName = contentDisposition.FileName != null ? contentDisposition.FileName.Trim('"') : string.Empty;
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+                var fileName = $"{originalFileName.Substring(0, originalFileName.LastIndexOf('.'))}{Path.GetExtension(originalFileName)}";
                 await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
                 var attachmentEntity = new Attachment()
                 {
@@ -265,26 +306,26 @@ namespace DaisyForum.BackendServer.Controllers
 
         private async Task ProcessLabel(KnowledgeBaseCreateRequest request, KnowledgeBase knowledgeBase)
         {
-            string[] labels = request.Labels?.Split(',') ?? new string[0];
-            foreach (var labelText in labels)
+            foreach (var labelText in request.Labels)
             {
-                var labelId = TextHelper.ToUnsignedString(labelText);
-                var existingLabel = await _context.Labels.FindAsync(labelId);
+                var labelId = TextHelper.ToUnsignedString(labelText.ToString()); var existingLabel = await _context.Labels.FindAsync(labelId);
                 if (existingLabel == null)
                 {
                     var labelEntity = new Label()
                     {
                         Id = labelId,
-                        Name = labelText
+                        Name = labelText.ToString()
                     };
                     _context.Labels.Add(labelEntity);
                 }
-                var labelInKnowledgeBase = new LabelInKnowledgeBase()
+                if (await _context.LabelInKnowledgeBases.FindAsync(labelId, knowledgeBase.Id) == null)
                 {
-                    KnowledgeBaseId = knowledgeBase.Id,
-                    LabelId = labelId
-                };
-                _context.LabelInKnowledgeBases.Add(labelInKnowledgeBase);
+                    _context.LabelInKnowledgeBases.Add(new LabelInKnowledgeBase()
+                    {
+                        KnowledgeBaseId = knowledgeBase.Id,
+                        LabelId = labelId
+                    });
+                }
             }
         }
 
@@ -310,7 +351,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             knowledgeBase.Note = request.Note;
 
-            knowledgeBase.Labels = request.Labels;
+            knowledgeBase.Labels = string.Join(',', request.Labels);
         }
 
         #endregion Private methods

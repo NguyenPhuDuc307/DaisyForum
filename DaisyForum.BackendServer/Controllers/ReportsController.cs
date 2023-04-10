@@ -16,25 +16,34 @@ namespace DaisyForum.BackendServer.Controllers
         #region Reports
 
         [HttpGet("{knowledgeBaseId}/reports/filter")]
-        public async Task<IActionResult> GetReportsPaging(int knowledgeBaseId, string filter, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetReportsPaging(int? knowledgeBaseId, string filter, int pageIndex, int pageSize)
         {
-            var query = _context.Reports.Where(x => x.KnowledgeBaseId == knowledgeBaseId).AsQueryable();
+            var query = from r in _context.Reports
+                        join u in _context.Users
+                            on r.ReportUserId equals u.Id
+                        select new { r, u };
+            if (knowledgeBaseId.HasValue)
+            {
+                query = query.Where(x => x.r.KnowledgeBaseId == knowledgeBaseId.Value);
+            }
+
             if (!string.IsNullOrEmpty(filter))
             {
-                query = query.Where(x => x.Content != null && x.Content.Contains(filter));
+                query = query.Where(x => x.r.Content != null && x.r.Content.Contains(filter));
             }
             var totalRecords = await query.CountAsync();
-            var items = await query.Skip((pageIndex - 1 * pageSize))
+            var items = await query.Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Select(c => new ReportViewModel()
                 {
-                    Id = c.Id,
-                    Content = c.Content,
-                    CreateDate = c.CreateDate,
-                    KnowledgeBaseId = c.KnowledgeBaseId,
-                    LastModifiedDate = c.LastModifiedDate,
+                    Id = c.r.Id,
+                    Content = c.r.Content,
+                    CreateDate = c.r.CreateDate,
+                    KnowledgeBaseId = c.r.KnowledgeBaseId,
+                    LastModifiedDate = c.r.LastModifiedDate,
                     IsProcessed = false,
-                    ReportUserId = c.ReportUserId
+                    ReportUserId = c.r.ReportUserId,
+                    ReportUserName = c.u.FirstName + " " + c.u.LastName
                 })
                 .ToListAsync();
 
@@ -52,7 +61,9 @@ namespace DaisyForum.BackendServer.Controllers
             var report = await _context.Reports.FindAsync(reportId);
             if (report == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found report with id {reportId}"));
-
+            var user = await _context.Users.FindAsync(report.ReportUserId);
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id {report.ReportUserId}"));
             var reportViewModel = new ReportViewModel()
             {
                 Id = report.Id,
@@ -61,7 +72,8 @@ namespace DaisyForum.BackendServer.Controllers
                 KnowledgeBaseId = report.KnowledgeBaseId,
                 LastModifiedDate = report.LastModifiedDate,
                 IsProcessed = report.IsProcessed,
-                ReportUserId = report.ReportUserId
+                ReportUserId = report.ReportUserId,
+                ReportUserName = user.FirstName + " " + user.LastName
             };
 
             return Ok(reportViewModel);
@@ -82,7 +94,7 @@ namespace DaisyForum.BackendServer.Controllers
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
             if (knowledgeBase == null)
                 return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
-                
+
             knowledgeBase.NumberOfComments = knowledgeBase.NumberOfReports.GetValueOrDefault(0) + 1;
             _context.KnowledgeBases.Update(knowledgeBase);
 
