@@ -3,6 +3,7 @@ namespace DaisyForum.ViewModels.Contents
     public class ReportViewModel
     {
         public int Id { get; set; }
+        public string? ReportUserName { get; set; }
         public int? KnowledgeBaseId { get; set; }
         public string? Content { get; set; }
         public string? ReportUserId { get; set; }

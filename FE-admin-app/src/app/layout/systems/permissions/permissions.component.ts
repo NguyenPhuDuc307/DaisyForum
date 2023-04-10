@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-permissions',
   templateUrl: './permissions.component.html',
-  styleUrls: ['./permissions.component.css']
+  styleUrls: ['./permissions.component.scss']
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
 
@@ -44,7 +44,6 @@ export class PermissionsComponent implements OnInit, OnDestroy {
 
     private permissionsService: PermissionsService,
     private rolesService: RolesService,
-    private commandsService: CommandsService,
     private _notificationService: NotificationService,
     private _utilityService: UtilitiesService) {
   }
@@ -132,7 +131,6 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           setTimeout(() => { this.blockedPanel = false; }, 1000);
         }));
     }
-
   }
   checkChanged(checked: boolean, commandId: string, functionId: string, parentId: string) {
     if (commandId === SystemConstants.VIEW_ACTION) {
