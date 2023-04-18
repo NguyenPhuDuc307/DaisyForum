@@ -36,7 +36,8 @@ namespace DaisyForum.BackendServer.Controllers
                 UserName = request.UserName,
                 LastName = request.LastName,
                 FirstName = request.FirstName,
-                PhoneNumber = request.PhoneNumber
+                PhoneNumber = request.PhoneNumber,
+                CreateDate = DateTime.Now
             };
 
             if (request.Password == null)
@@ -68,7 +69,8 @@ namespace DaisyForum.BackendServer.Controllers
                 Email = u.Email,
                 PhoneNumber = u.PhoneNumber,
                 FirstName = u.FirstName,
-                LastName = u.LastName
+                LastName = u.LastName,
+                CreateDate = u.CreateDate
             }).ToListAsync();
 
             return Ok(userViewModels);
@@ -96,7 +98,8 @@ namespace DaisyForum.BackendServer.Controllers
                 Email = x.Email,
                 PhoneNumber = x.PhoneNumber,
                 FirstName = x.FirstName,
-                LastName = x.LastName
+                LastName = x.LastName,
+                CreateDate = x.CreateDate
             }).ToListAsync();
 
             var totalRecords = await query.CountAsync();
@@ -126,7 +129,8 @@ namespace DaisyForum.BackendServer.Controllers
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                CreateDate = user.CreateDate
             };
             return Ok(userViewModel);
         }
@@ -146,7 +150,8 @@ namespace DaisyForum.BackendServer.Controllers
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                CreateDate = user.CreateDate
             };
             return Ok(userViewModel);
         }
@@ -163,6 +168,7 @@ namespace DaisyForum.BackendServer.Controllers
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
             user.Dob = request.Dob != null ? DateTime.Parse(request.Dob) : DateTime.Now;
+            user.LastModifiedDate = DateTime.Now;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -212,7 +218,8 @@ namespace DaisyForum.BackendServer.Controllers
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     FirstName = user.FirstName,
-                    LastName = user.LastName
+                    LastName = user.LastName,
+                    CreateDate = user.CreateDate
                 };
                 return Ok(userViewModel);
             }

@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using DaisyForum.BackendServer.Data.Interfaces;
 
 namespace DaisyForum.BackendServer.Data.Entities
 {
-    public class User : IdentityUser
+    public class User : IdentityUser, IDateTracking
     {
         public User()
         {
@@ -30,11 +31,10 @@ namespace DaisyForum.BackendServer.Data.Entities
 
         [Required]
         public DateTime Dob { get; set; }
-
         public int? NumberOfKnowledgeBases { get; set; }
-
         public int? NumberOfVotes { get; set; }
-
         public int? NumberOfReports { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
     }
 }

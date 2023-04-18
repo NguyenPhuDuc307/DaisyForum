@@ -15,11 +15,12 @@ namespace DaisyForum.ViewModels.Contents
         public string? Workaround { get; set; }
         public string? Note { get; set; }
         public string? OwnerUserId { get; set; }
-        public string? Labels { get; set; }
+        public string[]? Labels { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
         public int? NumberOfComments { get; set; }
         public int? NumberOfVotes { get; set; }
         public int? NumberOfReports { get; set; }
+        public List<AttachmentViewModel>? Attachments { set; get; }
     }
 }

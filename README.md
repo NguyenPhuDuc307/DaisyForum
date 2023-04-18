@@ -36,3 +36,5 @@ Website tin tức, diễn đàn DaisyForum
 24. UsesRole manager
 25. Function manager
 26. Permission manager
+27. Completed Backend API
+28. Login with Google Account
