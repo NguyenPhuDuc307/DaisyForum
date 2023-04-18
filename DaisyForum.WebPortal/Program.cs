@@ -1,7 +1,14 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration; ;
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var mvcBuilder = services.AddControllersWithViews();
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+if (environment == Environments.Development)
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
 
 var app = builder.Build();
 
