@@ -7,15 +7,9 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace DaisyForum.BackendServer.Controllers
 {
