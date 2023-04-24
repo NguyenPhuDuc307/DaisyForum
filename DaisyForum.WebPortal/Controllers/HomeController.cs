@@ -1,16 +1,19 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DaisyForum.WebPortal.Models;
+using DaisyForum.WebPortal.Services;
 
 namespace DaisyForum.WebPortal.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IKnowledgeBaseApiClient _knowledgeBaseApiClient;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IKnowledgeBaseApiClient knowledgeBaseApiClient)
     {
         _logger = logger;
+        _knowledgeBaseApiClient = knowledgeBaseApiClient;
     }
 
     public IActionResult Index()

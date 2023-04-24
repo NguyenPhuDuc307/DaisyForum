@@ -7,6 +7,7 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
@@ -123,6 +124,47 @@ namespace DaisyForum.BackendServer.Controllers
                 TotalRecords = totalRecords,
             };
             return Ok(pagination);
+        }
+
+        [HttpGet("latest/{take:int}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetLatestKnowledgeBases(int take)
+        {
+            var knowledgeBases = _context.KnowledgeBases
+                .OrderByDescending(x => x.CreateDate)
+                .Take(take);
+
+            var knowledgeBaseViewModels = await knowledgeBases.Select(u => new KnowledgeBaseQuickViewModel()
+            {
+                Id = u.Id,
+                CategoryId = u.CategoryId,
+                Description = u.Description,
+                SeoAlias = u.SeoAlias,
+                Title = u.Title
+            }).ToListAsync();
+
+            return Ok(knowledgeBaseViewModels);
+        }
+
+        [HttpGet("popular/{take:int}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPopularKnowledgeBases(int take)
+        {
+            var knowledgeBases = _context.KnowledgeBases
+                .OrderByDescending(x => x.ViewCount)
+                .Take(take);
+
+            var knowledgeBaseViewModels = await knowledgeBases.Select(u => new KnowledgeBaseQuickViewModel()
+            {
+                Id = u.Id,
+                CategoryId = u.CategoryId,
+                Description = u.Description,
+                SeoAlias = u.SeoAlias,
+                Title = u.Title,
+                ViewCount = u.ViewCount
+            }).ToListAsync();
+
+            return Ok(knowledgeBaseViewModels);
         }
 
         [HttpGet("{id}")]
