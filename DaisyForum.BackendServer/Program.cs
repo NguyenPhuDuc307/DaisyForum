@@ -123,9 +123,16 @@ services.AddRazorPages(options =>
 services.AddAuthentication()
 .AddGoogle(googleOptions =>
 {
-    IConfigurationSection googleAuthNSection = configuration.GetSection("Authentication:Google");
-    googleOptions.ClientId = googleAuthNSection["ClientId"];
-    googleOptions.ClientSecret = googleAuthNSection["ClientSecret"];
+    var googleClientId = configuration.GetSection("Authentication:Google:ClientId").Value;
+    var googleClientSecret = configuration.GetSection("Authentication:Google:ClientSecret").Value;
+
+    if (googleClientId != null && googleClientSecret != null)
+    {
+        googleOptions.ClientId = googleClientId;
+        googleOptions.ClientSecret = googleClientSecret;
+    }
+
+
     googleOptions.Scope.Add("profile");
     googleOptions.Scope.Add("phone");
     // googleOptions.Scope.Add("https://www.googleapis.com/auth/user.birthday.read");
