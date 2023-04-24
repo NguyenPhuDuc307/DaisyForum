@@ -1,26 +1,44 @@
 ﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|KnowledgeSpace.BackendServer">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Extensions/IdentityExtensions.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs">
     <Files>
-      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" />
-      <File FileName="DaisyForum.BackendServer/Program.cs" Line="144" Column="1" />
+      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" Line="1" Column="1" />
+      <File FileName="DaisyForum.BackendServer/Program.cs" />
       <File FileName="DaisyForum.BackendServer/Controllers/ReportsController.cs" />
-      <File FileName="DaisyForum.BackendServer/Extensions/IdentityExtensions.cs" Line="18" Column="6" />
+      <File FileName="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml" Line="1" Column="1" />
+      <File FileName="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs" Line="158" Column="14" />
+      <File FileName="DaisyForum.BackendServer/Data/Entities/User.cs" Line="37" Column="9" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DaisyForum" expanded="True">
-            <Node name="DaisyForum.BackendServer" expanded="True" />
+            <Node name="DaisyForum.BackendServer" expanded="True">
+              <Node name="Areas" expanded="True">
+                <Node name="Identity" expanded="True">
+                  <Node name="Pages" expanded="True">
+                    <Node name="Account" expanded="True">
+                      <Node name="ExternalLogin.cshtml" expanded="True" />
+                    </Node>
+                  </Node>
+                </Node>
+              </Node>
+              <Node name="Controllers" expanded="True" />
+              <Node name="Data" expanded="True">
+                <Node name="Entities" expanded="True" />
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs" relfile="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs" line="172" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>
