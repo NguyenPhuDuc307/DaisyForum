@@ -38,7 +38,7 @@ namespace DaisyForum.BackendServer.Controllers
             knowledgeBase.OwnerUserId = User.GetUserId();
             if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
             {
-                knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title);
+                knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title != null ? knowledgeBase.Title : "");
             }
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
 
@@ -300,25 +300,28 @@ namespace DaisyForum.BackendServer.Controllers
 
         private async Task ProcessLabel(KnowledgeBaseCreateRequest request, KnowledgeBase knowledgeBase)
         {
-            foreach (var labelText in request.Labels)
+            if (request.Labels != null)
             {
-                var labelId = TextHelper.ToUnsignedString(labelText.ToString()); var existingLabel = await _context.Labels.FindAsync(labelId);
-                if (existingLabel == null)
+                foreach (var labelText in request.Labels)
                 {
-                    var labelEntity = new Label()
+                    var labelId = TextHelper.ToUnsignedString(labelText.ToString()); var existingLabel = await _context.Labels.FindAsync(labelId);
+                    if (existingLabel == null)
                     {
-                        Id = labelId,
-                        Name = labelText.ToString()
-                    };
-                    _context.Labels.Add(labelEntity);
-                }
-                if (await _context.LabelInKnowledgeBases.FindAsync(labelId, knowledgeBase.Id) == null)
-                {
-                    _context.LabelInKnowledgeBases.Add(new LabelInKnowledgeBase()
+                        var labelEntity = new Label()
+                        {
+                            Id = labelId,
+                            Name = labelText.ToString()
+                        };
+                        _context.Labels.Add(labelEntity);
+                    }
+                    if (await _context.LabelInKnowledgeBases.FindAsync(labelId, knowledgeBase.Id) == null)
                     {
-                        KnowledgeBaseId = knowledgeBase.Id,
-                        LabelId = labelId
-                    });
+                        _context.LabelInKnowledgeBases.Add(new LabelInKnowledgeBase()
+                        {
+                            KnowledgeBaseId = knowledgeBase.Id,
+                            LabelId = labelId
+                        });
+                    }
                 }
             }
         }
@@ -345,7 +348,10 @@ namespace DaisyForum.BackendServer.Controllers
 
             knowledgeBase.Note = request.Note;
 
-            knowledgeBase.Labels = string.Join(',', request.Labels);
+            if (request.Labels != null)
+            {
+                knowledgeBase.Labels = string.Join(',', request.Labels);
+            }
         }
 
         #endregion Private methods
