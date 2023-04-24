@@ -1,4 +1,8 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using DaisyForum.WebPortal.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
+
+var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration; ;
 
@@ -11,6 +15,51 @@ if (environment == Environments.Development)
 }
 
 var app = builder.Build();
+
+services.AddHttpClient();
+
+//IdentityModelEventSource.ShowPII = true; //Add this line
+services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+})
+    .AddCookie("Cookies")
+    .AddOpenIdConnect("oidc", options =>
+    {
+        options.Authority = configuration["Authorization:AuthorityUrl"];
+        options.RequireHttpsMetadata = false;
+        options.GetClaimsFromUserInfoEndpoint = true;
+
+        options.ClientId = configuration["Authorization:ClientId"];
+        options.ClientSecret = configuration["Authorization:ClientSecret"];
+        options.ResponseType = "code";
+
+        options.SaveTokens = true;
+
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("offline_access");
+        options.Scope.Add("api.knowledgespace");
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = "name",
+            RoleClaimType = "role"
+        };
+    });
+
+services.AddControllersWithViews();
+if (environment == Environments.Development)
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
+
+//Declare DI containers
+services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+services.AddTransient<ICategoryApiClient, CategoryApiClient>();
+services.AddTransient<IKnowledgeBaseApiClient, KnowledgeBaseApiClient>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

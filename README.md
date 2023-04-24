@@ -40,3 +40,4 @@ Website tin tức, diễn đàn DaisyForum
 28. Login with Google Account
 29. Add layout Web Portal
 30. Integrated SSO with Identity Server
+31. Paired with Backend API
