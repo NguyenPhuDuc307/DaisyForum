@@ -26,6 +26,10 @@ public class KnowledgeBaseApiClient : IKnowledgeBaseApiClient
         //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await client.GetAsync($"/api/knowledgeBases/latest/{take}");
         var latestKnowledgeBases = JsonConvert.DeserializeObject<List<KnowledgeBaseQuickViewModel>>(await response.Content.ReadAsStringAsync());
+        if (latestKnowledgeBases == null)
+        {
+            latestKnowledgeBases = new List<KnowledgeBaseQuickViewModel>();
+        }
         return latestKnowledgeBases;
     }
 
@@ -40,14 +44,14 @@ public class KnowledgeBaseApiClient : IKnowledgeBaseApiClient
         return latestKnowledgeBases;
     }
 
-    public async Task<List<KnowledgeBaseQuickViewModel>> GetPopularLabels(int take)
+    public async Task<List<LabelViewModel>> GetPopularLabels(int take)
     {
         var client = _httpClientFactory.CreateClient();
         client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
         //var token = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
         //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var response = await client.GetAsync($"/api/knowledgeBases/popular/{take}");
-        var popularKnowledgeBases = JsonConvert.DeserializeObject<List<KnowledgeBaseQuickViewModel>>(await response.Content.ReadAsStringAsync());
-        return popularKnowledgeBases;
+        var response = await client.GetAsync($"/api/labels/popular/{take}");
+        var labels = JsonConvert.DeserializeObject<List<LabelViewModel>>(await response.Content.ReadAsStringAsync());
+        return labels;
     }
 }

@@ -16,9 +16,19 @@ public class HomeController : Controller
         _knowledgeBaseApiClient = knowledgeBaseApiClient;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var latestKbs = await _knowledgeBaseApiClient.GetLatestKnowledgeBases(6);
+        var popularKbs = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(6);
+        var labels = await _knowledgeBaseApiClient.GetPopularLabels(20);
+        var viewModel = new HomeViewModel()
+        {
+            LatestKnowledgeBases = latestKbs,
+            PopularKnowledgeBases = popularKbs,
+            PopularLabels = labels,
+        };
+
+        return View(viewModel);
     }
 
     public IActionResult Privacy()
