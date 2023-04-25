@@ -4,17 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-var configuration = builder.Configuration; ;
-
-// Add services to the container.
-var mvcBuilder = services.AddControllersWithViews();
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-if (environment == Environments.Development)
-{
-    mvcBuilder.AddRazorRuntimeCompilation();
-}
-
-var app = builder.Build();
+var configuration = builder.Configuration;
 
 services.AddHttpClient();
 
@@ -49,7 +39,9 @@ services.AddAuthentication(options =>
         };
     });
 
-services.AddControllersWithViews();
+// Add services to the container.
+var mvcBuilder = services.AddControllersWithViews();
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 if (environment == Environments.Development)
 {
     mvcBuilder.AddRazorRuntimeCompilation();
@@ -60,6 +52,8 @@ services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 services.AddTransient<ICategoryApiClient, CategoryApiClient>();
 services.AddTransient<IKnowledgeBaseApiClient, KnowledgeBaseApiClient>();
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

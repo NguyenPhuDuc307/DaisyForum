@@ -41,3 +41,4 @@ Website tin tức, diễn đàn DaisyForum
 29. Add layout Web Portal
 30. Integrated SSO with Identity Server
 31. Paired with Backend API
+32. Complete Home page
