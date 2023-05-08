@@ -1,23 +1,31 @@
-﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|https">
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Program.cs">
+﻿<Properties>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/phuducnguyen/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs" relfile="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs" line="172" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.WebPortal/Controllers/HomeController.cs">
     <Files>
       <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" />
-      <File FileName="DaisyForum.BackendServer/Program.cs" Line="144" Column="1" />
+      <File FileName="DaisyForum.BackendServer/Program.cs" />
       <File FileName="DaisyForum.BackendServer/Controllers/ReportsController.cs" />
+      <File FileName="DaisyForum.BackendServer/Areas/Identity/Pages/Account/ExternalLogin.cshtml" />
+      <File FileName="DaisyForum.BackendServer/Data/Entities/User.cs" />
+      <File FileName="DaisyForum.WebPortal/Program.cs" />
+      <File FileName="DaisyForum.WebPortal/Controllers/HomeController.cs" Line="21" Column="36" />
+      <File FileName="DaisyForum.WebPortal/Services/KnowledgeBaseApiClient.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="DaisyForum" expanded="True" />
+          <Node name="DaisyForum" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

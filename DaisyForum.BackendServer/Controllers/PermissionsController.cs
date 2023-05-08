@@ -6,29 +6,29 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
-namespace DaisyForum.BackendServer.Controllers
+namespace DaisyForum.BackendServer.Controllers;
+
+public class PermissionsController : BaseController
 {
-    public class PermissionsController : BaseController
+    private readonly IConfiguration _configuration;
+
+    public PermissionsController(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+    }
 
-        public PermissionsController(IConfiguration configuration)
+    [HttpGet]
+    [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
+    public async Task<IActionResult> GetCommandViews()
+    {
+        using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
         {
-            _configuration = configuration;
-        }
-
-        [HttpGet]
-        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
-        public async Task<IActionResult> GetCommandViews()
-        {
-            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            if (conn.State == ConnectionState.Closed)
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    await conn.OpenAsync();
-                }
+                await conn.OpenAsync();
+            }
 
-                var sql = @"SELECT f.Id,
+            var sql = @"SELECT f.Id,
 	                       f.Name,
 	                       f.ParentId,
 	                       sum(case when sa.Id = 'CREATE' then 1 else 0 end) as HasCreate,
@@ -41,9 +41,8 @@ namespace DaisyForum.BackendServer.Controllers
                         GROUP BY f.Id,f.Name, f.ParentId
                         order BY f.ParentId";
 
-                var result = await conn.QueryAsync<PermissionScreenViewModel>(sql, null, null, 120, CommandType.Text);
-                return Ok(result.ToList());
-            }
+            var result = await conn.QueryAsync<PermissionScreenViewModel>(sql, null, null, 120, CommandType.Text);
+            return Ok(result.ToList());
         }
     }
 }

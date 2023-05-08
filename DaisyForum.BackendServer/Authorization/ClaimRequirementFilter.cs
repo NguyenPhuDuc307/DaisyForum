@@ -3,38 +3,37 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 
-namespace DaisyForum.BackendServer.Authorization
+namespace DaisyForum.BackendServer.Authorization;
+
+public class ClaimRequirementFilter : IAuthorizationFilter
 {
-    public class ClaimRequirementFilter : IAuthorizationFilter
+    private readonly FunctionCode _functionCode;
+    private readonly CommandCode _commandCode;
+
+    public ClaimRequirementFilter(FunctionCode functionCode, CommandCode commandCode)
     {
-        private readonly FunctionCode _functionCode;
-        private readonly CommandCode _commandCode;
+        _functionCode = functionCode;
+        _commandCode = commandCode;
+    }
 
-        public ClaimRequirementFilter(FunctionCode functionCode, CommandCode commandCode)
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        var permissionsClaim = context.HttpContext.User.Claims
+            .SingleOrDefault(c => c.Type == SystemConstants.Claims.Permissions);
+        if (permissionsClaim != null)
         {
-            _functionCode = functionCode;
-            _commandCode = commandCode;
-        }
-
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            var permissionsClaim = context.HttpContext.User.Claims
-                .SingleOrDefault(c => c.Type == SystemConstants.Claims.Permissions);
-            if (permissionsClaim != null)
+            var permissions = JsonConvert.DeserializeObject<List<string>>(permissionsClaim.Value);
+            if (permissions != null)
             {
-                var permissions = JsonConvert.DeserializeObject<List<string>>(permissionsClaim.Value);
-                if (permissions != null)
+                if (!permissions.Contains(_functionCode + "_" + _commandCode))
                 {
-                    if (!permissions.Contains(_functionCode + "_" + _commandCode))
-                    {
-                        context.Result = new ForbidResult();
-                    }
+                    context.Result = new ForbidResult();
                 }
             }
-            else
-            {
-                context.Result = new ForbidResult();
-            }
+        }
+        else
+        {
+            context.Result = new ForbidResult();
         }
     }
 }
