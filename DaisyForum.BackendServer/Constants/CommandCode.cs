@@ -1,11 +1,10 @@
-namespace DaisyForum.BackendServer.Constants
+namespace DaisyForum.BackendServer.Constants;
+
+public enum CommandCode
 {
-    public enum CommandCode
-    {
-        CREATE,
-        UPDATE,
-        DELETE,
-        VIEW,
-        APPROVE  
-    }
+    CREATE,
+    UPDATE,
+    DELETE,
+    VIEW,
+    APPROVE
 }

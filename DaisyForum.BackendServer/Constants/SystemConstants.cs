@@ -1,15 +1,14 @@
-namespace DaisyForum.BackendServer.Constants
-{
-    public class SystemConstants
-    {
-        public class Claims
-        {
-            public const string Permissions = "permissions";
-        }
+namespace DaisyForum.BackendServer.Constants;
 
-        public class Roles
-        {
-            public const string Admin = "Admin";
-        }
+public class SystemConstants
+{
+    public class Claims
+    {
+        public const string Permissions = "permissions";
+    }
+
+    public class Roles
+    {
+        public const string Admin = "Admin";
     }
 }

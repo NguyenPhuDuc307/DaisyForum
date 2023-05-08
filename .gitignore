@@ -370,3 +370,4 @@ ASALocalRun/
 .mfractor/
 
 */.angular/
+**/wwwroot/user-attachments

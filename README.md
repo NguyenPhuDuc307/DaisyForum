@@ -36,9 +36,11 @@ Website tin tức, diễn đàn DaisyForum
 24. UsesRole manager
 25. Function manager
 26. Permission manager
-27. Completed Backend API
+27. Complete Backend API
 28. Login with Google Account
 29. Add layout Web Portal
 30. Integrated SSO with Identity Server
 31. Paired with Backend API
 32. Complete Home page
+33. Show Knowledge Base
+34. Complete Knowledge Base

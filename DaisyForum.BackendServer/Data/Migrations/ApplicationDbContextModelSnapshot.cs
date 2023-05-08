@@ -199,6 +199,9 @@ namespace DaisyForum.BackendServer.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<int?>("ReplyId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Comments");

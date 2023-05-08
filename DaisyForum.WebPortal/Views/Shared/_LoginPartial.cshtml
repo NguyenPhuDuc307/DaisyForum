@@ -1,5 +1,6 @@
 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
+    <li><a href="/my-kbs">Bài đăng của tôi</a></li>
     <li><a asp-controller="Account" asp-action="MyProfile">@User.Identity.Name</a></li>
     <li><a asp-controller="Account" asp-action="SignOut">Thoát</a></li>
 }

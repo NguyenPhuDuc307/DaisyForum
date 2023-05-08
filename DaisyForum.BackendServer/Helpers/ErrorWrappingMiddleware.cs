@@ -1,41 +1,40 @@
 using Newtonsoft.Json;
 
-namespace DaisyForum.BackendServer.Helpers
-{
-    public class ErrorWrappingMiddleware
-    {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorWrappingMiddleware> _logger;
+namespace DaisyForum.BackendServer.Helpers;
 
-        public ErrorWrappingMiddleware(RequestDelegate next, ILogger<ErrorWrappingMiddleware> logger)
+public class ErrorWrappingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ErrorWrappingMiddleware> _logger;
+
+    public ErrorWrappingMiddleware(RequestDelegate next, ILogger<ErrorWrappingMiddleware> logger)
+    {
+        _next = next;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        try
         {
-            _next = next;
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            await _next.Invoke(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            context.Response.StatusCode = 500;
         }
 
-        public async Task Invoke(HttpContext context)
+        if (!context.Response.HasStarted && context.Response.StatusCode != 204)
         {
-            try
-            {
-                await _next.Invoke(context);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
+            context.Response.ContentType = "application/json";
 
-                context.Response.StatusCode = 500;
-            }
+            var response = new ApiResponse(context.Response.StatusCode);
 
-            if (!context.Response.HasStarted && context.Response.StatusCode != 204)
-            {
-                context.Response.ContentType = "application/json";
+            var json = JsonConvert.SerializeObject(response);
 
-                var response = new ApiResponse(context.Response.StatusCode);
-
-                var json = JsonConvert.SerializeObject(response);
-
-                await context.Response.WriteAsync(json);
-            }
+            await context.Response.WriteAsync(json);
         }
     }
 }

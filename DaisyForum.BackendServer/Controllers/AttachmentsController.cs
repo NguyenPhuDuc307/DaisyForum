@@ -1,55 +1,50 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DaisyForum.BackendServer.Controllers
+namespace DaisyForum.BackendServer.Controllers;
+
+public partial class KnowledgeBasesController
 {
-    public partial class KnowledgeBasesController
+    #region Attachments
+
+    [HttpGet("{knowledgeBaseId}/attachments")]
+    public async Task<IActionResult> GetAttachment(int knowledgeBaseId)
     {
-        #region Attachments
-
-        [HttpGet("{knowledgeBaseId}/attachments")]
-        public async Task<IActionResult> GetAttachment(int knowledgeBaseId)
-        {
-            var query = await _context.Attachments
-                .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
-                .Select(c => new AttachmentViewModel()
-                {
-                    Id = c.Id,
-                    LastModifiedDate = c.LastModifiedDate,
-                    CreateDate = c.CreateDate,
-                    FileName = c.FileName,
-                    FilePath = c.FilePath,
-                    FileSize = c.FileSize,
-                    FileType = c.FileType,
-                    KnowledgeBaseId = c.KnowledgeBaseId
-                }).ToListAsync();
-
-            return Ok(query);
-        }
-
-        [HttpDelete("{knowledgeBaseId}/attachments/{attachmentId}")]
-        public async Task<IActionResult> DeleteAttachment(int attachmentId)
-        {
-            var attachment = await _context.Attachments.FindAsync(attachmentId);
-            if (attachment == null)
-                return BadRequest(new ApiBadRequestResponse($"Cannot found attachment with id {attachmentId}"));
-
-            _context.Attachments.Remove(attachment);
-
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
+        var query = await _context.Attachments
+            .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
+            .Select(c => new AttachmentViewModel()
             {
-                return Ok();
-            }
-            return BadRequest(new ApiBadRequestResponse($"Delete attachment failed"));
-        }
+                Id = c.Id,
+                LastModifiedDate = c.LastModifiedDate,
+                CreateDate = c.CreateDate,
+                FileName = c.FileName,
+                FilePath = c.FilePath,
+                FileSize = c.FileSize,
+                FileType = c.FileType,
+                KnowledgeBaseId = c.KnowledgeBaseId
+            }).ToListAsync();
 
-        #endregion Attachments
+        return Ok(query);
     }
+
+    [HttpDelete("{knowledgeBaseId}/attachments/{attachmentId}")]
+    public async Task<IActionResult> DeleteAttachment(int attachmentId)
+    {
+        var attachment = await _context.Attachments.FindAsync(attachmentId);
+        if (attachment == null)
+            return BadRequest(new ApiBadRequestResponse($"Cannot found attachment with id {attachmentId}"));
+
+        _context.Attachments.Remove(attachment);
+
+        var result = await _context.SaveChangesAsync();
+        if (result > 0)
+        {
+            return Ok();
+        }
+        return BadRequest(new ApiBadRequestResponse($"Delete attachment failed"));
+    }
+
+    #endregion Attachments
 }

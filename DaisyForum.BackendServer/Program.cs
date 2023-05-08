@@ -3,6 +3,7 @@ using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.IdentityServer;
 using DaisyForum.BackendServer.Services;
+using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -162,6 +163,8 @@ services.AddTransient<IEmailSender, EmailSenderService>();
 services.AddTransient<ISequenceService, SequenceService>();
 services.AddTransient<IStorageService, FileStorageService>();
 services.AddTransient<IStorageService, FileStorageService>();
+services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+services.AddTransient<IViewRenderService, ViewRenderService>();
 
 services.AddSwaggerGen(c =>
 {

@@ -1,33 +1,32 @@
 using Newtonsoft.Json;
 
-namespace DaisyForum.BackendServer.Helpers
+namespace DaisyForum.BackendServer.Helpers;
+
+public class ApiResponse
 {
-    public class ApiResponse
+    public int StatusCode { get; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public string Message { get; }
+
+    public ApiResponse(int statusCode, string message = "")
     {
-        public int StatusCode { get; }
+        StatusCode = statusCode;
+        Message = message ?? GetDefaultMessageForStatusCode(statusCode);
+    }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Message { get; }
-
-        public ApiResponse(int statusCode, string message = "")
+    private static string GetDefaultMessageForStatusCode(int statusCode)
+    {
+        switch (statusCode)
         {
-            StatusCode = statusCode;
-            Message = message ?? GetDefaultMessageForStatusCode(statusCode);
-        }
+            case 404:
+                return "Resource not found";
 
-        private static string GetDefaultMessageForStatusCode(int statusCode)
-        {
-            switch (statusCode)
-            {
-                case 404:
-                    return "Resource not found";
+            case 500:
+                return "An unhandled error occurred";
 
-                case 500:
-                    return "An unhandled error occurred";
-
-                default:
-                    return "";
-            }
+            default:
+                return "";
         }
     }
 }
