@@ -2,18 +2,22 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using DaisyForum.BackendServer.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using DaisyForum.BackendServer.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
 {
@@ -74,24 +78,6 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [StringLength(255, ErrorMessage = "The first name field should have a maximum of 255 characters")]
-            [Display(Name = "First Name")]
-            public string FirstName { get; set; }
-
-            [Required]
-            [StringLength(255, ErrorMessage = "The last name field should have a maximum of 255 characters")]
-            [Display(Name = "Last Name")]
-            public string LastName { get; set; }
-
-            [Required]
-            [StringLength(12, ErrorMessage = "The phone number field should have a maximum of 12 characters")]
-            [Display(Name = "Phone Number")]
-            public string PhoneNumber { get; set; }
-
-            [Required]
-            [DataType(DataType.Date)]
-            [Display(Name = "Date of Birth")]
-            public DateTime Dob { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -99,9 +85,8 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
-            public DateTime CreateDate { get; set; }
         }
-
+        
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -147,11 +132,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
-                        FirstName = info.Principal.FindFirstValue(ClaimTypes.GivenName),
-                        LastName = info.Principal.FindFirstValue(ClaimTypes.Surname),
-                        PhoneNumber = info.Principal.FindFirstValue("phone"),
-                        CreateDate = DateTime.Now
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
                 }
                 return Page();
@@ -173,12 +154,6 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                if (Input.FirstName != null)
-                    user.FirstName = Input.FirstName;
-                user.LastName = Input.LastName;
-                user.Dob = Input.Dob;
-                user.CreateDate = Input.CreateDate;
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
@@ -199,18 +174,16 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code },
                             protocol: Request.Scheme);
 
-                        SendMail.SendEmail(Input.Email, "Xác nhận địa chỉ email của bạn",
-                            $"<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65\" crossorigin=\"anonymous\">\n  </head>\n  <body>\n    <div style=\"position: relative; width: 100%; height: 0; padding-top: 25.0000%;\n padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;\n border-radius: 8px; will-change: transform;\">\n  <iframe loading=\"lazy\" style=\"position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;\"\n    src=\"https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFVHjFAA-A&#x2F;view?embed\" allowfullscreen=\"allowfullscreen\" allow=\"fullscreen\">\n  </iframe>\n</div>\n  </body>\n</html> Vui lòng nhấn vào <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>đây</a> để xác nhận địa chỉ email của bạn.", "");
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
-                            HttpContext.Session.SetString("Session", "true");
                             return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
-                        HttpContext.Session.SetString("Session", "true");
                         return LocalRedirect(returnUrl);
                     }
                 }

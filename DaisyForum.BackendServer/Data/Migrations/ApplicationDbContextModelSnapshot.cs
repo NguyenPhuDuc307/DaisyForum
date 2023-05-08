@@ -17,7 +17,7 @@ namespace DaisyForum.BackendServer.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -299,9 +299,6 @@ namespace DaisyForum.BackendServer.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("ViewCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("Workaround")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -406,9 +403,6 @@ namespace DaisyForum.BackendServer.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("Dob")
                         .HasColumnType("datetime2");
 
@@ -423,9 +417,6 @@ namespace DaisyForum.BackendServer.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .IsRequired()

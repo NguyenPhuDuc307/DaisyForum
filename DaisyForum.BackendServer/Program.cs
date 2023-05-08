@@ -6,7 +6,6 @@ using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels.Systems.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-//using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +14,18 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
-var configuration = builder.Configuration;
-
 var DaisyForumSpecificOrigins = "DaisyForumSpecificOrigins";
-var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>(); builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
+var allowOrigins = builder.Configuration.GetValue<string>("AllowOrigins");
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 //1. Setup entity framework
-services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
-        configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 //2. Setup identity
-services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-services.AddIdentityServer(options =>
+builder.Services.AddIdentityServer(options =>
 {
     options.Events.RaiseErrorEvents = true;
     options.Events.RaiseInformationEvents = true;
@@ -37,25 +34,25 @@ services.AddIdentityServer(options =>
 })
 .AddInMemoryApiResources(Config.Apis)
 .AddInMemoryApiScopes(Config.ApiScopes)
-.AddInMemoryClients(configuration.GetSection("IdentityServer:Clients"))
+.AddInMemoryClients(builder.Configuration.GetSection("IdentityServer:Clients"))
 .AddInMemoryIdentityResources(Config.Ids)
 .AddAspNetIdentity<User>()
 .AddProfileService<IdentityProfileService>()
 .AddDeveloperSigningCredential();
 
-services.AddCors(options =>
+builder.Services.AddCors(options =>
 {
     options.AddPolicy(DaisyForumSpecificOrigins,
     builder =>
     {
-        if (allowedOrigins != null)
-            builder.WithOrigins(allowedOrigins)
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+        if (allowOrigins != null)
+            builder.WithOrigins(allowOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
     });
 });
 
-services.Configure<IdentityOptions>(options =>
+builder.Services.Configure<IdentityOptions>(options =>
 {
     // Default Lockout settings.
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
@@ -74,26 +71,26 @@ Log.Logger = new LoggerConfiguration()
 .WriteTo.Console()
 .CreateLogger();
 
-services.Configure<ApiBehaviorOptions>(options =>
+builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
 
 // Add services to the container.
-services.AddControllersWithViews();
+builder.Services.AddControllersWithViews();
 
 // Add validator to the service collection
-services.AddFluentValidationAutoValidation();
-services.AddFluentValidationClientsideAdapters();
-services.AddValidatorsFromAssemblyContaining<RoleCreateRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<RoleCreateRequestValidator>();
 
-services.AddAuthentication()
+builder.Services.AddAuthentication()
 .AddLocalApi("Bearer", option =>
 {
     option.ExpectedScope = "api.daisyforum";
 });
 
-services.AddAuthorization(options =>
+builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Bearer", policy =>
     {
@@ -103,7 +100,7 @@ services.AddAuthorization(options =>
 });
 
 
-services.AddRazorPages(options =>
+builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AddAreaFolderRouteModelConvention("Identity", "/Account/", model =>
     {
@@ -120,50 +117,13 @@ services.AddRazorPages(options =>
     });
 });
 
-services.AddAuthentication()
-.AddGoogle(googleOptions =>
-{
-    var googleClientId = configuration.GetSection("Authentication:Google:ClientId").Value;
-    var googleClientSecret = configuration.GetSection("Authentication:Google:ClientSecret").Value;
+builder.Services.AddTransient<DbInitializer>();
+builder.Services.AddTransient<IEmailSender, EmailSenderService>();
+builder.Services.AddTransient<ISequenceService, SequenceService>();
+builder.Services.AddTransient<IStorageService, FileStorageService>();
+builder.Services.AddTransient<IStorageService, FileStorageService>();
 
-    if (googleClientId != null && googleClientSecret != null)
-    {
-        googleOptions.ClientId = googleClientId;
-        googleOptions.ClientSecret = googleClientSecret;
-    }
-
-
-    googleOptions.Scope.Add("profile");
-    googleOptions.Scope.Add("phone");
-    // googleOptions.Scope.Add("https://www.googleapis.com/auth/user.birthday.read");
-    // googleOptions.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-    // googleOptions.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
-
-    // googleOptions.SaveTokens = true;
-
-    // googleOptions.Events.OnCreatingTicket = ctx =>
-    // {
-    //     List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
-
-    //     tokens.Add(new AuthenticationToken()
-    //     {
-    //         Name = "TicketCreated",
-    //         Value = DateTime.UtcNow.ToString()
-    //     });
-
-    //     ctx.Properties.StoreTokens(tokens);
-
-    //     return Task.CompletedTask;
-    // };
-});
-
-services.AddTransient<DbInitializer>();
-services.AddTransient<IEmailSender, EmailSenderService>();
-services.AddTransient<ISequenceService, SequenceService>();
-services.AddTransient<IStorageService, FileStorageService>();
-services.AddTransient<IStorageService, FileStorageService>();
-
-services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DaisyForum API", Version = "v1" });
 
@@ -229,18 +189,18 @@ app.UseSwaggerUI(c =>
 
 using (var scope = app.Services.CreateScope())
 {
-    var serviceProvider = scope.ServiceProvider;
+    var services = scope.ServiceProvider;
     try
     {
         Log.Information("Seeding data...");
-        var dbInitializer = serviceProvider.GetService<DbInitializer>();
+        var dbInitializer = services.GetService<DbInitializer>();
         if (dbInitializer != null)
             dbInitializer.Seed()
                          .Wait();
     }
     catch (Exception ex)
     {
-        var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while seeding the database.");
     }
 }

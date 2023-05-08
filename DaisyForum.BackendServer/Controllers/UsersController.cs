@@ -135,27 +135,26 @@ namespace DaisyForum.BackendServer.Controllers
             return Ok(userViewModel);
         }
 
-        // [HttpGet("{email}")]
-        // [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
-        // public async Task<IActionResult> GetUserByEmail(string email)
-        // {
-        //     var user = await _userManager.FindByEmailAsync(email);
-        //     if (user == null)
-        //         return NotFound(new ApiNotFoundResponse($"Cannot found user with email: {email}"));
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with email: {email}"));
 
-        //     var userViewModel = new UserViewModel()
-        //     {
-        //         Id = user.Id,
-        //         UserName = user.UserName,
-        //         Dob = user.Dob,
-        //         Email = user.Email,
-        //         PhoneNumber = user.PhoneNumber,
-        //         FirstName = user.FirstName,
-        //         LastName = user.LastName,
-        //         CreateDate = user.CreateDate
-        //     };
-        //     return Ok(userViewModel);
-        // }
+            var userViewModel = new UserViewModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Dob = user.Dob,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                CreateDate = user.CreateDate
+            };
+            return Ok(userViewModel);
+        }
 
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]

@@ -1,34 +1,21 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DaisyForum.WebPortal.Models;
-using DaisyForum.WebPortal.Services;
 
 namespace DaisyForum.WebPortal.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IKnowledgeBaseApiClient _knowledgeBaseApiClient;
 
-    public HomeController(ILogger<HomeController> logger, IKnowledgeBaseApiClient knowledgeBaseApiClient)
+    public HomeController(ILogger<HomeController> logger)
     {
         _logger = logger;
-        _knowledgeBaseApiClient = knowledgeBaseApiClient;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        var latestKbs = await _knowledgeBaseApiClient.GetLatestKnowledgeBases(6);
-        var popularKbs = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(6);
-        var labels = await _knowledgeBaseApiClient.GetPopularLabels(20);
-        var viewModel = new HomeViewModel()
-        {
-            LatestKnowledgeBases = latestKbs,
-            PopularKnowledgeBases = popularKbs,
-            PopularLabels = labels,
-        };
-
-        return View(viewModel);
+        return View();
     }
 
     public IActionResult Privacy()

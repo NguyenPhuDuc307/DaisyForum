@@ -7,10 +7,15 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace DaisyForum.BackendServer.Controllers
 {
@@ -39,7 +44,7 @@ namespace DaisyForum.BackendServer.Controllers
             knowledgeBase.OwnerUserId = User.GetUserId();
             if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
             {
-                knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title != null ? knowledgeBase.Title : "");
+                knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title);
             }
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
 
@@ -124,57 +129,6 @@ namespace DaisyForum.BackendServer.Controllers
                 TotalRecords = totalRecords,
             };
             return Ok(pagination);
-        }
-
-        [HttpGet("latest/{take:int}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetLatestKnowledgeBases(int take)
-        {
-            var knowledgeBases = from k in _context.KnowledgeBases
-                                 join c in _context.Categories on k.CategoryId equals c.Id
-                                 orderby k.CreateDate descending
-                                 select new { k, c };
-
-            var knowledgeBaseViewModels = await knowledgeBases.Take(take)
-                .Select(u => new KnowledgeBaseQuickViewModel()
-                {
-                    Id = u.k.Id,
-                    CategoryId = u.k.CategoryId,
-                    Description = u.k.Description,
-                    SeoAlias = u.k.SeoAlias,
-                    Title = u.k.Title,
-                    CategoryAlias = u.c.SeoAlias,
-                    CategoryName = u.c.Name,
-                    NumberOfVotes = u.k.NumberOfVotes,
-                    CreateDate = u.k.CreateDate
-                }).ToListAsync();
-
-            return Ok(knowledgeBaseViewModels);
-        }
-
-        [HttpGet("popular/{take:int}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetPopularKnowledgeBases(int take)
-        {
-
-            var knowledgeBaseViewModels = await (from k in _context.KnowledgeBases
-                                                 join c in _context.Categories on k.CategoryId equals c.Id
-                                                 orderby k.ViewCount descending
-                                                 select new { k, c }).Take(take)
-                .Select(u => new KnowledgeBaseQuickViewModel()
-                {
-                    Id = u.k.Id,
-                    CategoryId = u.k.CategoryId,
-                    Description = u.k.Description,
-                    SeoAlias = u.k.SeoAlias,
-                    Title = u.k.Title,
-                    CategoryAlias = u.c.SeoAlias,
-                    CategoryName = u.c.Name,
-                    NumberOfVotes = u.k.NumberOfVotes,
-                    CreateDate = u.k.CreateDate
-                }).ToListAsync();
-
-            return Ok(knowledgeBaseViewModels);
         }
 
         [HttpGet("{id}")]
@@ -352,28 +306,25 @@ namespace DaisyForum.BackendServer.Controllers
 
         private async Task ProcessLabel(KnowledgeBaseCreateRequest request, KnowledgeBase knowledgeBase)
         {
-            if (request.Labels != null)
+            foreach (var labelText in request.Labels)
             {
-                foreach (var labelText in request.Labels)
+                var labelId = TextHelper.ToUnsignedString(labelText.ToString()); var existingLabel = await _context.Labels.FindAsync(labelId);
+                if (existingLabel == null)
                 {
-                    var labelId = TextHelper.ToUnsignedString(labelText.ToString()); var existingLabel = await _context.Labels.FindAsync(labelId);
-                    if (existingLabel == null)
+                    var labelEntity = new Label()
                     {
-                        var labelEntity = new Label()
-                        {
-                            Id = labelId,
-                            Name = labelText.ToString()
-                        };
-                        _context.Labels.Add(labelEntity);
-                    }
-                    if (await _context.LabelInKnowledgeBases.FindAsync(labelId, knowledgeBase.Id) == null)
+                        Id = labelId,
+                        Name = labelText.ToString()
+                    };
+                    _context.Labels.Add(labelEntity);
+                }
+                if (await _context.LabelInKnowledgeBases.FindAsync(labelId, knowledgeBase.Id) == null)
+                {
+                    _context.LabelInKnowledgeBases.Add(new LabelInKnowledgeBase()
                     {
-                        _context.LabelInKnowledgeBases.Add(new LabelInKnowledgeBase()
-                        {
-                            KnowledgeBaseId = knowledgeBase.Id,
-                            LabelId = labelId
-                        });
-                    }
+                        KnowledgeBaseId = knowledgeBase.Id,
+                        LabelId = labelId
+                    });
                 }
             }
         }
@@ -400,10 +351,7 @@ namespace DaisyForum.BackendServer.Controllers
 
             knowledgeBase.Note = request.Note;
 
-            if (request.Labels != null)
-            {
-                knowledgeBase.Labels = string.Join(',', request.Labels);
-            }
+            knowledgeBase.Labels = string.Join(',', request.Labels);
         }
 
         #endregion Private methods

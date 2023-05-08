@@ -43,10 +43,7 @@
                     <div class="col-sm-6">
                         <p>Would you like to logout of IdentityServer?</p>
                         <form method="post">
-                            @if (Model.LogoutViewModel != null)
-                            {
-                                <input type="hidden" asp-for="@Model.LogoutViewModel.LogoutId" />
-                            }
+                            <input type="hidden" asp-for="LogoutViewModel.LogoutId" />
                             <fieldset>
                                 <div class="form-group">
                                     <button class="btn btn-primary">Yes</button>
