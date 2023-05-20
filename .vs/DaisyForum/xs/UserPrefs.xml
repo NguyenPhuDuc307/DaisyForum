@@ -1,26 +1,40 @@
-﻿<Properties StartupConfiguration="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}|KnowledgeSpace.BackendServer">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+﻿<Properties StartupConfiguration="{D412BE71-6C27-422E-93BB-86D79142DDDB}|Default">
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/daisy/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.BackendServer/Controllers/KnowledgeBasesController.cs" relfile="DaisyForum.BackendServer/Controllers/KnowledgeBasesController.cs" line="49" column="1" />
+      <Breakpoint file="/Users/daisy/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/DaisyForum.WebPortal/Controllers/AccountController.cs" relfile="DaisyForum.WebPortal/Controllers/AccountController.cs" line="61" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.BackendServer/Extensions/IdentityExtensions.cs">
+  <Debugger.DebugSourceFolders />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations>
+    <MultiItemSolutionRunConfiguration Id="run" Name="run">
+      <Items>
+        <StartupItem ItemId="{527FA060-7A63-4212-B9C1-61DBB9DEB56E}" ItemName="DaisyForum.BackendServer" />
+        <StartupItem ItemId="{D412BE71-6C27-422E-93BB-86D79142DDDB}" ItemName="DaisyForum.WebPortal" ConfigurationId="Default" />
+      </Items>
+    </MultiItemSolutionRunConfiguration>
+  </MultiItemStartupConfigurations>
+  <MonoDevelop.Ide.ItemProperties.DaisyForum.WebPortal PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DaisyForum.WebPortal/Controllers/AccountController.cs">
     <Files>
-      <File FileName="DaisyForum.BackendServer/Controllers/RolesController.cs" />
-      <File FileName="DaisyForum.BackendServer/Program.cs" Line="144" Column="1" />
-      <File FileName="DaisyForum.BackendServer/Controllers/ReportsController.cs" />
-      <File FileName="DaisyForum.BackendServer/Extensions/IdentityExtensions.cs" Line="18" Column="6" />
+      <File FileName="DaisyForum.WebPortal/Controllers/AccountController.cs" Line="61" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="DaisyForum" expanded="True">
             <Node name="DaisyForum.BackendServer" expanded="True" />
+            <Node name="DaisyForum.WebPortal" expanded="True">
+              <Node name="Controllers" expanded="True">
+                <Node name="AccountController.cs" selected="True" />
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.DaisyForum.BackendServer PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
 </Properties>

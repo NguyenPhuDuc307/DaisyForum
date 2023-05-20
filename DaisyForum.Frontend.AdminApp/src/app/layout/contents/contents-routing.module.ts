@@ -12,7 +12,7 @@ const routes: Routes = [
         path: '',
         component: KnowledgeBasesComponent,
         data: {
-            functionCode: 'CONTENT_KNOWLEDGEBASE'
+            functionCode: 'CONTENT_KNOWLEDGE_BASE'
         },
         canActivate: [AuthGuard]
     },
@@ -20,7 +20,7 @@ const routes: Routes = [
         path: 'knowledge-bases',
         component: KnowledgeBasesComponent,
         data: {
-            functionCode: 'CONTENT_KNOWLEDGEBASE'
+            functionCode: 'CONTENT_KNOWLEDGE_BASE'
         },
         canActivate: [AuthGuard]
     },
@@ -28,7 +28,7 @@ const routes: Routes = [
         path: 'knowledge-bases-detail/:id',
         component: KnowledgeBasesDetailComponent,
         data: {
-            functionCode: 'CONTENT_KNOWLEDGEBASE'
+            functionCode: 'CONTENT_KNOWLEDGE_BASE'
         },
         canActivate: [AuthGuard]
     },

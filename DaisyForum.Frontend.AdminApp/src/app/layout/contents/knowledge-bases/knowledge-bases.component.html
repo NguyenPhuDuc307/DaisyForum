@@ -3,12 +3,12 @@
     <p-panel #pnl>
         <p-header>
             <div class="ui-g-6">
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="CREATE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="CREATE" pButton type="button"
                     label="Thêm" icon="fa fa-plus" (click)="showAddModal()"></button>
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="DELETE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="DELETE" pButton type="button"
                     label="Xóa" icon="fa fa-trash" class="ui-button-danger" *ngIf="selectedItems.length > 0"
                     (click)="deleteItems()"></button>
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="UPDATE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="UPDATE" pButton type="button"
                     label="Sửa" icon="fa fa-edit" class="ui-button-warning" *ngIf="selectedItems.length== 1"
                     (click)="showEditModal()"></button>
 
@@ -42,6 +42,15 @@
                     <th [pSortableColumn]="'categoryName'">Danh mục
                         <p-sortIcon [field]="'categoryName'"></p-sortIcon>
                     </th>
+                    <th [pSortableColumn]="'numberOfComments'">Bình luận
+                        <p-sortIcon [field]="'numberOfComments'"></p-sortIcon>
+                    </th>
+                    <th [pSortableColumn]="'numberOfVotes'">Thích
+                        <p-sortIcon [field]="'numberOfVotes'"></p-sortIcon>
+                    </th>
+                    <th [pSortableColumn]="'numberOfReports'">Báo cáo
+                        <p-sortIcon [field]="'numberOfReports'"></p-sortIcon>
+                    </th>
                 </tr>
 
             </ng-template>
@@ -54,6 +63,9 @@
                     <td>{{row.id}}</td>
                     <td>{{row.title}}</td>
                     <td>{{row.categoryName}}</td>
+                    <td>{{row.numberOfComments}}</td>
+                    <td>{{row.numberOfVotes}}</td>
+                    <td>{{row.numberOfReports}}</td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="summary">

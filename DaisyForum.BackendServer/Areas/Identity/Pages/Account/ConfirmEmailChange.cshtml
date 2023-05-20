@@ -1,8 +1,10 @@
 ﻿@page
 @model ConfirmEmailChangeModel
 @{
-    ViewData["Title"] = "Confirm email change";
+    ViewData["Title"] = "Xác nhận email change";
 }
 
-<h1>@ViewData["Title"]</h1>
+<a id="forgot-password" asp-page="./Login"><i class="bi bi-arrow-right-short"></i> Quay lại đăng
+    nhập</a>
+
 <partial name="_StatusMessage" model="Model.StatusMessage" />

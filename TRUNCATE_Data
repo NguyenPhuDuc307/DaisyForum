@@ -1,0 +1,9 @@
+TRUNCATE TABLE Attachments;
+-- TRUNCATE TABLE Categories;
+TRUNCATE TABLE Comments;
+TRUNCATE TABLE KnowledgeBases;
+TRUNCATE TABLE LabelInKnowledgeBases;
+TRUNCATE TABLE Labels;
+TRUNCATE TABLE Reports;
+TRUNCATE TABLE Votes;
+TRUNCATE TABLE CacheTable;

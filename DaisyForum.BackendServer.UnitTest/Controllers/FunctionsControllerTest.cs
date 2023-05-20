@@ -13,7 +13,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
 
         public FunctionsControllerTest()
         {
-            _context = new InMemoryDbContextFactory().GetApplicationDbContext();
+            _context = new InMemoryDbContextFactory().GetApplicationDbContext("FunctionsControllerTest");
         }
 
         [Fact]

@@ -1,16 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DaisyForum.BackendServer.Data.Entities
-{
-    [Table("Labels")]
-    public class Label
-    {
-        [MaxLength(50)]
-        [Column(TypeName = "varchar(50)")]
-        public string? Id { get; set; }
+namespace DaisyForum.BackendServer.Data.Entities;
 
-        [MaxLength(50)]
-        public string? Name { get; set; }
-    }
+[Table("Labels")]
+public class Label
+{
+    [MaxLength(50)]
+    [Column(TypeName = "varchar(50)")]
+    public string? Id { get; set; }
+
+    [MaxLength(50)]
+    public string? Name { get; set; }
 }

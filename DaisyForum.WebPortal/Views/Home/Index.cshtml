@@ -1,9 +1,146 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ Daisy Forum";
+    ViewData["Description"] = "Trang chủ của hệ thống lưu trữ kiến thức Daisy Forum";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<style>
+    label a {
+        color: black;
+        margin-bottom: 10px;
+    }
 
+    label a:hover {
+        text-decoration: none;
+        color: #007bff;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <section class="col-lg-2 col-xl-3 mb-5">
+            <label class="title">Nhãn bài viết</label>
+            <div class="tagcloud">
+                @foreach (var item in Model.PopularLabels)
+                {
+                    <a class="m-0 badge align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill"
+                        href="tag/@item.Id" class="d-flex"><i class="bi bi-bookmark me-1"></i>@Html.Raw(item.Name)</a>
+                }
+            </div>
+        </section>
+
+        <div class="col-lg-10 col-xl-9">
+            <div class="row">
+                <section class="col-lg-6 mb-5">
+                    <label>Bài bài viết mới nhất</label>
+                    <div class="list-group list-group-checkable d-grid gap-2 border-0">
+                        @foreach (var item in Model.LatestKnowledgeBases)
+                        {
+                            var url = "/bai-dang/" + item.SeoAlias + "-" + item.Id + "/";
+                            <label class="list-group-item rounded-3 py-3 w-100">
+                                <div class="d-flex">
+                                    <span class="d-block small opacity-50 me-2">@item.CreateDate.ToString("dd/MM/yyyy")
+                                        trong
+                                    </span>
+
+                                    <a style="max-width: 200px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        href="/danh-muc/@item.CategoryAlias-@item.CategoryId"
+                                        title="Xem tất cả bài đăng trong @Html.Raw(item.CategoryName)"
+                                        class="m-0 badge align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                                        @Html.Raw(item.CategoryName)</a>
+                                </div>
+
+                                <a style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden; height: 3em;"
+                                    href="@url">@Html.Raw(item.Title)</a>
+
+                                @if (@item.NumberOfVotes == null || item.NumberOfVotes == 0)
+                                {
+                                    <span style="width: fit-content"
+                                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> 0
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="width: fit-content"
+                                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> @item.NumberOfVotes
+                                    </span>
+                                }
+                                @if (item.Labels != null)
+                                {
+                                    @foreach (var label in item.Labels)
+                                    {
+                                        <a href="tag/@item.Id"
+                                            class="m-0 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill">
+                                            <i class="bi bi-bookmark me-1"></i>@label
+                                        </a>
+                                    }
+                                }
+                            </label>
+                        }
+
+                    </div>
+                </section>
+
+
+                <section class="col-lg-6 mb-5">
+                    <label class="">Bài viết xem nhiều</label>
+                    <div class="list-group list-group-checkable d-grid gap-2 border-0">
+                        @foreach (var item in Model.PopularKnowledgeBases)
+                        {
+                            var url = "/bai-dang/" + item.SeoAlias + "-" + item.Id + "/";
+                            <label class="list-group-item rounded-3 py-3 w-100">
+                                <div class="d-flex">
+                                    <span class="d-block small opacity-50 me-2">@item.CreateDate.ToString("dd/MM/yyyy")
+                                        trong
+                                    </span>
+
+                                    <a style="max-width: 200px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        href="/danh-muc/@item.CategoryAlias-@item.CategoryId"
+                                        title="Xem tất cả bài đăng trong @Html.Raw(item.CategoryName)"
+                                        class="m-0 badge align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                                        @Html.Raw(item.CategoryName)</a>
+                                </div>
+
+                                <a style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden; height: 3em;"
+                                    href="@url">@Html.Raw(item.Title)</a>
+
+                                @if (@item.NumberOfVotes == null || item.NumberOfVotes == 0)
+                                {
+                                    <span style="width: fit-content"
+                                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> 0
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="width: fit-content"
+                                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> @item.NumberOfVotes
+                                    </span>
+                                }
+                                @if (item.Labels != null)
+                                {
+                                    @foreach (var label in item.Labels)
+                                    {
+                                        <a href="tag/@item.Id"
+                                            class="m-0 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill">
+                                            <i class="bi bi-bookmark me-1"></i>@label
+                                        </a>
+                                    }
+                                }
+                            </label>
+                        }
+                    </div>
+                </section>
+            </div>
+
+
+
+
+        </div>
+
+
+
+    </div>
+</div>

@@ -1,0 +1,16 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section scripts{
+    @RenderSection("scripts", required: false)
+}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">@RenderBody()</div>
+        <div class="col-md-4">
+            <!-- start of sidebar -->
+            @await Component.InvokeAsync("SideBar")
+            <!-- end of sidebar -->
+        </div>
+    </div>
+</div>

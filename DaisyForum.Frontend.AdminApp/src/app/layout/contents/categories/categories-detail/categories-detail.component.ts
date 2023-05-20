@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, OnDestroy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CategoriesService, NotificationService, UtilitiesService } from '@app/shared/services';
-import { UntypedFormBuilder, UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { MessageConstants } from '@app/shared/constants';
 import { SelectItem } from 'primeng/api/selectitem';
@@ -19,18 +19,16 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
     private categoriesService: CategoriesService,
     private notificationService: NotificationService,
     private utilitiesService: UtilitiesService,
-    private fb: UntypedFormBuilder) {
+    private fb: FormBuilder) {
   }
 
   private subscription = new Subscription();
-  public entityForm: UntypedFormGroup;
+  public entityForm: FormGroup;
   public dialogTitle: string;
   private savedEvent: EventEmitter<any> = new EventEmitter();
   public entityId: number;
   public btnDisabled = false;
-
   public blockedPanel = false;
-
   public categories: SelectItem[] = [];
 
   // Validate
@@ -50,16 +48,16 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.entityForm = this.fb.group({
-      'name': new UntypedFormControl('', Validators.compose([
+      'parentId': new FormControl(null),
+      'name': new FormControl('', Validators.compose([
         Validators.required,
         Validators.maxLength(50)
       ])),
-      'seoAlias': new UntypedFormControl('', Validators.compose([
+      'seoAlias': new FormControl('', Validators.compose([
         Validators.required
       ])),
-      'seoDescription': new UntypedFormControl(''),
-      'sortOrder': new UntypedFormControl(null, Validators.required),
-      'parentId': new UntypedFormControl(null)
+      'seoDescription': new FormControl(''),
+      'sortOrder': new FormControl(0, Validators.required)
     });
     this.subscription.add(this.categoriesService.getAll()
       .subscribe((response: Category[]) => {
@@ -85,11 +83,11 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
     this.blockedPanel = true;
     this.subscription.add(this.categoriesService.getDetail(id).subscribe((response: any) => {
       this.entityForm.setValue({
+        parentId: response.parentId,
         name: response.name,
         seoAlias: response.seoAlias,
         seoDescription: response.seoDescription,
-        sortOrder: response.sortOrder,
-        parentId: response.parentId
+        sortOrder: response.sortOrder
       });
       setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
     }, error => {

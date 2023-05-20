@@ -3,10 +3,11 @@ using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.IdentityServer;
 using DaisyForum.BackendServer.Services;
+using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Systems.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
+//using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,17 +17,23 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-var configuration = builder.Configuration; ;
+var configuration = builder.Configuration;
 
 var DaisyForumSpecificOrigins = "DaisyForumSpecificOrigins";
 var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>(); builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 //1. Setup entity framework
-services.AddDbContext<ApplicationDbContext>(options =>
+services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseSqlServer(
         configuration.GetConnectionString("DefaultConnection")));
 //2. Setup identity
 services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.AddServerHeader = false;
+});
 
 services.AddIdentityServer(options =>
 {
@@ -102,7 +109,6 @@ services.AddAuthorization(options =>
     });
 });
 
-
 services.AddRazorPages(options =>
 {
     options.Conventions.AddAreaFolderRouteModelConvention("Identity", "/Account/", model =>
@@ -123,38 +129,48 @@ services.AddRazorPages(options =>
 services.AddAuthentication()
 .AddGoogle(googleOptions =>
 {
-    IConfigurationSection googleAuthNSection = configuration.GetSection("Authentication:Google");
-    googleOptions.ClientId = googleAuthNSection["ClientId"];
-    googleOptions.ClientSecret = googleAuthNSection["ClientSecret"];
-    googleOptions.Scope.Add("profile");
-    googleOptions.Scope.Add("phone");
-    // googleOptions.Scope.Add("https://www.googleapis.com/auth/user.birthday.read");
-    // googleOptions.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-    // googleOptions.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
+    var googleClientId = configuration.GetSection("Authentication:Google:ClientId").Value;
+    var googleClientSecret = configuration.GetSection("Authentication:Google:ClientSecret").Value;
 
-    // googleOptions.SaveTokens = true;
+    if (googleClientId != null && googleClientSecret != null)
+    {
+        googleOptions.ClientId = googleClientId;
+        googleOptions.ClientSecret = googleClientSecret;
+    }
+})
+.AddFacebook(facebookOptions =>
+{
+    var facebookAppId = configuration.GetSection("Authentication:Facebook:AppId").Value;
+    var facebookAppSecret = configuration.GetSection("Authentication:Facebook:AppSecret").Value;
 
-    // googleOptions.Events.OnCreatingTicket = ctx =>
-    // {
-    //     List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
+    if (facebookAppId != null && facebookAppSecret != null)
+    {
+        facebookOptions.AppId = facebookAppId;
+        facebookOptions.AppSecret = facebookAppSecret;
+    }
+})
+.AddMicrosoftAccount(microsoftOptions =>
+{
+    var microsoftClientId = configuration.GetSection("Authentication:Microsoft:ClientId").Value;
+    var microsoftClientSecret = configuration.GetSection("Authentication:Microsoft:ClientSecret").Value;
 
-    //     tokens.Add(new AuthenticationToken()
-    //     {
-    //         Name = "TicketCreated",
-    //         Value = DateTime.UtcNow.ToString()
-    //     });
-
-    //     ctx.Properties.StoreTokens(tokens);
-
-    //     return Task.CompletedTask;
-    // };
-});
+    if (microsoftClientId != null && microsoftClientSecret != null)
+    {
+        microsoftOptions.ClientId = microsoftClientId;
+        microsoftOptions.ClientSecret = microsoftClientSecret;
+    }
+})
+;
 
 services.AddTransient<DbInitializer>();
 services.AddTransient<IEmailSender, EmailSenderService>();
 services.AddTransient<ISequenceService, SequenceService>();
+
 services.AddTransient<IStorageService, FileStorageService>();
-services.AddTransient<IStorageService, FileStorageService>();
+services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+services.AddTransient<IViewRenderService, ViewRenderService>();
+services.AddTransient<ICacheService, DistributedCacheService>();
+services.AddTransient<IOneSignalService, OneSignalService>();
 
 services.AddSwaggerGen(c =>
 {
@@ -184,6 +200,13 @@ services.AddSwaggerGen(c =>
     });
 });
 
+services.AddDistributedSqlServerCache(o =>
+{
+    o.ConnectionString = configuration.GetConnectionString("DefaultConnection");
+    o.SchemaName = "dbo";
+    o.TableName = "CacheTable";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -191,8 +214,28 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+else
+{
+    app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
+
+    app.UseXContentTypeOptions();
+    app.UseReferrerPolicy(opts => opts.NoReferrer());
+    app.UseXXssProtection(options => options.EnabledWithBlockMode());
+    app.UseXfo(options => options.Deny());
+}
 
 app.UseErrorWrapping();
+
+//app.UseCsp(opts => opts
+//        .BlockAllMixedContent()
+//        .StyleSources(s => s.Self())
+//        .StyleSources(s => s.UnsafeInline())
+//        .FontSources(s => s.Self())
+//        .FormActions(s => s.Self())
+//        .FrameAncestors(s => s.Self())
+//        .ImageSources(s => s.Self())
+//        .ScriptSources(s => s.Self())
+//    );
 
 app.UseStaticFiles();
 
@@ -204,9 +247,9 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors(DaisyForumSpecificOrigins);
-
 app.UseAuthorization();
+
+app.UseCors(DaisyForumSpecificOrigins);
 
 app.MapDefaultControllerRoute();
 

@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MockQueryable.Moq;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace DaisyForum.BackendServer.UnitTest.Controllers
 {
@@ -28,6 +33,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var userStore = new Mock<IUserStore<User>>();
             _mockUserManager = new Mock<UserManager<User>>(userStore.Object,
                 null, null, null, null, null, null, null, null);
+
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _mockRoleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
 
@@ -50,14 +56,14 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             _mockUserManager.Setup(x => x.FindByNameAsync(It.IsAny<string>()))
                 .ReturnsAsync(new User()
                 {
-                    UserName = "test",
+                    UserName = "test"
                 });
 
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PostUser(new UserCreateRequest()
             {
                 UserName = "test",
-                Password = "Aa@12345"
+                Dob = "12/12/2020"
             });
 
             Assert.NotNull(result);
@@ -74,7 +80,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var result = await usersController.PostUser(new UserCreateRequest()
             {
                 UserName = "test",
-                Password = "Aa@12345"
+                Dob = "12/12/2020"
             });
 
             Assert.NotNull(result);
@@ -89,8 +95,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetUsers();
             var okResult = result as OkObjectResult;
-            var userViewModels = okResult != null ? okResult.Value as IEnumerable<UserViewModel> : null;
-            Assert.True(userViewModels != null ? userViewModels.Count() > 0 : false);
+            var UserViewModels = okResult.Value as IEnumerable<UserViewModel>;
+            Assert.True(UserViewModels.Count() > 0);
         }
 
         [Fact]
@@ -112,9 +118,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetUsersPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
-            var userViewModels = okResult != null ? okResult.Value as Pagination<UserViewModel> : null;
-            Assert.Equal(4, userViewModels != null ? userViewModels.TotalRecords : 0);
-            Assert.Equal(2, (userViewModels != null ? (userViewModels.Items != null ? userViewModels.Items.Count() : 0) : 0));
+            var UserViewModels = okResult.Value as Pagination<UserViewModel>;
+            Assert.Equal(4, UserViewModels.TotalRecords);
+            Assert.Equal(2, UserViewModels.Items.Count);
         }
 
         [Fact]
@@ -126,11 +132,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetUsersPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
-            var userViewModels = okResult != null ? okResult.Value as Pagination<UserViewModel> : null;
-            Assert.Equal(1, userViewModels != null ? userViewModels.TotalRecords : 0);
-            if (userViewModels != null)
-                if (userViewModels.Items != null)
-                    Assert.Single(userViewModels.Items);
+            var UserViewModels = okResult.Value as Pagination<UserViewModel>;
+            Assert.Equal(1, UserViewModels.TotalRecords);
+            Assert.Single(UserViewModels.Items);
         }
 
         [Fact]
@@ -156,9 +160,9 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
 
-            var userVieUserViewModel = okResult.Value as UserViewModel;
+            var userViewModel = okResult.Value as UserViewModel;
 
-            Assert.Equal("test1", userVieUserViewModel != null ? userVieUserViewModel.UserName : null);
+            Assert.Equal("test1", userViewModel.UserName);
         }
 
         [Fact]
@@ -185,7 +189,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PutUser("test", new UserCreateRequest()
             {
-                FirstName = "test2"
+                FirstName = "test2",
+                Dob = "12/12/2020"
             });
 
             Assert.NotNull(result);
@@ -207,7 +212,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PutUser("test", new UserCreateRequest()
             {
-                UserName = "test1"
+                UserName = "test1",
+                Dob = "12/12/2020"
             });
 
             Assert.NotNull(result);
@@ -222,6 +228,13 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
                {
                    UserName = "test1"
                });
+
+            _mockUserManager.Setup(x => x.GetUsersInRoleAsync(It.IsAny<string>()))
+             .ReturnsAsync(new List<User>(){
+                new User()
+                {
+                    UserName = "test1"
+                }});
 
             _mockUserManager.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -238,9 +251,8 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
              {
                  UserName = "test1"
              });
-
             _mockUserManager.Setup(x => x.GetUsersInRoleAsync(It.IsAny<string>()))
-            .ReturnsAsync(new List<User>(){
+             .ReturnsAsync(new List<User>(){
                 new User()
                 {
                     UserName = "test1"

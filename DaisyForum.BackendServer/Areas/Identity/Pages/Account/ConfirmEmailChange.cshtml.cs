@@ -63,7 +63,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Thank you for confirming your email change.";
+            StatusMessage = "Cảm ơn bạn đã xác nhận cập nhật thay đổi email.";
             return Page();
         }
     }

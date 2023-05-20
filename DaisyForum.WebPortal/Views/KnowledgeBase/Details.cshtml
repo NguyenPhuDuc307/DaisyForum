@@ -1,0 +1,313 @@
+@model KnowledgeBaseDetailViewModel
+@{
+    ViewData["Title"] = Model.Detail.Title + " - Daisy Forum";
+    ViewData["Description"] = Model.Detail.Description;
+    Layout = "_SubLayout";
+}
+
+<style>
+    .comment-meta {
+        padding-bottom: 0 !important;
+    }
+</style>
+
+@section scripts{
+    <script src="https://cdn.ckeditor.com/ckeditor5/37.1.0/classic/ckeditor.js"></script>
+    <script>
+        $(document).ready(function () {
+            var count = 0; // Biến đếm số lượng nhãn đã được thêm vào
+
+            $('#txt_label').keypress(function (event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode === 13) { // Kiểm tra phím Enter được nhấn
+                    event.preventDefault(); // Chặn hành động submit của form
+                    var label = $("#txt_label").val().trim();
+                    var label_submit = $("#txt_label_submit").val();
+
+                    if (label.length > 0) {
+                        if (count >= 5) { // Kiểm tra số lượng nhãn đã vượt quá giới hạn
+                            $("#passwordHelpBlock").addClass("text-danger").text("Bạn đã thêm tối đa 5 nhãn.");
+                            return;
+                        }
+
+                        // Tạo thẻ span và thêm vào div #labelsContainer
+                        var span = $("<span>").addClass("label badge d-flex mx-1 align-items-center px-1 text-primary-emphasis bg-primary-subtle rounded-pill");
+                        span.append($("<span>").addClass("px-1").text(label));
+                        span.append($("<a>").attr('style', 'color: black !important; cursor: pointer').click(function () {
+                            // Xóa nhãn khi bấm dấu x trên thẻ a
+                            var label = $(this).parent().text().trim();
+                            var label_submit = $("#txt_label_submit").val();
+                            $("#passwordHelpBlock").removeClass("text-danger").text("Nhấn enter đển thêm nhãn vào danh sách.");
+                            // Xóa giá trị tương ứng trong ô input bên dưới
+                            label_submit = label_submit.replace(label, '').replace(/,,/g, ',').replace(/^,|,$/g, '');
+                            $("#txt_label_submit").val(label_submit);
+
+                            // Xóa thẻ span
+                            $(this).parent().remove();
+
+                            // Giảm biến đếm số lượng nhãn
+                            count--;
+                        }).append($("<svg>").attr("xmlns", "http://www.w3.org/2000/svg").attr("width", "16").attr("height", "16").attr("fill", "currentColor").addClass("bi bi-x-circle-fill").attr("viewBox", "0 0 16 16").append($("<path>").attr("d", "M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"))));
+                        $("#labelsContainer").append(span);
+
+                        // Xóa giá trị trong ô input và cập nhật ô input bên dưới
+                        $("#txt_label").val('');
+                        if (label_submit.length > 0) {
+                            label_submit += "," + label;
+                        } else {
+                            label_submit = label;
+                        }
+                        $("#txt_label_submit").val(label_submit);
+
+                        // Tăng biến đếm số lượng nhãn
+                        count++;
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="~/lib/mustache.js/mustache.min.js"></script>
+    <script src="~/js/controllers/knowledgeBaseController.js" asp-append-version="true"></script>
+
+
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#txt_new_comment_content'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+
+
+    <script>
+        var controller = new knowledgeBaseController();
+        controller.initialize();
+    </script>
+}
+
+<input type="hidden" id="hid_knowledge_base_id" value="@Model.Detail.Id" />
+@if (User.Identity.IsAuthenticated)
+{
+    <input type="hidden" id="hid_current_login_name" value="@Model.CurrentUser.FirstName @Model.CurrentUser.LastName" />
+
+}
+<div class="">
+    <ul class="breadcrumb">
+        <li><a href="/">Trang chủ</a><span class="divider">/</span></li>
+        <li>
+            <a href="/danh-muc/@Model.Category.SeoAlias-@Model.Category.Id"
+                title="Xem tất cả bài trong @Model.Category.Name">@Model.Category.Name</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">@Model.Detail.Title</li>
+    </ul>
+
+    <div>
+        <h1 class="post-title text-bold h2">@Model.Detail.Title</h1>
+
+        <div class="d-flex align-items-center">
+            <span class="d-block opacity-50 me-2">@Model.Detail.CreateDate.ToString("dd/MM/yyyy")
+                trong
+            </span>
+            <span class="me-3"><a href="/tag/@Model.Detail.SeoAlias-@Model.Detail.Id"
+                    title="Xem tất cả bài viết trong @Model.Detail.CategoryName">@Model.Detail.CategoryName</a></span>
+
+            <div style="width: fit-content"
+                class="me-2 badge d-flex align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                <i class="bi bi-chat-quote-fill me-1"></i>Bình luận
+                @Model.Detail.NumberOfComments.GetValueOrDefault(0).ToString("N0")
+            </div>
+
+            <div style="width: fit-content"
+                class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                <i class="bi bi-hand-thumbs-up-fill me-1"></i>Thích
+                <div class="ml-1" id="like-count">@Model.Detail.NumberOfVotes.GetValueOrDefault(0).ToString("N0")</div>
+
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <button type="button" class="btn btn-outline-danger ml-3" data-bs-toggle="modal"
+                    data-bs-target="#reportModal">
+                    Báo xấu
+                </button>
+            }
+        </div>
+
+
+        <p> <strong>Vấn đề:</strong> @Html.Raw(Model.Detail.Problem)</p>
+
+        <p> <strong>Môi trường:</strong> @Html.Raw(Model.Detail.Environment)</p>
+
+        <p> <strong>Các bước tái hiện:</strong> @Html.Raw(Model.Detail.StepToReproduce)</p>
+
+        <p> <strong>Giải pháp:</strong> @Html.Raw(Model.Detail.Workaround)</p>
+
+        <p> <strong>Chú ý:</strong> @Html.Raw(Model.Detail.Note)</p>
+    </div>
+    <hr />
+    <div class="like-btn d-flex">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form id="frm_vote" action="#" method="post">
+                <input type="hidden" name="knowledgeBaseId" value="@Model.Detail.Id">
+                <span style="width: fit-content; cursor: pointer;"
+                    class="like-it badge d-flex p-2 align-items-center text-success bg-success-subtle border border-success-subtle rounded-pill">
+                    <i class="bi bi-hand-thumbs-up-fill me-1"></i>
+                    <span class="pe-1">Thích</span>
+                    <span id="like-num">@Model.Detail.NumberOfVotes.GetValueOrDefault(0).ToString("N0")</span>
+                </span>
+
+            </form>
+        }
+
+        <span class="tags ml-3">
+            <strong>Tags:&nbsp;&nbsp;</strong>
+            @foreach (var label in Model.Labels)
+            {
+                <a href="tag/@label.Id"
+                    class="me-1 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill">
+                    <i class="bi bi-bookmark me-1"></i>@label.Name
+                </a>
+            }
+        </span>
+    </div>
+    <hr />
+
+    <section id="comments" class="mt-3">
+        <input type="hidden" value="@Model.Detail.NumberOfComments.GetValueOrDefault(0)" id="hid_number_comments" />
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div id="respond">
+                <div class="cancel-comment-reply">
+                    <a rel="nofollow" id="cancel-comment-reply-link" href="#" style="display:none;">Click here to cancel
+                        reply.</a>
+                </div>
+
+                <form action="/knowledgebase/addNewComment" method="post" id="commentform">
+                    <input type="hidden" name="knowledgeBaseId" value="@Model.Detail.Id" />
+                    <div>
+                        <label for="comment">Bình luận</label>
+                        <textarea class="form-control" name="content" id="txt_new_comment_content" cols="58"
+                            rows="10"></textarea>
+                    </div>
+
+                    <p id="message-result" style="display:none;"></p>
+
+                    <div class="mb-4">
+                        <button class="btn btn-outline-secondary btn-sm mt-1" name="submit" type="submit"
+                            id="btn_send_reply"><i class="bi bi-send me-2"></i>Bình luận</button>
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <p class="comment-notes">Mời bạn <a asp-controller="Account" asp-action="SignIn">đăng nhập</a> để bình luận</p>
+
+        }
+
+        <label id="comments-title">(@Model.Detail.NumberOfComments.GetValueOrDefault(0).ToString("N0")) bình
+            luận</label>
+
+        <div class="" id="comment_list">
+        </div>
+        <a id="comment-pagination" data-page-index="1" href="#" style="display:none">Xem thêm bình luận</a>
+
+
+    </section><!-- end of comments -->
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="message" class="toast-body">
+        </div>
+    </div>
+</div>
+
+<script id="tmpl_children_comments" type="x-tmpl-mustache">
+    <br>
+       <div class="ml-4 mb-3 border-left" id="li-comment-2">
+        <article id="comment-2" class="d-flex">
+            <i class="bi bi-arrow-return-right me-2"></i>
+            <div>
+                <div class="comment-meta border-bottom bg-light rounded p-2"><h6>
+                    <label>{{ownerName}}</label>
+                    <br>
+                    {{{content}}}
+                </div>
+                <i class="me-2 small">
+                    <time>{{createDate}}</time>
+                </i> 
+                <a class="comment-reply-link_child h6" style="font-weight: 500" href="#" data-commentid="{{id}}">Phản hồi</a>
+                <div id="reply_comment_child_{{id}}"></div>
+            </div>
+        </article>
+        <div class="children" id="children_comments_child_{{id}}">
+            {{{childrenHtml}}}
+        </div>
+    </div>
+</script>
+<script id="tmpl_comments" type="x-tmpl-mustache">
+    <div class="mb-3" id="li-comment-2">
+        <article id="comment-2">
+            <div class="comment-meta border-bottom bg-light rounded p-2"><h6>
+                    <label>{{ownerName}}</label>
+                    <br>
+                    {{{content}}}
+            </div>
+            <i class="me-2 small">
+                <time>{{createDate}}</time>
+            </i> 
+            <a class="comment-reply-link h6" style="font-weight: 500" href="#" data-commentid="{{id}}">Phản hồi</a>
+            <div id="reply_comment_{{id}}"></div>
+        </article><!-- end of comment -->
+
+        <div class="children" id="children_comments_{{id}}">
+
+            {{{childrenHtml}}}
+        </div>
+    </div>
+</script>
+
+<script id="tmpl_reply_comment" type="x-tmpl-mustache">
+    <div id="respond" class="mb-3">
+        <form action="/knowledgebase/addNewComment" method="post" id="frm_reply_comment_{{commentId}}">
+            <input type="hidden" name="knowledgeBaseId" value="@Model.Detail.Id" />
+            <input type="hidden" name="replyId" value="{{commentId}}" />
+            <div>
+                <textarea placeholder="Phản hồi về bình luận" class="form-control" name="content" id="txt_reply_content_{{commentId}}" cols="58" rows="5"></textarea>
+            </div>
+            <p id="message-result-reply-{{commentId}}" style="display:none;"></p>
+
+            <div class="form-actions">
+                <button class="btn btn-outline-secondary btn-sm mt-1" name="submit" type="submit" id="btn_send_reply"><i class="bi bi-send me-2"></i>Phản hồi</button>
+            </div>
+        </form>
+    </div>
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="frm_report">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Báo xấu</h5>
+                </div>
+                <div class="modal-body">
+
+                    <input type="hidden" value="@Model.Detail.Id" name="knowledgeBaseId" />
+                    <textarea id="txt_report_content" name="content" placeholder="Nhập nội dung cần báo cáo"
+                        class="form-control"></textarea>
+                    <p id="message-result-report" style="display:none;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn_send_report">Báo cáo</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,88 +1,99 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DaisyForum.BackendServer.Controllers
+namespace DaisyForum.BackendServer.Controllers;
+
+public partial class KnowledgeBasesController
 {
-    public partial class KnowledgeBasesController
+    #region Votes
+
+    [HttpGet("{knowledgeBaseId}/votes")]
+    public async Task<IActionResult> GetVotes(int knowledgeBaseId)
     {
-        #region Votes
+        var votes = await _context.Votes
+            .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
+            .Select(x => new VoteViewModel()
+            {
+                UserId = x.UserId,
+                KnowledgeBaseId = x.KnowledgeBaseId,
+                CreateDate = x.CreateDate,
+                LastModifiedDate = x.LastModifiedDate
+            }).ToListAsync();
 
-        [HttpGet("{knowledgeBaseId}/votes")]
-        public async Task<IActionResult> GetVotes(int knowledgeBaseId)
+        return Ok(votes);
+    }
+
+    [HttpPost("{knowledgeBaseId}/votes")]
+    public async Task<IActionResult> PostVote(int knowledgeBaseId)
+    {
+        var userId = User.GetUserId();
+        var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+        if (knowledgeBase == null)
+            return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
+
+        var numberOfVotes = await _context.Votes.CountAsync(x => x.KnowledgeBaseId == knowledgeBaseId);
+        var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
+        if (vote != null)
         {
-            var votes = await _context.Votes
-                .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
-                .Select(x => new VoteViewModel()
-                {
-                    UserId = x.UserId,
-                    KnowledgeBaseId = x.KnowledgeBaseId,
-                    CreateDate = x.CreateDate,
-                    LastModifiedDate = x.LastModifiedDate
-                }).ToListAsync();
-
-            return Ok(votes);
+            _context.Votes.Remove(vote);
+            numberOfVotes -= 1;
         }
-
-        [HttpPost("{knowledgeBaseId}/votes")]
-        public async Task<IActionResult> PostVote(int knowledgeBaseId, [FromBody] VoteCreateRequest request)
+        else
         {
-            var vote = await _context.Votes.FindAsync(knowledgeBaseId, request.UserId);
-            if (vote != null)
-                return BadRequest(new ApiBadRequestResponse("This user has been voted for this Knowledge Bases"));
-
             vote = new Vote()
             {
                 KnowledgeBaseId = knowledgeBaseId,
-                UserId = request.UserId
+                UserId = userId
             };
             _context.Votes.Add(vote);
-
-            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase == null)
-                return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
-            knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) + 1;
-            _context.KnowledgeBases.Update(knowledgeBase);
-
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return BadRequest(new ApiBadRequestResponse($"Vote failed"));
-            }
+            numberOfVotes += 1;
         }
 
-        [HttpDelete("{knowledgeBaseId}/votes/{userId}")]
-        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, string userId)
+        knowledgeBase.NumberOfVotes = numberOfVotes;
+        _context.KnowledgeBases.Update(knowledgeBase);
+
+        var result = await _context.SaveChangesAsync();
+        if (result > 0)
         {
-            var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
-            if (vote == null)
-                return NotFound(new ApiNotFoundResponse("Cannot found vote"));
-
-            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase == null)
-                return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
-            knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) - 1;
-            _context.KnowledgeBases.Update(knowledgeBase);
-
-            _context.Votes.Remove(vote);
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
-            {
-                return Ok();
-            }
-            return BadRequest(new ApiBadRequestResponse($"Delete vote failed"));
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
+            return Ok(numberOfVotes);
         }
-
-        #endregion Votes
+        else
+        {
+            return BadRequest(new ApiBadRequestResponse($"Vote failed"));
+        }
     }
+
+    [HttpDelete("{knowledgeBaseId}/votes/{userId}")]
+    public async Task<IActionResult> DeleteVote(int knowledgeBaseId, string userId)
+    {
+        var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
+        if (vote == null)
+            return NotFound(new ApiNotFoundResponse("Cannot found vote"));
+
+        var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+        if (knowledgeBase == null)
+            return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
+
+        knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) - 1;
+        _context.KnowledgeBases.Update(knowledgeBase);
+
+        _context.Votes.Remove(vote);
+        var result = await _context.SaveChangesAsync();
+        if (result > 0)
+        {
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
+            return Ok();
+        }
+        return BadRequest(new ApiBadRequestResponse($"Delete vote failed"));
+    }
+
+    #endregion Votes
 }

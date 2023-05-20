@@ -1,0 +1,41 @@
+.body-section {
+	padding: 10px;
+}
+
+.body-section a.new-kb {
+	width: 90%;
+	height: 32px;
+	font-size: 20px;
+	padding: 14px 10px 10px 10px;
+}
+
+.field-validation-error {
+	color: red;
+}
+
+.cke {
+	margin-bottom: 10px !important;
+}
+
+.error {
+	color: red;
+}
+
+.validation-summary-errors {
+	color: red;
+}
+
+.text-area {
+	width: 97%;
+}
+
+hr {
+	height: 1px;
+	border: none;
+	color: #333;
+	background-color: #333;
+}
+
+.divider {
+	padding: 5px;
+}

@@ -18,6 +18,8 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
         private readonly ILogger<LogoutModel> _logger;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
+        public LogoutViewModel? LogoutViewModel { get; set; }
+        public LoggedOutViewModel? LoggedOutViewModel { get; set; }
 
         public LogoutModel(SignInManager<User> signInManager, ILogger<LogoutModel> logger, IIdentityServerInteractionService interaction, IEventService events)
         {
@@ -26,10 +28,6 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
             _interaction = interaction;
             _events = events;
         }
-
-        public LogoutViewModel LogoutViewModel { get; set; }
-
-        public LoggedOutViewModel LoggedOutViewModel { get; set; }
 
         public async Task<IActionResult> OnGet(string logoutId)
         {
@@ -49,7 +47,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPost(LogoutInputModel model)
         {
             // build a model so the logged out page knows what to display
-            var ViewModel = await BuildLoggedOutViewModelAsync(model.LogoutId!=null ?model.LogoutId:"");
+            var ViewModel = await BuildLoggedOutViewModelAsync(model.LogoutId != null ? model.LogoutId : "");
 
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -66,10 +64,11 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
                 // build a return URL so the upstream provider will redirect back
                 // to us after the user has logged out. this allows us to then
                 // complete our single sign-out processing.
-                string url = Url.Action("Logout", new { logoutId = ViewModel.LogoutId });
+                string? url = ViewModel?.LogoutId != null ? Url.Action("Logout", new { logoutId = ViewModel.LogoutId }) : null;
 
                 // this triggers a redirect to the external provider for sign-out
-                return SignOut(new AuthenticationProperties { RedirectUri = url }, ViewModel.ExternalAuthenticationScheme);
+                return SignOut(new AuthenticationProperties { RedirectUri = url }, ViewModel?.ExternalAuthenticationScheme ?? "DefaultAuthenticationScheme");
+
             }
 
             LoggedOutViewModel = ViewModel;

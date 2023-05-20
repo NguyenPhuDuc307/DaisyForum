@@ -1,0 +1,11 @@
+@if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <li class="nav-item"><a href="/bai-dang-cua-toi" class="nav-link link-dark px-2">Bài đăng của tôi</a></li>
+    <li class="nav-item"><a asp-controller="Account" asp-action="MyProfile"
+        class="nav-link link-dark px-2">@User.Identity.Name</a></li>
+    <li class="nav-item"><a asp-controller="Account" asp-action="SignOut" class="nav-link link-dark px-2">Thoát</a></li>
+}
+else
+{
+    <li class="nav-item"><a class="nav-link link-dark px-2" asp-controller="Account" asp-action="SignIn">Đăng nhập</a></li>
+}
