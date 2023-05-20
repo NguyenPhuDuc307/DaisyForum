@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.ssdaisy.com.vn',
-  authorityUrl: 'https://api.ssdaisy.com.vn',
+  apiUrl: 'https://api.ssdaisy.com',
+  authorityUrl: 'https://api.ssdaisy.com',
   clientId: 'angular_admin',
-  adminUrl: 'https://admin.ssdaisy.com.vn/'
+  adminUrl: 'https://admin.ssdaisy.com/'
 };

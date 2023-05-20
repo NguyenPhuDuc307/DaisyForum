@@ -11,7 +11,6 @@ public class Comment : IDateTracking
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [MaxLength(500)]
     [Required]
     public string? Content { get; set; }
 

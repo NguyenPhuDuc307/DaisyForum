@@ -15,30 +15,22 @@ public class KnowledgeBase : IDateTracking
     [Range(1, Double.PositiveInfinity)]
     public int CategoryId { get; set; }
 
-    [MaxLength(500)]
     [Required]
     public string? Title { get; set; }
 
-    [MaxLength(500)]
     [Required]
-    [Column(TypeName = "varchar(500)")]
     public string? SeoAlias { get; set; }
 
-    [MaxLength(500)]
     public string? Description { get; set; }
 
-    [MaxLength(500)]
     public string? Environment { get; set; }
 
-    [MaxLength(500)]
     public string? Problem { get; set; }
 
     public string? StepToReproduce { get; set; }
 
-    [MaxLength(500)]
     public string? ErrorMessage { get; set; }
 
-    [MaxLength(500)]
     public string? Workaround { get; set; }
 
     public string? Note { get; set; }

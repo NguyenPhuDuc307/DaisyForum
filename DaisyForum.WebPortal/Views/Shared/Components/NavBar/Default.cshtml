@@ -1,18 +1,99 @@
-@model List<DaisyForum.ViewModels.Contents.CategoryViewModel>
-<nav class="main-nav">
-    <div class="menu-top-menu-container">
-        <ul id="menu-top-menu" class="clearfix">
-            <li><a href="/">Trang chủ</a></li>
-            <li>
-                <a href="#">Bài đăng</a>
-                <ul class="sub-menu">
-                    @foreach (var item in Model)
+@using Microsoft.AspNetCore.Html;
+
+@model List<DaisyForum.WebPortal.Controllers.Components.NavBarViewComponent.TreeNode>
+
+@* <ul class="list-group">
+@foreach (var node in Model.Where(n => n.ParentId == null))
+{
+<li class="list-group-item">
+@node.Name
+@RenderChildNodes(node)
+</li>
+}
+</ul> *@
+<style>
+    label a {
+        color: black;
+        margin-bottom: 10px;
+    }
+
+    label a:hover {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    label {
+        font-weight: 600 !important;
+    }
+</style>
+@functions {
+    public static IHtmlContent RenderChildNodes(DaisyForum.WebPortal.Controllers.Components.NavBarViewComponent.TreeNode node)
+    {
+        if (node.Children.Count == 0)
+        {
+            return HtmlString.Empty;
+        }
+
+        var childNodesHtml = string.Join(string.Empty, node.Children.Select(child => child.Children.Count>0 ? $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label><div class=\"p-0 accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse_{child.Id}\" aria-expanded=\"false\" aria-controls=\"collapse_{child.Id}\"><i class=\"text-sm text-primary\">Xem thêm</i></div><ul id=\"collapse_{child.Id}\" class=\"ml-3 list-group list-group-flush collapse\" data-bs-parent=\"#accordionExample\">{RenderChildNodes(child)}</ul></li>": $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label></li>"));
+
+    return new HtmlString($"{childNodesHtml}");
+    }
+}
+
+<nav class="py-2 bg-body-tertiary border-bottom">
+    <div class="container d-flex flex-wrap">
+        <ul class="nav me-auto position-relative">
+            <li class="nav-item"><a class="nav-link link-dark px-2 active" href="/">Trang chủ</a></li>
+            <li class="nav-item">
+                <a class="nav-link link-dark px-2" href="">Bài đăng</a>
+                @if (Model.Count > 0)
+                {
+                    <ul class="sub-menu1 position-absolute border rounded accordion list-group list-group-flush">
+                    @foreach (var node in Model.Where(n => n.ParentId == null))
                     {
-                        <li><a href="/cat/@item.SeoAlias-@item.Id">@item.Name</a></li>
+                        <li class="list-group-item p-0">
+                            <label>
+                                <a href="/danh-muc/@node.SeoAlias-@node.Id">@node.Name</a>
+                            </label>
+                                
+                            <div class="p-0 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@node.Id" aria-expanded="false" aria-controls="collapse_@node.Id">
+                                <i class="text-sm text-primary">Xem thêm</i>
+                            </div>
+                            
+                            <ul id="collapse_@node.Id" class="ml-3 list-group list-group-flush collapse" data-bs-parent="#accordionExample">
+                                @RenderChildNodes(node)
+                            </ul>
+                        </li>
                     }
                 </ul>
+                }
+
             </li>
+            <li class="nav-item">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="nav-link link-dark px-2" href="/bai-dang-moi" title="Đăng bài mới">Đăng bài mới</a>
+                }
+            </li>
+        </ul>
+        <ul class="nav">
             <partial name="_LoginPartial" />
         </ul>
     </div>
 </nav>
+
+<style>
+    .sub-menu1 {
+        width: 240px;
+        display: none;
+        top: 100%;
+        z-index: 999;
+        left: auto;
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    .nav-item:hover .sub-menu1 {
+        display: block;
+    }
+</style>

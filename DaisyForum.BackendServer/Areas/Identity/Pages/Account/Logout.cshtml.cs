@@ -47,7 +47,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPost(LogoutInputModel model)
         {
             // build a model so the logged out page knows what to display
-            var ViewModel = await BuildLoggedOutViewModelAsync(model.LogoutId!=null ?model.LogoutId:"");
+            var ViewModel = await BuildLoggedOutViewModelAsync(model.LogoutId != null ? model.LogoutId : "");
 
             if (User?.Identity?.IsAuthenticated == true)
             {

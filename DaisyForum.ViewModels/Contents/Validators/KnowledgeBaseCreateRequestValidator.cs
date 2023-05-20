@@ -6,13 +6,12 @@ namespace DaisyForum.ViewModels.Contents.Validators
     {
         public KnowledgeBaseCreateRequestValidator()
         {
-            RuleFor(x => x.CategoryId).NotNull().WithMessage("Category is required");
+            RuleFor(x => x.CategoryId).GreaterThan(0)
+                .WithMessage(string.Format(Messages.Required, "Danh mục"));
 
-            RuleFor(x => x.Title).NotEmpty().WithMessage("Title is required");
+            RuleFor(x => x.Title).NotEmpty().WithMessage(string.Format(Messages.Required, "Tiêu đề"));
 
-            RuleFor(x => x.Problem).NotEmpty().WithMessage("Problem is required");
-
-            RuleFor(x => x.Note).NotEmpty().WithMessage("Note is required");
+            RuleFor(x => x.Problem).NotEmpty().WithMessage(string.Format(Messages.Required, "Vấn đề"));
         }
     }
 }

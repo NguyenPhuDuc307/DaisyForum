@@ -17,6 +17,7 @@ public class UsersController : BaseController
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationDbContext _context;
+
     public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
     {
         _userManager = userManager;
@@ -47,7 +48,6 @@ public class UsersController : BaseController
         var result = await _userManager.CreateAsync(user, request.Password);
         if (result.Succeeded)
         {
-            // code: 201
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, request);
         }
         else
@@ -115,7 +115,6 @@ public class UsersController : BaseController
     }
 
     [HttpGet("{id}")]
-    [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
     public async Task<IActionResult> GetUserById(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -136,35 +135,12 @@ public class UsersController : BaseController
         return Ok(userViewModel);
     }
 
-    // [HttpGet("{email}")]
-    // [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
-    // public async Task<IActionResult> GetUserByEmail(string email)
-    // {
-    //     var user = await _userManager.FindByEmailAsync(email);
-    //     if (user == null)
-    //         return NotFound(new ApiNotFoundResponse($"Cannot found user with email: {email}"));
-
-    //     var userViewModel = new UserViewModel()
-    //     {
-    //         Id = user.Id,
-    //         UserName = user.UserName,
-    //         Dob = user.Dob,
-    //         Email = user.Email,
-    //         PhoneNumber = user.PhoneNumber,
-    //         FirstName = user.FirstName,
-    //         LastName = user.LastName,
-    //         CreateDate = user.CreateDate
-    //     };
-    //     return Ok(userViewModel);
-    // }
-
     [HttpPut("{id}")]
     [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
     public async Task<IActionResult> PutUser(string id, [FromBody] UserCreateRequest request)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
-            // code: 400
             return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
         user.FirstName = request.FirstName;
@@ -176,7 +152,6 @@ public class UsersController : BaseController
 
         if (result.Succeeded)
         {
-            // code: 200
             return NoContent();
         }
         return BadRequest(new ApiBadRequestResponse(result));
@@ -206,8 +181,14 @@ public class UsersController : BaseController
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
-            return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
+            return NotFound();
 
+        var adminUsers = await _userManager.GetUsersInRoleAsync(Constants.SystemConstants.Roles.Admin);
+        var otherUsers = adminUsers.Where(x => x.Id != id).ToList();
+        if (otherUsers.Count == 0)
+        {
+            return BadRequest(new ApiBadRequestResponse("You cannot remove the only admin user remaining."));
+        }
         var result = await _userManager.DeleteAsync(user);
 
         if (result.Succeeded)
@@ -293,13 +274,13 @@ public class UsersController : BaseController
     [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
     public async Task<IActionResult> RemoveRolesFromUser(string userId, [FromQuery] RoleAssignRequest request)
     {
-        if (request.RoleNames == null)
+        if (request.RoleNames?.Length == 0)
         {
             return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
         }
-        if (request.RoleNames.Length == 1 && request.RoleNames[0] == SystemConstants.Roles.Admin)
+        if (request.RoleNames.Length == 1 && request.RoleNames[0] == Constants.SystemConstants.Roles.Admin)
         {
-            return BadRequest(new ApiBadRequestResponse($"Cannot remove {SystemConstants.Roles.Admin} role"));
+            return base.BadRequest(new ApiBadRequestResponse($"Cannot remove {Constants.SystemConstants.Roles.Admin} role"));
         }
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)

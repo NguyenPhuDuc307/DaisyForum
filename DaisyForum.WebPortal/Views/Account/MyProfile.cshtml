@@ -34,8 +34,13 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <a class="btn btn-success" target="_blank"
-                        href="@Configuration["BackendApiUrl"]/Account/Manage">Chỉnh sửa</a>
+                    <button class="btn btn-success" onclick="openNewWindow()">Chỉnh sửa</button>
+
+                    <script>
+                        function openNewWindow() {
+                            window.open("@Configuration["BackendApiUrl"]/Account/Manage", "newWindow", "width=600, height=800");
+                        }
+                    </script>
                 </td>
             </tr>
         </table>

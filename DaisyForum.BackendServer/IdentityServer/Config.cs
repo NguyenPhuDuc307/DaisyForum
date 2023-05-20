@@ -85,19 +85,19 @@ public class Config
                 AllowAccessTokensViaBrowser = true,
                 RedirectUris = new List<string>
                 {
-                    "http://localhost:4200",
-                    "http://localhost:4200/authentication/login-callback",
-                    "http://localhost:4200/silent-renew.html"
+                    "https://localhost:4200",
+                    "https://localhost:4200/authentication/login-callback",
+                    "https://localhost:4200/silent-renew.html"
                 },
                 PostLogoutRedirectUris = new List<string>
                 {
-                    "http://localhost:4200/unauthorized",
-                    "http://localhost:4200/authentication/logout-callback",
-                    "http://localhost:4200"
+                    "https://localhost:4200/unauthorized",
+                    "https://localhost:4200/authentication/logout-callback",
+                    "https://localhost:4200"
                 },
                 AllowedCorsOrigins = new List<string>
                 {
-                    "http://localhost:4200"
+                    "https://localhost:4200"
                 },
                 AllowedScopes = new List<string>
                 {

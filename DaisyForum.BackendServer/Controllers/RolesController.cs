@@ -35,7 +35,6 @@ public class RolesController : BaseController
 
         var result = await _roleManager.CreateAsync(role);
         if (result.Succeeded)
-            // code: 201
             return CreatedAtAction(nameof(GetRoleById), new { id = request.Id }, request);
         else
             return BadRequest(new ApiBadRequestResponse(result));
@@ -91,14 +90,12 @@ public class RolesController : BaseController
     {
         var role = await _roleManager.FindByIdAsync(id);
         if (role == null)
-            // code: 404
             return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
         var RoleViewModel = new RoleViewModel()
         {
             Id = role.Id,
             Name = role.Name
         };
-        // code: 200
         return Ok(RoleViewModel);
     }
 
@@ -107,12 +104,10 @@ public class RolesController : BaseController
     public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest request)
     {
         if (id != request.Id)
-            // code: 400
             return BadRequest(new ApiBadRequestResponse("Role id not match"));
 
         var role = await _roleManager.FindByIdAsync(id);
         if (role == null)
-            // code: 404
             return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
         role.Name = request.Name;
@@ -120,7 +115,6 @@ public class RolesController : BaseController
         var result = await _roleManager.UpdateAsync(role);
 
         if (result.Succeeded)
-            // code: 204
             return NoContent();
 
         return BadRequest(new ApiBadRequestResponse(result));
@@ -132,7 +126,6 @@ public class RolesController : BaseController
     {
         var role = await _roleManager.FindByIdAsync(id);
         if (role == null)
-            // code: 404
             return NotFound(new ApiNotFoundResponse($"Cannot find role with id: {id}"));
 
         var result = await _roleManager.DeleteAsync(role);
@@ -143,7 +136,6 @@ public class RolesController : BaseController
                 Id = role.Id,
                 Name = role.Name
             };
-            // code: 200
             return Ok(RoleViewModel);
         }
         return BadRequest(new ApiBadRequestResponse(result));
@@ -172,7 +164,6 @@ public class RolesController : BaseController
     [ApiValidationFilter]
     public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
     {
-        //create new permission list from user changed
         var newPermissions = new List<Permission>();
         foreach (var p in request.Permissions)
         {
@@ -193,29 +184,21 @@ public class RolesController : BaseController
 
     internal class MyPermissionComparer : IEqualityComparer<Permission>
     {
-        // Items are equal if their ids are equal.
         public bool Equals(Permission? x, Permission? y)
         {
-            // Check whether the compared objects reference the same data.
             if (Object.ReferenceEquals(x, y)) return true;
 
-            // Check whether any of the compared objects is null.
             if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
                 return false;
 
-            //Check whether the items properties are equal.
             return x.CommandId == y.CommandId && x.FunctionId == x.FunctionId && x.RoleId == x.RoleId;
         }
 
-        // If Equals() returns true for a pair of objects
-        // then GetHashCode() must return the same value for these objects.
 
         public int GetHashCode(Permission permission)
         {
-            //Check whether the object is null
             if (Object.ReferenceEquals(permission, null)) return 0;
 
-            //Get hash code for the ID field.
             int hashProductId = (permission.CommandId + permission.FunctionId + permission.RoleId).GetHashCode();
 
             return hashProductId;

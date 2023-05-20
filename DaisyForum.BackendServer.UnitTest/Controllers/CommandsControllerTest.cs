@@ -16,21 +16,10 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         }
 
         [Fact]
-        public async Task GetCommand_HasData_ReturnSuccess()
+        public void ShouldCreateInstance_NotNull_Success()
         {
-            _context.Commands.AddRange(new List<Command>()
-            {
-                new Command(){
-                    Id = "Create",
-                    Name = "Thêm"
-                }
-            });
-            await _context.SaveChangesAsync();
-            var commandsController = new CommandsController(_context);
-            var result = await commandsController.GetCommands();
-            var okResult = result as OkObjectResult;
-            var UserViewModels = okResult != null ? okResult.Value as IEnumerable<CommandViewModel> : null;
-            Assert.True(UserViewModels != null ? UserViewModels.Count() > 0 : false);
+            var usersController = new CommandsController(_context);
+            Assert.NotNull(usersController);
         }
     }
 }

@@ -3,12 +3,12 @@
     <p-panel #pnl>
         <p-header>
             <div class="ui-g-6">
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="CREATE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="CREATE" pButton type="button"
                     label="Thêm" icon="fa fa-plus" (click)="showAddModal()"></button>
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="DELETE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="DELETE" pButton type="button"
                     label="Xóa" icon="fa fa-trash" class="ui-button-danger" *ngIf="selectedItems.length > 0"
                     (click)="deleteItems()"></button>
-                <button appPermission appFunction="CONTENT_KNOWLEDGEBASE" appAction="UPDATE" pButton type="button"
+                <button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="UPDATE" pButton type="button"
                     label="Sửa" icon="fa fa-edit" class="ui-button-warning" *ngIf="selectedItems.length== 1"
                     (click)="showEditModal()"></button>
 

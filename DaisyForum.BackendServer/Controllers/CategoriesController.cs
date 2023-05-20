@@ -8,16 +8,20 @@ using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using DaisyForum.BackendServer.Services;
 
 namespace DaisyForum.BackendServer.Controllers;
 
 public class CategoriesController : BaseController
 {
     private readonly ApplicationDbContext _context;
+    private readonly ICacheService _cacheService;
 
-    public CategoriesController(ApplicationDbContext context)
+    public CategoriesController(ApplicationDbContext context,
+            ICacheService cacheService)
     {
         _context = context;
+        _cacheService = cacheService;
     }
 
     [HttpPost]
@@ -37,6 +41,7 @@ public class CategoriesController : BaseController
 
         if (result > 0)
         {
+            await _cacheService.RemoveAsync("Categories");
             return CreatedAtAction(nameof(GetById), new { id = category.Id }, request);
         }
         else
@@ -49,11 +54,17 @@ public class CategoriesController : BaseController
     [AllowAnonymous]
     public async Task<IActionResult> GetCategories()
     {
-        var categories = await _context.Categories.ToListAsync();
+        var cachedData = await _cacheService.GetAsync<List<CategoryViewModel>>("Categories");
+        if (cachedData == null)
+        {
+            var categories = await _context.Categories.ToListAsync();
 
-        var categoryViewModels = categories.Select(c => CreateCategoryViewModel(c)).ToList();
+            var categoryViewModels = categories.Select(c => CreateCategoryViewModel(c)).ToList();
+            await _cacheService.SetAsync("Categories", categoryViewModels);
+            cachedData = categoryViewModels;
+        }
 
-        return Ok(categoryViewModels);
+        return Ok(cachedData);
     }
 
     [HttpGet("filter")]
@@ -116,6 +127,7 @@ public class CategoriesController : BaseController
 
         if (result > 0)
         {
+            await _cacheService.RemoveAsync("Categories");
             return NoContent();
         }
         return BadRequest(new ApiBadRequestResponse("Update category failed"));
@@ -133,6 +145,7 @@ public class CategoriesController : BaseController
         var result = await _context.SaveChangesAsync();
         if (result > 0)
         {
+            await _cacheService.RemoveAsync("Categories");
             CategoryViewModel categoryViewModel = CreateCategoryViewModel(category);
             return Ok(categoryViewModel);
         }
@@ -149,7 +162,7 @@ public class CategoriesController : BaseController
             ParentId = category.ParentId,
             NumberOfTickets = category.NumberOfTickets,
             SeoDescription = category.SeoDescription,
-            SeoAlias = category.SeoDescription
+            SeoAlias = category.SeoAlias
         };
     }
 }

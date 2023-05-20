@@ -8,73 +8,90 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using DaisyForum.ViewModels.Contents.Validators;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-services.AddHttpClient();
+services.AddHttpClient("BackendApi").ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+    //if (environment == Environments.Development)
+    //{
+    //    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    //}
+    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    return handler;
+});
+services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+});
 
 //IdentityModelEventSource.ShowPII = true; //Add this line
 services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-               .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
+   .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+   {
+       options.Events = new CookieAuthenticationEvents
+       {
+           // this event is fired everytime the cookie has been validated by the cookie middleware,
+           // so basically during every authenticated request
+           // the decryption of the cookie has already happened so we have access to the user claims
+           // and cookie properties - expiration, etc..
+           OnValidatePrincipal = async x =>
+           {
+               // since our cookie lifetime is based on the access token one,
+               // check if we're more than halfway of the cookie lifetime
+               var now = DateTimeOffset.UtcNow;
+               var timeElapsed = now.Subtract(x.Properties.IssuedUtc.Value);
+               var timeRemaining = x.Properties.ExpiresUtc.Value.Subtract(now);
+
+               if (timeElapsed > timeRemaining)
                {
-                   options.Events = new CookieAuthenticationEvents
+                   var identity = (ClaimsIdentity)x.Principal.Identity;
+                   var accessTokenClaim = identity.FindFirst("access_token");
+                   var refreshTokenClaim = identity.FindFirst("refresh_token");
+
+                   // if we have to refresh, grab the refresh token from the claims, and request
+                   // new access token and refresh token
+                   var refreshToken = refreshTokenClaim.Value;
+                   var response = await new HttpClient().RequestRefreshTokenAsync(new RefreshTokenRequest
                    {
-                       // this event is fired everytime the cookie has been validated by the cookie middleware,
-                       // so basically during every authenticated request
-                       // the decryption of the cookie has already happened so we have access to the user claims
-                       // and cookie properties - expiration, etc..
-                       OnValidatePrincipal = async x =>
+                       Address = configuration["Authorization:AuthorityUrl"],
+                       ClientId = configuration["Authorization:ClientId"],
+                       ClientSecret = configuration["Authorization:ClientSecret"],
+                       RefreshToken = refreshToken
+                   });
+
+                   if (!response.IsError)
+                   {
+                       // everything went right, remove old tokens and add new ones
+                       identity.RemoveClaim(accessTokenClaim);
+                       identity.RemoveClaim(refreshTokenClaim);
+
+                       identity.AddClaims(new[]
                        {
-                           // since our cookie lifetime is based on the access token one,
-                           // check if we're more than halfway of the cookie lifetime
-                           var now = DateTimeOffset.UtcNow;
-                           var timeElapsed = now.Subtract(x.Properties.IssuedUtc.Value);
-                           var timeRemaining = x.Properties.ExpiresUtc.Value.Subtract(now);
-
-                           if (timeElapsed > timeRemaining)
-                           {
-                               var identity = (ClaimsIdentity)x.Principal.Identity;
-                               var accessTokenClaim = identity.FindFirst("access_token");
-                               var refreshTokenClaim = identity.FindFirst("refresh_token");
-
-                               // if we have to refresh, grab the refresh token from the claims, and request
-                               // new access token and refresh token
-                               var refreshToken = refreshTokenClaim.Value;
-                               var response = await new HttpClient().RequestRefreshTokenAsync(new RefreshTokenRequest
-                               {
-                                   Address = configuration["Authorization:AuthorityUrl"],
-                                   ClientId = configuration["Authorization:ClientId"],
-                                   ClientSecret = configuration["Authorization:ClientSecret"],
-                                   RefreshToken = refreshToken
-                               });
-
-                               if (!response.IsError)
-                               {
-                                   // everything went right, remove old tokens and add new ones
-                                   identity.RemoveClaim(accessTokenClaim);
-                                   identity.RemoveClaim(refreshTokenClaim);
-
-                                   identity.AddClaims(new[]
-                                   {
                                         new Claim("access_token", response.AccessToken),
                                         new Claim("refresh_token", response.RefreshToken)
-                                    });
+                        });
 
-                                   // indicate to the cookie middleware to renew the session cookie
-                                   // the new lifetime will be the same as the old one, so the alignment
-                                   // between cookie and access token is preserved
-                                   x.ShouldRenew = true;
-                               }
-                           }
-                       }
-                   };
-               })
+                       // indicate to the cookie middleware to renew the session cookie
+                       // the new lifetime will be the same as the old one, so the alignment
+                       // between cookie and access token is preserved
+                       x.ShouldRenew = true;
+                   }
+               }
+           }
+       };
+   })
     .AddOpenIdConnect("oidc", options =>
     {
         options.Authority = configuration["Authorization:AuthorityUrl"];
@@ -147,16 +164,39 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
+
+    app.UseXContentTypeOptions();
+    app.UseReferrerPolicy(opts => opts.NoReferrer());
+    app.UseXXssProtection(options => options.EnabledWithBlockMode());
+    app.UseXfo(options => options.Deny());
 }
 else
 {
     app.UseDeveloperExceptionPage();
 }
 
+app.UseFileServer();
+
+app.UseSession();
+
 app.UseHttpsRedirection();
+
+app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
+app.UseXContentTypeOptions();
+app.UseReferrerPolicy(opts => opts.NoReferrer());
+app.UseXXssProtection(options => options.EnabledWithBlockMode());
+app.UseXfo(options => options.Deny());
+//app.UseCsp(opts => opts
+//        .BlockAllMixedContent()
+//        .StyleSources(s => s.Self())
+//        .StyleSources(s => s.UnsafeInline())
+//        .FontSources(s => s.Self())
+//        .FormActions(s => s.Self())
+//        .FrameAncestors(s => s.Self())
+//        .ImageSources(s => s.Self())
+//    .ScriptSources(s => s.UnsafeInline())
+//    );
 
 app.UseStaticFiles();
 
@@ -169,17 +209,17 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
         name: "My KBs",
-        pattern: "/my-kbs",
+        pattern: "/bai-dang-cua-toi",
         new { controller = "Account", action = "MyKnowledgeBases" });
 
 app.MapControllerRoute(
         name: "New KB",
-        pattern: "/new-kb",
+        pattern: "/bai-dang-moi",
         new { controller = "Account", action = "CreateNewKnowledgeBase" });
 
 app.MapControllerRoute(
         name: "Edit KB",
-        pattern: "/edit-kb/{id}",
+        pattern: "/chinh-sua-bai-dang/{id}",
         new { controller = "Account", action = "EditKnowledgeBase" });
 
 app.MapControllerRoute(
@@ -189,17 +229,17 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
         name: "Search KB",
-        pattern: "/search",
+        pattern: "/tim-kiem",
         new { controller = "KnowledgeBase", action = "Search" });
 
 app.MapControllerRoute(
         name: "KnowledgeBaseDetails",
-        pattern: "/kb/{seoAlias}-{id}",
+        pattern: "/bai-dang/{seoAlias}-{id}",
         new { controller = "KnowledgeBase", action = "Details" });
 
 app.MapControllerRoute(
         name: "ListByCategoryId",
-        pattern: "/cat/{categoryAlias}-{id}",
+        pattern: "/danh-muc/{categoryAlias}-{id}",
         new { controller = "KnowledgeBase", action = "ListByCategoryId" });
 
 app.MapControllerRoute(

@@ -31,7 +31,7 @@ export class KnowledgeBasesComponent extends BaseComponent implements OnInit, On
   constructor(private knowledgeBasesService: KnowledgeBasesService,
     private notificationService: NotificationService,
     private router: Router) {
-      super('CONTENT_KNOWLEDGEBASE');
+      super('CONTENT_KNOWLEDGE_BASE');
     }
 
   ngOnInit(): void {

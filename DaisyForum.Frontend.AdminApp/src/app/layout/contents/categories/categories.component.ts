@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MessageConstants } from '@app/shared/constants';
 import { CategoriesDetailComponent } from './categories-detail/categories-detail.component';
-import { CategoriesService, NotificationService } from '@app/shared/services';
+import { CategoriesService, NotificationService, UtilitiesService } from '@app/shared/services';
 import { Pagination, Category } from '@app/shared/models';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '@app/layout/base/base.component';
+import { TreeNode } from 'primeng/api/treenode';
 
 @Component({
   selector: 'app-categories',
@@ -15,6 +16,7 @@ import { BaseComponent } from '@app/layout/base/base.component';
 export class CategoriesComponent extends BaseComponent implements OnInit, OnDestroy {
 
   private subscription = new Subscription();
+  public screenTitle: string;
   // Default
   public bsModalRef: BsModalRef;
   public blockedPanel = false;
@@ -31,37 +33,37 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
   public selectedItems = [];
   constructor(private categoriesService: CategoriesService,
     private notificationService: NotificationService,
-    private modalService: BsModalService) {
-      super('CONTENT_CATEGORY');
-     }
+    private modalService: BsModalService,
+    private utilitiesService: UtilitiesService) {
+    super('CONTENT_CATEGORY');
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
     this.loadData();
   }
 
+
   loadData(selectedId = null) {
     this.blockedPanel = true;
-    this.subscription.add(this.categoriesService.getAllPaging(this.keyword, this.pageIndex, this.pageSize)
-      .subscribe((response: Pagination<Category>) => {
-        this.processLoadData(selectedId, response);
+    this.categoriesService.getAll()
+      .subscribe((response: any) => {
+        const functionTree = this.utilitiesService.UnflatteringForTree(response);
+        this.items = <TreeNode[]>functionTree;
+        if (this.selectedItems.length === 0 && this.items.length > 0) {
+          this.selectedItems.push(this.items[0]);
+        }
+        // Nếu có là sửa thì chọn selection theo Id
+        if (selectedId != null && this.items.length > 0) {
+          this.selectedItems = this.items.filter(x => x.data.id == selectedId);
+        }
+
         setTimeout(() => { this.blockedPanel = false; }, 1000);
       }, error => {
         setTimeout(() => { this.blockedPanel = false; }, 1000);
-      }));
+      });
   }
-  private processLoadData(selectedId = null, response: Pagination<Category>) {
-    this.items = response.items;
-    this.pageIndex = this.pageIndex;
-    this.pageSize = this.pageSize;
-    this.totalRecords = response.totalRecords;
-    if (this.selectedItems.length === 0 && this.items.length > 0) {
-      this.selectedItems.push(this.items[0]);
-    }
-    if (selectedId != null && this.items.length > 0) {
-      this.selectedItems = this.items.filter(x => x.Id === selectedId);
-    }
-  }
+
   pageChanged(event: any): void {
     this.pageIndex = event.page + 1;
     this.pageSize = event.rows;
@@ -95,27 +97,32 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
         backdrop: 'static'
       });
 
-   this.subscription.add( this.bsModalRef.content.savedEvent.subscribe((response) => {
-    this.bsModalRef.hide();
-    this.loadData(response.id);
-  }));
+    this.subscription.add(this.bsModalRef.content.savedEvent.subscribe((response) => {
+      this.bsModalRef.hide();
+      this.loadData(response.id);
+    }));
   }
 
   deleteItems() {
+    if (this.selectedItems.length === 0) {
+      this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
+      return;
+    }
     const id = this.selectedItems[0].id;
     this.notificationService.showConfirmation(MessageConstants.CONFIRM_DELETE_MSG,
       () => this.deleteItemsConfirm(id));
   }
-  deleteItemsConfirm(id) {
+
+  deleteItemsConfirm(id: string) {
     this.blockedPanel = true;
-    this.subscription.add(this.categoriesService.delete(id).subscribe(() => {
+    this.categoriesService.delete(id).subscribe(() => {
       this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
       this.loadData();
       this.selectedItems = [];
       setTimeout(() => { this.blockedPanel = false; }, 1000);
     }, error => {
       setTimeout(() => { this.blockedPanel = false; }, 1000);
-    }));
+    });
   }
 
   ngOnDestroy(): void {
