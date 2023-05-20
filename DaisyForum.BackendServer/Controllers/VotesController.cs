@@ -1,3 +1,4 @@
+using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.Helpers;
@@ -59,6 +60,8 @@ public partial class KnowledgeBasesController
         var result = await _context.SaveChangesAsync();
         if (result > 0)
         {
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
             return Ok(numberOfVotes);
         }
         else
@@ -85,6 +88,8 @@ public partial class KnowledgeBasesController
         var result = await _context.SaveChangesAsync();
         if (result > 0)
         {
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
             return Ok();
         }
         return BadRequest(new ApiBadRequestResponse($"Delete vote failed"));

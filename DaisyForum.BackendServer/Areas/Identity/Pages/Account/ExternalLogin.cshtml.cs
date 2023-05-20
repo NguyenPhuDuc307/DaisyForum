@@ -74,23 +74,24 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
             [StringLength(255, ErrorMessage = "The first name field should have a maximum of 255 characters")]
-            [Display(Name = "First Name")]
+            [Display(Name = "Họ")]
             public string FirstName { get; set; }
 
             [Required]
             [StringLength(255, ErrorMessage = "The last name field should have a maximum of 255 characters")]
-            [Display(Name = "Last Name")]
+            [Display(Name = "Tên")]
             public string LastName { get; set; }
 
             [Required]
             [StringLength(12, ErrorMessage = "The phone number field should have a maximum of 12 characters")]
-            [Display(Name = "Phone Number")]
+            [Display(Name = "Số điện thoại")]
             public string PhoneNumber { get; set; }
 
             [Required]
             [DataType(DataType.Date)]
-            [Display(Name = "Date of Birth")]
+            [Display(Name = "Ngày sinh")]
             public DateTime Dob { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used

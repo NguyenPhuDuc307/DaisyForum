@@ -13,4 +13,5 @@ public class KnowledgeBaseQuickViewModel
     public DateTime CreateDate { get; set; }
     public int? NumberOfVotes { get; set; } = 0;
     public int? NumberOfComments { get; set; } = 0;
+    public string[]? Labels { get; set; }
 }

@@ -20,20 +20,29 @@ public partial class KnowledgeBasesController : BaseController
     private readonly ApplicationDbContext _context;
     private readonly ISequenceService _sequenceService;
     private readonly IStorageService _storageService;
+    private readonly ILogger<KnowledgeBasesController> _logger;
     private readonly IEmailSender _emailSender;
     private readonly IViewRenderService _viewRenderService;
+    private readonly ICacheService _cacheService;
+    private readonly IOneSignalService _oneSignalService;
 
     public KnowledgeBasesController(ApplicationDbContext context,
-        ISequenceService sequenceService,
-        IStorageService storageService,
-        IEmailSender emailSender,
-        IViewRenderService viewRenderService)
+            ISequenceService sequenceService,
+            IStorageService storageService,
+            ILogger<KnowledgeBasesController> logger,
+            IEmailSender emailSender,
+            IViewRenderService viewRenderService,
+            ICacheService cacheService,
+            IOneSignalService oneSignalService)
     {
         _context = context;
         _sequenceService = sequenceService;
         _storageService = storageService;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _emailSender = emailSender;
         _viewRenderService = viewRenderService;
+        _cacheService = cacheService;
+        _oneSignalService = oneSignalService;
     }
 
     [HttpPost]
@@ -42,6 +51,7 @@ public partial class KnowledgeBasesController : BaseController
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> PostKnowledgeBase([FromForm] KnowledgeBaseCreateRequest request)
     {
+        _logger.LogInformation("Begin PostKnowledgeBase API");
         KnowledgeBase knowledgeBase = CreateKnowledgeBaseEntity(request);
         knowledgeBase.OwnerUserId = User.GetUserId();
         if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
@@ -71,6 +81,12 @@ public partial class KnowledgeBasesController : BaseController
 
         if (result > 0)
         {
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularLabels);
+            _logger.LogInformation("End PostKnowledgeBase API - Success");
+            await _oneSignalService.SendAsync(request.Title, request.Description,
+                     string.Format(CommonConstants.KnowledgeBaseUrl, knowledgeBase.SeoAlias, knowledgeBase.Id));
             return CreatedAtAction(nameof(GetById), new
             {
                 id = knowledgeBase.Id
@@ -78,6 +94,7 @@ public partial class KnowledgeBasesController : BaseController
         }
         else
         {
+            _logger.LogInformation("End PostKnowledgeBase API - Failed");
             return BadRequest(new ApiBadRequestResponse("Create knowledge failed"));
         }
     }
@@ -102,7 +119,7 @@ public partial class KnowledgeBasesController : BaseController
 
     [HttpGet("filter")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetKnowledgeBasesPaging(string filter, int? categoryId, int pageIndex, int pageSize)
+    public async Task<IActionResult> GetKnowledgeBasesPaging(string filter, int? categoryId, int pageIndex = 1, int pageSize = 10)
     {
         var query = from k in _context.KnowledgeBases
                     join c in _context.Categories on k.CategoryId equals c.Id
@@ -116,7 +133,7 @@ public partial class KnowledgeBasesController : BaseController
             query = query.Where(x => x.k.CategoryId == categoryId.Value);
         }
         var totalRecords = await query.CountAsync();
-        var items = await query.Skip((pageIndex - 1 * pageSize))
+        var items = await query.Skip((pageIndex - 1) * pageSize)
             .Take(pageSize)
             .Select(u => new KnowledgeBaseQuickViewModel()
             {
@@ -147,51 +164,66 @@ public partial class KnowledgeBasesController : BaseController
     [AllowAnonymous]
     public async Task<IActionResult> GetLatestKnowledgeBases(int take)
     {
-        var knowledgeBases = from k in _context.KnowledgeBases
-                             join c in _context.Categories on k.CategoryId equals c.Id
-                             orderby k.CreateDate descending
-                             select new { k, c };
+        var cachedData = await _cacheService.GetAsync<List<KnowledgeBaseQuickViewModel>>(CacheConstants.LatestKnowledgeBases);
+        if (cachedData == null)
+        {
+            var knowledgeBases = from k in _context.KnowledgeBases
+                                 join c in _context.Categories on k.CategoryId equals c.Id
+                                 orderby k.CreateDate descending
+                                 select new { k, c };
 
-        var knowledgeBaseViewModels = await knowledgeBases.Take(take)
-            .Select(u => new KnowledgeBaseQuickViewModel()
-            {
-                Id = u.k.Id,
-                CategoryId = u.k.CategoryId,
-                Description = u.k.Description,
-                SeoAlias = u.k.SeoAlias,
-                Title = u.k.Title,
-                CategoryAlias = u.c.SeoAlias,
-                CategoryName = u.c.Name,
-                NumberOfVotes = u.k.NumberOfVotes,
-                CreateDate = u.k.CreateDate
-            }).ToListAsync();
+            var knowledgeBaseViewModels = await knowledgeBases.Take(take)
+                .Select(u => new KnowledgeBaseQuickViewModel()
+                {
+                    Id = u.k.Id,
+                    CategoryId = u.k.CategoryId,
+                    Description = u.k.Description,
+                    SeoAlias = u.k.SeoAlias,
+                    Title = u.k.Title,
+                    CategoryAlias = u.c.SeoAlias,
+                    CategoryName = u.c.Name,
+                    NumberOfVotes = u.k.NumberOfVotes,
+                    CreateDate = u.k.CreateDate,
+                    Labels = TextHelper.Split(u.k.Labels, ",")
+                }).ToListAsync();
+            await _cacheService.SetAsync(CacheConstants.LatestKnowledgeBases, knowledgeBaseViewModels, 2);
+            cachedData = knowledgeBaseViewModels;
+        }
 
-        return Ok(knowledgeBaseViewModels);
+        return Ok(cachedData);
     }
 
     [HttpGet("popular/{take:int}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetPopularKnowledgeBases(int take)
     {
+        var cachedData = await _cacheService.GetAsync<List<KnowledgeBaseQuickViewModel>>(CacheConstants.PopularKnowledgeBases);
+        if (cachedData == null)
+        {
+            var knowledgeBases = from k in _context.KnowledgeBases
+                                 join c in _context.Categories on k.CategoryId equals c.Id
+                                 orderby k.ViewCount descending
+                                 select new { k, c };
 
-        var knowledgeBaseViewModels = await (from k in _context.KnowledgeBases
-                                             join c in _context.Categories on k.CategoryId equals c.Id
-                                             orderby k.ViewCount descending
-                                             select new { k, c }).Take(take)
-            .Select(u => new KnowledgeBaseQuickViewModel()
-            {
-                Id = u.k.Id,
-                CategoryId = u.k.CategoryId,
-                Description = u.k.Description,
-                SeoAlias = u.k.SeoAlias,
-                Title = u.k.Title,
-                CategoryAlias = u.c.SeoAlias,
-                CategoryName = u.c.Name,
-                NumberOfVotes = u.k.NumberOfVotes,
-                CreateDate = u.k.CreateDate
-            }).ToListAsync();
+            var knowledgeBasedViewModels = await knowledgeBases.Take(take)
+                .Select(u => new KnowledgeBaseQuickViewModel()
+                {
+                    Id = u.k.Id,
+                    CategoryId = u.k.CategoryId,
+                    Description = u.k.Description,
+                    SeoAlias = u.k.SeoAlias,
+                    Title = u.k.Title,
+                    CategoryAlias = u.c.SeoAlias,
+                    CategoryName = u.c.Name,
+                    NumberOfVotes = u.k.NumberOfVotes,
+                    CreateDate = u.k.CreateDate,
+                    Labels = TextHelper.Split(u.k.Labels, ",")
+                }).ToListAsync();
+            await _cacheService.SetAsync(CacheConstants.PopularKnowledgeBases, knowledgeBasedViewModels, 24);
+            cachedData = knowledgeBasedViewModels;
+        }
 
-        return Ok(knowledgeBaseViewModels);
+        return Ok(cachedData);
     }
 
     [HttpGet("{id}")]
@@ -201,7 +233,9 @@ public partial class KnowledgeBasesController : BaseController
         var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
         if (knowledgeBase == null)
             return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id: {id}"));
-
+        var category = await _context.Categories.FindAsync(knowledgeBase.CategoryId);
+        if (knowledgeBase == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found category with id: {knowledgeBase.CategoryId}"));
         var attachments = await _context.Attachments
             .Where(x => x.KnowledgeBaseId == id)
             .Select(x => new AttachmentViewModel()
@@ -213,6 +247,7 @@ public partial class KnowledgeBasesController : BaseController
                 FileType = x.FileType
             }).ToListAsync();
         var knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
+        knowledgeBaseViewModel.CategoryName = category.Name;
         knowledgeBaseViewModel.Attachments = attachments;
 
         return Ok(knowledgeBaseViewModel);
@@ -249,6 +284,8 @@ public partial class KnowledgeBasesController : BaseController
 
         if (result > 0)
         {
+            await _cacheService.RemoveAsync("LatestKnowledgeBases");
+            await _cacheService.RemoveAsync("PopularKnowledgeBases");
             return NoContent();
         }
         return BadRequest(new ApiBadRequestResponse($"Update knowledge base failed"));
@@ -305,20 +342,22 @@ public partial class KnowledgeBasesController : BaseController
         var result = await _context.SaveChangesAsync();
         if (result > 0)
         {
+            await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
+            await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
             KnowledgeBaseViewModel knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
             return Ok(knowledgeBaseViewModel);
         }
         return BadRequest(new ApiBadRequestResponse($"Delete knowledge base failed"));
     }
 
-    [HttpGet("{knowlegeBaseId}/labels")]
+    [HttpGet("{knowledgeBaseId}/labels")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetLabelsByKnowledgeBaseId(int knowlegeBaseId)
+    public async Task<IActionResult> GetLabelsByKnowledgeBaseId(int knowledgeBaseId)
     {
         var query = from lik in _context.LabelInKnowledgeBases
                     join l in _context.Labels on lik.LabelId equals l.Id
                     orderby l.Name ascending
-                    where lik.KnowledgeBaseId == knowlegeBaseId
+                    where lik.KnowledgeBaseId == knowledgeBaseId
                     select new { l.Id, l.Name };
 
         var labels = await query.Select(u => new LabelViewModel()

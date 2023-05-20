@@ -30,6 +30,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account.Manage
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Display(Name = "Tài khoản")]
         public string Username { get; set; }
 
         /// <summary>
@@ -57,8 +58,22 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Phone]
-            [Display(Name = "Phone number")]
+            [Required]
+            [Display(Name = "Số điện thoại")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Ngày sinh")]
+            [Required]
+            [DataType(DataType.Date)]
+            public DateTime Dob { get; set; }
+
+            [Display(Name = "Họ")]
+            [Required]
+            public string FirstName { get; set; }
+
+            [Display(Name = "Tên")]
+            [Required]
+            public string LastName { get; set; }
         }
 
         private async Task LoadAsync(User user)
@@ -71,6 +86,11 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber
+                   .Replace(" ", "")
+                   .Replace("-", ""),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Dob = user.Dob
             };
         }
 
@@ -111,8 +131,26 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            if (Input.FirstName != user.FirstName)
+            {
+                user.FirstName = Input.FirstName;
+                await _userManager.UpdateAsync(user);
+            }
+
+            if (Input.LastName != user.LastName)
+            {
+                user.LastName = Input.LastName;
+                await _userManager.UpdateAsync(user);
+            }
+
+            if (Input.Dob != user.Dob)
+            {
+                user.Dob = Input.Dob;
+                await _userManager.UpdateAsync(user);
+            }
+
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "Thông tin của bạn đã được cập nhật";
             return RedirectToPage();
         }
     }

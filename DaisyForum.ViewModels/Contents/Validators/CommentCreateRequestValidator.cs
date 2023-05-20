@@ -8,8 +8,8 @@ namespace DaisyForum.ViewModels.Contents.Validators
         {
             RuleFor(x => x.KnowledgeBaseId).GreaterThan(0)
                 .WithMessage("Knowledge base Id is not valid");
-                
-            RuleFor(x => x.Content).NotEmpty().WithMessage("Content is required");
+
+            RuleFor(x => x.Content).NotEmpty().WithMessage("Nội dung không được bỏ trống");
         }
     }
 }

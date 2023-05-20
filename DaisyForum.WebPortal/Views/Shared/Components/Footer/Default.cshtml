@@ -1,78 +1,48 @@
 @model List<DaisyForum.ViewModels.Contents.CategoryViewModel>
-<footer id="footer-wrapper">
-    <div id="footer" class="container">
-        <div class="row">
-
-            <div class="span3">
-                <section class="widget">
-                    <h3 class="title">How it works</h3>
-                    <div class="textwidget">
-                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod
-                            tincidunt ut laoreet dolore magna aliquam erat volutpat. </p>
-                        <p>Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl
-                            ut aliquip ex ea commodo consequat. </p>
-                    </div>
-                </section>
-            </div>
-
-            <div class="span3">
-                <section class="widget">
-                    <h3 class="title">Danh mục</h3>
-                    <ul>
+<div class="container">
+    <footer class="py-3 my-4">
+        <ul class="nav justify-content-center border-bottom pb-3 mb-3 position-relative">
+            <li class="nav-item"><a class="nav-link link-dark px-2 active" href="/">Trang chủ</a></li>
+            <li class="nav-item">
+                <a class="nav-link link-dark px-2" href="">Bài đăng</a>
+                @if (Model.Count > 0)
+                {
+                    <ul class="sub-menu position-absolute border rounded">
                         @foreach (var item in Model)
                         {
-                            <li><a href="/cat/@item.SeoAlias-@item.Id">@item.Name</a></li>
+                            <a class="nav-link link-dark px-2 text-nowrap"
+                                href="/danh-muc/@item.SeoAlias-@item.Id">@item.Name</a>
                         }
                     </ul>
-                </section>
-            </div>
+                }
 
-            <div class="span3">
-                <section class="widget">
-                    <h3 class="title">Latest Tweets</h3>
-                    <div id="twitter_update_list">
-                        <ul>
-                            <li>No Tweets loaded !</li>
-                        </ul>
-                    </div>
-                </section>
-            </div>
+            </li>
+        </ul>
+        <p class="text-center text-body-secondary">&copy; 2023 Daisy Forum, Inc</p>
+    </footer>
+</div>
 
-            <div class="span3">
-                <section class="widget">
-                    <h3 class="title">Flickr Photos</h3>
-                    <div class="flickr-photos" id="basicuse">
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
-    <!-- end of #footer -->
-    <!-- Footer Bottom -->
-    <div id="footer-bottom-wrapper">
-        <div id="footer-bottom" class="container">
-            <div class="row">
-                <div class="span6">
-                    <p class="copyright">
-                        Copyright © 2013. All Rights Reserved by KnowledgeBase.
-                    </p>
-                </div>
-                <div class="span6">
-                    <!-- Social Navigation -->
-                    <ul class="social-nav clearfix">
-                        <li class="linkedin"><a target="_blank" href="#"></a></li>
-                        <li class="stumble"><a target="_blank" href="#"></a></li>
-                        <li class="google"><a target="_blank" href="#"></a></li>
-                        <li class="deviantart"><a target="_blank" href="#"></a></li>
-                        <li class="flickr"><a target="_blank" href="#"></a></li>
-                        <li class="skype"><a target="_blank" href="skype:#?call"></a></li>
-                        <li class="rss"><a target="_blank" href="#"></a></li>
-                        <li class="twitter"><a target="_blank" href="#"></a></li>
-                        <li class="facebook"><a target="_blank" href="#"></a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End of Footer Bottom -->
-</footer>
+<style>
+    .sub-menu {
+        display: none;
+        top: 100%;
+        left: auto;
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    .nav-item:hover .sub-menu {
+        display: block;
+    }
+</style>
+<script>
+    function showMenu() {
+        var subMenu = document.getElementById('subMenu');
+        subMenu.style.display = 'inline-block';
+    }
+
+    function hideMenu() {
+        var subMenu = document.getElementById('subMenu');
+        subMenu.style.display = 'none';
+    }
+</script>

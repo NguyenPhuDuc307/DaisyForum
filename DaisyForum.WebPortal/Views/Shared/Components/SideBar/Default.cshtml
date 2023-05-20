@@ -1,60 +1,127 @@
 @model SideBarViewModel
-<aside class="span4 page-sidebar">
-    @if (User.Identity.IsAuthenticated)
-    {
-        <section class="widget">
-            <div class="body-section">
-                <a class="btn btn-success new-kb" href="/new-kb">Đăng bài mới</a>
-            </div>
+@using Microsoft.AspNetCore.Html;
 
-        </section>
+<style>
+    label a {
+        color: black;
+        margin-bottom: 10px;
     }
+
+    label a:hover {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    label {
+        font-weight: 600 !important;
+    }
+</style>
+<aside class="pl-3">
+
     <section class="widget">
-        <div class="support-widget">
-            <h3 class="title">Hỗ trợ</h3>
-            <p class="intro">Bạn cần hỗ trợ, vui lòng liên hệ quản trị.</p>
+        <label class="h4">Danh mục</label>
+        <ul class="w-100 accordion list-group list-group-flush">
+            @foreach (var node in Model.TreeNodes.Where(n => n.ParentId == null))
+            {
+                <li class="list-group-item p-0">
+                    <label>
+                        <a href="/danh-muc/@node.SeoAlias-@node.Id">@node.Name</a>
+                    </label>
+                        
+                    <div class="p-0 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@node.Id" aria-expanded="false" aria-controls="collapse_@node.Id">
+                        <i class="text-sm text-primary">Xem thêm</i>
+                    </div>
+                    
+                    <ul id="collapse_@node.Id" class="ml-3 list-group list-group-flush collapse" data-bs-parent="#accordionExample">
+                        @RenderChildNodes(node)
+                    </ul>
+                </li>
+            }
+        </ul>
+        @functions {
+            public static IHtmlContent RenderChildNodes(DaisyForum.WebPortal.Controllers.Components.SideBarViewComponent.TreeNode
+            node)
+            {
+                if (node.Children.Count == 0)
+                {
+                    return HtmlString.Empty;
+                }
+
+                var childNodesHtml = string.Join(string.Empty, node.Children.Select(child => child.Children.Count>0 ? $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label><div class=\"p-0 accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse_{child.Id}\" aria-expanded=\"false\" aria-controls=\"collapse_{child.Id}\"><i class=\"text-sm text-primary\">Xem thêm</i></div><ul id=\"collapse_{child.Id}\" class=\"ml-3 list-group list-group-flush collapse\" data-bs-parent=\"#accordionExample\">{RenderChildNodes(child)}</ul></li>": $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label></li>"));
+
+            return new HtmlString($"{childNodesHtml}");
+            }
+        }
+    </section>
+
+
+    <section>
+        <label class="h4 mt-5">Bài viết xem nhiều</label>
+        <div class="list-group list-group-checkable d-grid gap-2 border-0">
+            @foreach (var item in Model.PopularKnowledgeBases)
+    {
+    var url = "/bai-dang/" + item.SeoAlias + "-" + item.Id + "/";
+            <label class="list-group-item rounded-3 py-3 w-100">
+                <div class="d-flex">
+                    <span class="d-block small opacity-50 me-2">@item.CreateDate.ToString("dd/MM/yyyy")
+                        trong
+                    </span>
+
+                    <a style="max-width: 200px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                        href="/danh-muc/@item.CategoryAlias-@item.CategoryId"
+                        title="Xem tất cả bài đăng trong @Html.Raw(item.CategoryName)"
+                        class="m-0 badge align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                        @Html.Raw(item.CategoryName)</a>
+                </div>
+
+                <a style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden; height: 3em;"
+                    href="@url">@Html.Raw(item.Title)</a>
+
+
+                @if (@item.NumberOfVotes == null || item.NumberOfVotes == 0)
+                {
+                    <span style="width: fit-content"
+                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> 0
+                    </span>
+                }
+                else
+                {
+                    <span style="width: fit-content"
+                        class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> @item.NumberOfVotes
+                    </span>
+                }
+                @if (item.Labels != null)
+                {
+                @foreach (var label in item.Labels)
+                 {
+                    <a href="tag/@item.Id"
+                        class="m-0 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill">
+                        <i class="bi bi-bookmark me-1"></i>@label
+                    </a>
+                }
+            }
+            </label>
+}
         </div>
     </section>
 
-    <section class="widget">
-        <h3 class="title">Bài xem nhiều</h3>
-        <ul class="articles">
-            @foreach (var item in Model.PopularKnowledgeBases)
-            {
-                <li class="article-entry standard">
-                    <h4><a href="single.html">@item.Title</a></h4>
-                    <span class="article-meta">
-                        @item.CreateDate.ToString("dd/MM/yyyy") trong
-                        <a href="/kb/@item.SeoAlias-@item.Id"
-                            title="Xem bài viết trong danh mục @item.CategoryName">@item.CategoryName</a>
-                    </span>
-                    <span class="like-count">@item.NumberOfVotes.GetValueOrDefault(0).ToString("N0")</span>
-                </li>
-            }
-        </ul>
-    </section>
-
-    <section class="widget">
-        <h3 class="title">Danh mục</h3>
-        <ul>
-            @foreach (var item in Model.Categories)
-            {
-                <li><a href="/cat/@item.SeoAlias-@item.Id">@item.Name</a></li>
-            }
-        </ul>
-    </section>
-
-    <section class="widget">
-        <h3 class="title">Bình luận mới</h3>
-        <ul id="recentcomments">
+    <main class="">
+        <label class="h4 mt-5">Bình luận mới</label>
             @foreach (var item in Model.RecentComments)
             {
-                <li class="recentcomments">
-                    <a href="#" rel="external nofollow" class="url">@item.OwnerName</a> trong
-                    <a href="/kb/@item.KnowledgeBaseSeoAlias-@item.KnowledgeBaseId">@item.KnowledgeBaseTitle</a>
-                </li>
-
+                <div class="d-flex text-body-secondary pt-3">
+                    <div class="pb-3 mb-0 lh-sm border-bottom w-100">
+                        <div class="d-flex justify-content-between">
+                        <strong class="text-gray-dark">@Html.Raw(item.OwnerName)</strong>
+                        <small class="d-block">đã bình luận trong
+                    </small>
+                        </div>
+                        <a href="/bai-dang/@item.KnowledgeBaseSeoAlias-@item.KnowledgeBaseId"
+                        title="@Html.Raw(item.KnowledgeBaseTitle)">@Html.Raw(item.KnowledgeBaseTitle)</a>
+                    </div>
+                </div>
             }
-        </ul>
-    </section>
+    </main>
 </aside>

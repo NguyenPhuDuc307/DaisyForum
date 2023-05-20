@@ -1,61 +1,53 @@
 ﻿@page
 @model ExternalLoginModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Đăng ký";
 }
 
-<h1>@ViewData["Title"]</h1>
-<h2 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h2>
+<h2 id="external-login-title">Liên kết tài khoản @Model.ProviderDisplayName của bạn.</h2>
 <hr />
 
 <p id="external-login-description" class="text-info">
-    You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
-    Please enter an email address for this site below and click the Register button to finish
-    logging in.
+    Vui lòng nhập đầy đủ thông tin cho trang web này bên dưới và nhấp vào nút Đăng ký để hoàn tất.
 </p>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <input asp-for="Input.FirstName" autocomplete="firstname" aria-required="true"
-                        type="text" class="form-control form-control-user" id="exampleFirstName"
-                        placeholder="First Name">
-                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
-                </div>
-                <div class="col-sm-6">
-                    <input asp-for="Input.LastName" autocomplete="lastname" aria-required="true"
-                        type="text" class="form-control form-control-user" id="exampleLastName"
-                        placeholder="Last Name">
-                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <input asp-for="Input.PhoneNumber" autocomplete="false" aria-required="true"
-                        type="text" class="form-control form-control-user" id="examplePhoneNumber"
-                        placeholder="Phone Number">
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-                </div>
-                <div class="col-sm-6">
-                    <input asp-for="Input.Email" autocomplete="Email" aria-required="true"
-                        class="form-control form-control-user" id="exampleEmail"
-                        placeholder="Email">
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-group">
-                <input asp-for="Input.Dob" autocomplete="false" aria-required="true"
-                    class="form-control form-control-user" id="exampleDob"
-                    placeholder="Date of Birth">
-                <span asp-validation-for="Input.Dob" class="text-danger"></span>
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
+<form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="form-group row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+            <input asp-for="Input.FirstName" autocomplete="firstname" aria-required="true" type="text"
+                class="form-control form-control-user" id="exampleFirstName" placeholder="First Name">
+            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+        </div>
+        <div class="col-sm-6">
+            <input asp-for="Input.LastName" autocomplete="lastname" aria-required="true" type="text"
+                class="form-control form-control-user" id="exampleLastName" placeholder="Last Name">
+            <span asp-validation-for="Input.LastName" class="text-danger"></span>
+        </div>
     </div>
-</div>
+    <div class="form-group row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+            <input asp-for="Input.PhoneNumber" autocomplete="false" aria-required="true" type="text"
+                class="form-control form-control-user" id="examplePhoneNumber" placeholder="Phone Number">
+            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="col-sm-6">
+            <input asp-for="Input.Email" autocomplete="Email" aria-required="true"
+                class="form-control form-control-user" id="exampleEmail" placeholder="Email">
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <input asp-for="Input.Dob" autocomplete="false" aria-required="true" class="form-control form-control-user"
+            id="exampleDob" placeholder="Date of Birth">
+        <span asp-validation-for="Input.Dob" class="text-danger"></span>
+    </div>
+    <button type="submit" class="w-100 btn btn-lg btn-primary">Đăng ký</button>
+</form>
+
+
+<a id="forgot-password" asp-page="./Login"><i class="bi bi-arrow-right-short"></i> Quay lại đăng
+    nhập</a>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

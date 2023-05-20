@@ -1,13 +1,13 @@
-<div class="search-area-wrapper">
-    <div class="search-area container">
-        <h3 class="search-header">Bạn muốn tìm câu hỏi?</h3>
-        <p class="search-tag-line">Nếu bạn muốn tìm kiếm gì hãy gõ từ khóa dưới đây!</p>
-
-        <form id="search-form" class="search-form clearfix" method="get" action="/search" autocomplete="off">
-            <input class="search-term required" type="text" id="txt_keyword" name="keyword" placeholder="Nhập từ khóa"
-                title="* Vui lòng nhập từ khóa" />
-            <input class="search-btn" type="submit" value="Tìm" />
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-center">
+        <a class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto link-body-emphasis text-decoration-none" href="/"
+            title="Daisy Forum">
+            <img height="28px" width="auto" src="/images/title.png" alt="Daisy Forum logo">
+        </a>
+        <form id="search-form" method="get" action="/tim-kiem" autocomplete="off" class="w-50 col-lg-auto mb-3 mb-lg-0"
+            role="search">
+            <input type="search" class="form-control" name="keyword" placeholder="Bạn có câu hỏi?" aria-label="Search">
             <div id="search-error-container"></div>
         </form>
     </div>
-</div>
+</header>

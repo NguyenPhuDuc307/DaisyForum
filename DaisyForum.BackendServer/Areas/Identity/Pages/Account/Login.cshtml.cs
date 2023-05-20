@@ -73,7 +73,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Display(Name = "Remember me?")]
+            [Display(Name = "Lưu đăng nhập?")]
             public bool RememberMe { get; set; }
         }
 
@@ -121,7 +121,7 @@ namespace DaisyForum.BackendServer.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Đăng nhập thất bại, vui lòng kiểm tra thông tin tài khoản.");
                     return Page();
                 }
             }

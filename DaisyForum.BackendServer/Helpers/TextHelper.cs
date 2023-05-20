@@ -56,6 +56,12 @@ public class TextHelper
         return Encoding.Unicode.GetString(bytes); // returns: "Hello world" for "48656C6C6F20776F726C64"
     }
 
+    public static string[] Split(string? str, string chr)
+    {
+        if (str == null)
+            return new string[0];
+        return str.Split(chr);
+    }
 
     public static string hostMail = "smtp.gmail.com";
     public static int portEmail = 587;
