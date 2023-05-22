@@ -117,6 +117,14 @@ public partial class KnowledgeBasesController : BaseController
         return Ok(knowledgeBaseViewModels);
     }
 
+
+    // [HttpGet]
+    // [AllowAnonymous]
+    // public async Task<IActionResult> GetKnowledgeBasesFromCSV()
+    // {
+
+    // }
+
     [HttpGet("filter")]
     [AllowAnonymous]
     public async Task<IActionResult> GetKnowledgeBasesPaging(string filter, int? categoryId, int pageIndex = 1, int pageSize = 10)

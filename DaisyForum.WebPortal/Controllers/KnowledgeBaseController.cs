@@ -118,6 +118,20 @@ namespace DaisyForum.WebPortal.Controllers
             return BadRequest();
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, int commentId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _knowledgeBaseApiClient.DeleteComment(knowledgeBaseId, commentId);
+            if (result != null)
+                return Ok(result);
+            return BadRequest();
+        }
+
         [HttpPost]
         public async Task<IActionResult> PostVote([FromForm] VoteCreateRequest request)
         {

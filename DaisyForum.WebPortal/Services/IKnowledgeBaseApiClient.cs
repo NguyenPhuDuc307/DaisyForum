@@ -27,6 +27,8 @@ public interface IKnowledgeBaseApiClient
 
     Task<CommentViewModel> PostComment(CommentCreateRequest request);
 
+    Task<bool> DeleteComment(int knowledgeBaseId, int commentId);
+
     Task<bool> PostKnowledgeBase(KnowledgeBaseCreateRequest request);
 
     Task<bool> PutKnowledgeBase(int id, KnowledgeBaseCreateRequest request);

@@ -100,5 +100,25 @@ namespace DaisyForum.WebPortal.Services
 
             throw new Exception(body);
         }
+
+        public async Task<bool> DeleteAsync<TResponse>(string url, bool requiredLogin = true)
+        {
+            var client = _httpClientFactory.CreateClient("BackendApi");
+            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
+
+            if (requiredLogin)
+            {
+                var token = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.DeleteAsync(url);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                return true;
+
+            throw new Exception(body);
+        }
     }
 }

@@ -79,6 +79,11 @@ namespace DaisyForum.WebPortal.Services
             return await PostAsync<CommentCreateRequest, CommentViewModel>($"/api/knowledgeBases/{request.KnowledgeBaseId}/comments", request);
         }
 
+        public async Task<bool> DeleteComment(int knowledgeBaseId, int commentId)
+        {
+            return await DeleteAsync<bool>($"/api/knowledgeBases/{knowledgeBaseId}/comments/{commentId}");
+        }
+
         public async Task<bool> PostKnowledgeBase(KnowledgeBaseCreateRequest request)
         {
             var client = _httpClientFactory.CreateClient("BackendApi");
