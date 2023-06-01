@@ -31,6 +31,9 @@ public class User : IdentityUser, IDateTracking
 
     [Required]
     public DateTime Dob { get; set; }
+
+    [MaxLength(500)]
+    public string? Labels { get; set; }
     public int? NumberOfKnowledgeBases { get; set; }
     public int? NumberOfVotes { get; set; }
     public int? NumberOfReports { get; set; }

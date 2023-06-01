@@ -14,7 +14,26 @@
 
     <article class=" type-post format-standard hentry clearfix">
 
-        <h1 class="post-title"><a href="#">@Model.UserName</a></h1>
+        <h1 class="post-title">@Model.UserName</h1>
+        <a asp-controller="Account" asp-action="SignOut" class="btn btn-logout btn-sm btn-danger"
+            style="display: inline-block; float: right;">Đăng xuất</a>
+
+        <style>
+            .post-title {
+                display: inline-block;
+            }
+        </style>
+        <style>
+            .post-title {
+                text-align: left;
+            }
+
+            .btn-logout {
+                margin-left: 20px;
+                margin-top: 8px;
+            }
+        </style>
+
         <table class="table table-bordered">
             <tr>
                 <td>Họ tên</td>
@@ -35,14 +54,29 @@
             <tr>
                 <td colspan="2">
                     <button class="btn btn-success" onclick="openNewWindow()">Chỉnh sửa</button>
-
                     <script>
                         function openNewWindow() {
                             window.open("@Configuration["BackendApiUrl"]/Account/Manage", "newWindow", "width=600, height=800");
                         }
                     </script>
+
                 </td>
             </tr>
         </table>
+
+        <hr>
+        <label>Nhãn dán đề xuất bài viết</label>
+        <a asp-controller="Account" asp-action="Labels" class="ml-2 mb-2">Cập nhật nhãn dán của tôi</a>
+        @if (Model.Labels != null)
+        {
+            <div class="tagcloud d-flex flex-wrap">
+                @foreach (var item in Model.Labels)
+                {
+                    <a
+                        class="m-1 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill text-decoration-none flex-fill"><i
+                            class="bi bi-bookmark me-1"></i>@item</a>
+                }
+            </div>
+        }
     </article>
 </div>

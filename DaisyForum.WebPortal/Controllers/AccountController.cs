@@ -41,6 +41,33 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    public async Task<ActionResult> Labels()
+    {
+        var user = await _userApiClient.GetById(User.GetUserId());
+        return View(user);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> Labels(string txt_label_submit)
+    {
+        if (txt_label_submit == null)
+        {
+            return BadRequest(ModelState);
+        }
+
+        string[] listLabel = txt_label_submit.Split(',');
+
+        var user = await _userApiClient.PutLabels(User.GetUserId(), listLabel);
+        return RedirectToAction("MyProfile");
+    }
+
+    public async Task<ActionResult> GetLabels(string? keyword, int page = 1, int pageSize = 100)
+    {
+        var labels = await _userApiClient.GetLabels(keyword, page, pageSize);
+        return Ok(labels);
+    }
+
+    [HttpGet]
     [Authorize]
     public async Task<IActionResult> MyKnowledgeBases(int page = 1, int pageSize = 10)
     {

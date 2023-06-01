@@ -1,11 +1,39 @@
+<style>
+    .avatar {
+        width: 32px;
+        height: 32px;
+        line-height: 28px;
+        text-align: center;
+        font-size: 24px;
+        color: white;
+        background-color: #4FB084;
+        border-radius: 50%;
+    }
+</style>
+
 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
-    <li class="nav-item"><a href="/bai-dang-cua-toi" class="nav-link link-dark px-2">Bài đăng của tôi</a></li>
-    <li class="nav-item"><a asp-controller="Account" asp-action="MyProfile"
-        class="nav-link link-dark px-2">@User.Identity.Name</a></li>
-    <li class="nav-item"><a asp-controller="Account" asp-action="SignOut" class="nav-link link-dark px-2">Thoát</a></li>
+    <li class="nav-item"><a href="/bai-dang-cua-toi" class="nav-link px-2">Bài đăng của tôi</a></li>
+    <li class="nav-item"><a asp-controller="Account" asp-action="MyProfile" class="nav-link px-2 d-flex">
+        <div id="avatar-container" class="me-1"></div>
+        @User.Identity.Name
+    </a></li>
+    <input id="username" value="@User.Identity.Name" hidden />
 }
 else
 {
-    <li class="nav-item"><a class="nav-link link-dark px-2" asp-controller="Account" asp-action="SignIn">Đăng nhập</a></li>
+    <li class="nav-item"><a class="nav-link px-2" asp-controller="Account" asp-action="SignIn">Đăng nhập</a></li>
 }
+
+@* <script>
+const input = document.getElementById('username');
+const username = input.value;
+const firstLetter = username.charAt(0).toLowerCase();
+
+const avatar = document.createElement('div');
+avatar.classList.add('avatar');
+avatar.textContent = firstLetter;
+
+const container = document.getElementById('avatar-container');
+container.appendChild(avatar);
+</script> *@

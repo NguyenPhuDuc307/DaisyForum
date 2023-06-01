@@ -171,6 +171,7 @@ services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 services.AddTransient<IViewRenderService, ViewRenderService>();
 services.AddTransient<ICacheService, DistributedCacheService>();
 services.AddTransient<IOneSignalService, OneSignalService>();
+services.AddTransient<IContentBasedService, ContentBasedService>();
 
 services.AddSwaggerGen(c =>
 {
@@ -206,6 +207,8 @@ services.AddDistributedSqlServerCache(o =>
     o.SchemaName = "dbo";
     o.TableName = "CacheTable";
 });
+
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

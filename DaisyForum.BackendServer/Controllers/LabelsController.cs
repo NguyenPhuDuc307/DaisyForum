@@ -2,6 +2,7 @@ using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Services;
+using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,40 @@ public class LabelsController : BaseController
         }
 
         return cachedData;
+    }
+
+    [HttpGet("filter")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetLabelsPaging(string? keyword, int page = 1, int pageSize = 10)
+    {
+
+        var query = from l in _context.Labels
+                    join lik in _context.LabelInKnowledgeBases on l.Id equals lik.LabelId
+                    group new { l.Id, l.Name } by new { l.Id, l.Name } into g
+                    select new
+                    {
+                        g.Key.Id,
+                        g.Key.Name,
+                        Count = g.Count()
+                    };
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(x => x.Name != null && x.Name.Contains(keyword));
+        }
+        var totalRecords = await query.CountAsync();
+        var labels = await query.OrderByDescending(x => x.Count).Skip((page - 1) * pageSize)
+            .Take(pageSize).Select(l => new LabelViewModel()
+            {
+                Id = l.Id,
+                Name = l.Name
+            }).ToListAsync();
+
+        var pagination = new Pagination<LabelViewModel>
+        {
+            Items = labels,
+            TotalRecords = totalRecords,
+        };
+        return Ok(pagination);
     }
 
     [HttpGet("{id}")]

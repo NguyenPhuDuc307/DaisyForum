@@ -2,30 +2,6 @@
 
 @model List<DaisyForum.WebPortal.Controllers.Components.NavBarViewComponent.TreeNode>
 
-@* <ul class="list-group">
-@foreach (var node in Model.Where(n => n.ParentId == null))
-{
-<li class="list-group-item">
-@node.Name
-@RenderChildNodes(node)
-</li>
-}
-</ul> *@
-<style>
-    label a {
-        color: black;
-        margin-bottom: 10px;
-    }
-
-    label a:hover {
-        text-decoration: none;
-        color: #007bff;
-    }
-
-    label {
-        font-weight: 600 !important;
-    }
-</style>
 @functions {
     public static IHtmlContent RenderChildNodes(DaisyForum.WebPortal.Controllers.Components.NavBarViewComponent.TreeNode node)
     {
@@ -34,30 +10,34 @@
             return HtmlString.Empty;
         }
 
-        var childNodesHtml = string.Join(string.Empty, node.Children.Select(child => child.Children.Count>0 ? $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label><div class=\"p-0 accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse_{child.Id}\" aria-expanded=\"false\" aria-controls=\"collapse_{child.Id}\"><i class=\"text-sm text-primary\">Xem thêm</i></div><ul id=\"collapse_{child.Id}\" class=\"ml-3 list-group list-group-flush collapse\" data-bs-parent=\"#accordionExample\">{RenderChildNodes(child)}</ul></li>": $"<li class=\"list-group-item p-0\"><label><a href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label></li>"));
+        var childNodesHtml = string.Join(string.Empty, node.Children.Select(child => child.Children.Count>0 ? $"<li class=\"list-group-item p-0\"><label><a class=\"text-decoration-none text-light-emphasis\" href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label><div class=\"p-0 accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#collapse_{child.Id}\" aria-expanded=\"false\" aria-controls=\"collapse_{child.Id}\"><i class=\"text-sm text-secondary\">Xem thêm</i></div><ul id=\"collapse_{child.Id}\" class=\"ml-3 list-group list-group-flush collapse\" data-bs-parent=\"#accordionExample\">{RenderChildNodes(child)}</ul></li>": $"<li class=\"list-group-item p-0\"><label><a class=\"text-decoration-none text-light-emphasis\" href=\"/danh-muc/{child.SeoAlias}-{child.Id}\">{child.Name}</a></label></li>"));
 
     return new HtmlString($"{childNodesHtml}");
     }
 }
 
-<nav class="py-2 bg-body-tertiary border-bottom">
-    <div class="container d-flex flex-wrap">
-        <ul class="nav me-auto position-relative">
-            <li class="nav-item"><a class="nav-link link-dark px-2 active" href="/">Trang chủ</a></li>
-            <li class="nav-item">
-                <a class="nav-link link-dark px-2" href="">Bài đăng</a>
+<nav class="fixed-top py-2 navbar navbar-expand-lg bg-body-tertiary border-bottom">
+  <div class="container-fluid">
+    <a class="nav-link px-2 active" href="/">Trang chủ</a>
+    <button class="navbar-toggler text-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span> menu
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+                <a class="nav-link px-2" href="">Bài đăng</a>
                 @if (Model.Count > 0)
                 {
-                    <ul class="sub-menu1 position-absolute border rounded accordion list-group list-group-flush">
+                    <ul class="sub-menu1 position-absolute top-0 border rounded accordion list-group list-group-flush mt-5">
                     @foreach (var node in Model.Where(n => n.ParentId == null))
                     {
-                        <li class="list-group-item p-0">
+                        <li class="list-group-item px-2">
                             <label>
-                                <a href="/danh-muc/@node.SeoAlias-@node.Id">@node.Name</a>
+                                <a href="/danh-muc/@node.SeoAlias-@node.Id" class="text-decoration-none text-light-emphasis">@node.Name</a>
                             </label>
                                 
                             <div class="p-0 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@node.Id" aria-expanded="false" aria-controls="collapse_@node.Id">
-                                <i class="text-sm text-primary">Xem thêm</i>
+                                <i class="text-sm text-secondary">Xem thêm</i>
                             </div>
                             
                             <ul id="collapse_@node.Id" class="ml-3 list-group list-group-flush collapse" data-bs-parent="#accordionExample">
@@ -69,31 +49,71 @@
                 }
 
             </li>
+            
             <li class="nav-item">
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <a class="nav-link link-dark px-2" href="/bai-dang-moi" title="Đăng bài mới">Đăng bài mới</a>
+                    <a class="nav-link px-2" href="/bai-dang-moi" title="Đăng bài mới">Đăng bài mới</a>
                 }
             </li>
-        </ul>
-        <ul class="nav">
-            <partial name="_LoginPartial" />
+      </ul>
+      <ul class="navbar-nav">
+            <partial name="_LoginPartial"/>
+            <div class="form-check form-switch">
+                <button class="btn btn-light" type="button" id="flexSwitchCheckChecked"
+                    onclick="myFunction()"><i class="bi bi-lamp-fill text-primary"></i></button>
+            </div>
         </ul>
     </div>
+  </div>
 </nav>
 
 <style>
     .sub-menu1 {
-        width: 240px;
+        width: 280px;
         display: none;
         top: 100%;
         z-index: 999;
         left: auto;
-        background-color: #fff;
-        padding: 10px;
     }
 
     .nav-item:hover .sub-menu1 {
         display: block;
     }
 </style>
+
+<script>
+    function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  function myFunction() {
+    var element = document.body;
+    element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+    setCookie("theme", element.dataset.bsTheme, 365);
+  }
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  var theme = getCookie("theme");
+  if (theme) {
+    document.body.dataset.bsTheme = theme;
+  }
+</script>

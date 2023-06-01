@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using System.Collections;
+using AutoMapper;
 
 namespace DaisyForum.BackendServer.Controllers;
 
@@ -25,6 +27,7 @@ public partial class KnowledgeBasesController : BaseController
     private readonly IViewRenderService _viewRenderService;
     private readonly ICacheService _cacheService;
     private readonly IOneSignalService _oneSignalService;
+    private readonly IContentBasedService _cSVService;
 
     public KnowledgeBasesController(ApplicationDbContext context,
             ISequenceService sequenceService,
@@ -33,7 +36,8 @@ public partial class KnowledgeBasesController : BaseController
             IEmailSender emailSender,
             IViewRenderService viewRenderService,
             ICacheService cacheService,
-            IOneSignalService oneSignalService)
+            IOneSignalService oneSignalService,
+            IContentBasedService cSVService)
     {
         _context = context;
         _sequenceService = sequenceService;
@@ -43,6 +47,7 @@ public partial class KnowledgeBasesController : BaseController
         _viewRenderService = viewRenderService;
         _cacheService = cacheService;
         _oneSignalService = oneSignalService;
+        _cSVService = cSVService;
     }
 
     [HttpPost]
@@ -116,14 +121,6 @@ public partial class KnowledgeBasesController : BaseController
 
         return Ok(knowledgeBaseViewModels);
     }
-
-
-    // [HttpGet]
-    // [AllowAnonymous]
-    // public async Task<IActionResult> GetKnowledgeBasesFromCSV()
-    // {
-
-    // }
 
     [HttpGet("filter")]
     [AllowAnonymous]

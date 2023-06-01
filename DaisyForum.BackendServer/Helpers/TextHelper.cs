@@ -29,7 +29,7 @@ public class TextHelper
         {
             str2 = str2.Replace("--", "-").ToLower();
         }
-        return str2;
+        return str2.ToLower();
     }
 
     public static string ToHexString(string str)
@@ -61,6 +61,19 @@ public class TextHelper
         if (str == null)
             return new string[0];
         return str.Split(chr);
+    }
+
+    public static int[] AddArray(int[] arr, int value)
+    {
+        int[] newArr = new int[arr.Count() + 1];
+        for (int i = 0; i < arr.Count() + 1; i++)
+        {
+            if (i < arr.Count())
+                newArr[i] = arr[i];
+            else
+                newArr[i] = value;
+        }
+        return newArr;
     }
 
     public static string hostMail = "smtp.gmail.com";

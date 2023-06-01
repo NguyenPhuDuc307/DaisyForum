@@ -2,21 +2,21 @@
 <div class="container">
     <footer class="py-3 my-4">
         <ul class="nav justify-content-center border-bottom pb-3 mb-3 position-relative">
-            <li class="nav-item"><a class="nav-link link-dark px-2 active" href="/">Trang chủ</a></li>
+            @* <li class="nav-item"><a class="nav-link link-dark px-2 active" href="/">Trang chủ</a></li>
             <li class="nav-item">
-                <a class="nav-link link-dark px-2" href="">Bài đăng</a>
-                @if (Model.Count > 0)
-                {
-                    <ul class="sub-menu position-absolute border rounded">
-                        @foreach (var item in Model)
-                        {
-                            <a class="nav-link link-dark px-2 text-nowrap"
-                                href="/danh-muc/@item.SeoAlias-@item.Id">@item.Name</a>
-                        }
-                    </ul>
-                }
+            <a class="nav-link link-dark px-2" href="">Bài đăng</a>
+            @if (Model.Count > 0)
+            {
+            <ul class="sub-menu position-absolute border rounded">
+            @foreach (var item in Model)
+            {
+            <a class="nav-link link-dark px-2 text-nowrap"
+            href="/danh-muc/@item.SeoAlias-@item.Id">@item.Name</a>
+            }
+            </ul>
+            }
 
-            </li>
+            </li> *@
         </ul>
         <p class="text-center text-body-secondary">&copy; 2023 Daisy Forum, Inc</p>
     </footer>

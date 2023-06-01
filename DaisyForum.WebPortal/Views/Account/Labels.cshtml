@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Thêm nhãn đề xuất";
+    Layout = "_SubLayout";
+}
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var count = 0; // Biến đếm số lượng nhãn đã được thêm vào
+            function addLabel() {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode === 13) { // Kiểm tra phím Enter được nhấn
+                    event.preventDefault(); // Chặn hành động submit của form
+                    var label = $("#txt_label").val().trim();
+                    var label_submit = $("#txt_label_submit").val();
+
+                    if (label.length > 0) {
+                        if (count >= 10) { // Kiểm tra số lượng nhãn đã vượt quá giới hạn
+                            $("#passwordHelpBlock").addClass("text-danger").text("Bạn đã thêm tối đa 10 nhãn.");
+                            return;
+                        }
+
+                        // Tạo thẻ span và thêm vào div #labelsContainer
+                        var span = $("<span>").addClass("label d-flex m-1 align-items-center px-1 text-primary-emphasis bg-primary-subtle rounded-pill");
+                        span.append($("<span>").addClass("px-1").text(label));
+                        span.append($("<a>").attr('style', 'color: black !important; cursor: pointer').click(function () {
+                            // Xóa nhãn khi bấm dấu x trên thẻ a
+                            var label = $(this).parent().text().trim();
+                            var label_submit = $("#txt_label_submit").val();
+                            $("#passwordHelpBlock").removeClass("text-danger").text("Nhấn enter đển thêm nhãn vào danh sách.");
+                            // Xóa giá trị tương ứng trong ô input bên dưới
+                            label_submit = label_submit.replace(label, '').replace(/,,/g, ',').replace(/^,|,$/g, '');
+                            $("#txt_label_submit").val(label_submit);
+
+                            // Xóa thẻ span
+                            $(this).parent().remove();
+
+                            // Giảm biến đếm số lượng nhãn
+                            count--;
+                        }).append($("<svg>").attr("xmlns", "http://www.w3.org/2000/svg").attr("width", "16").attr("height", "16").attr("fill", "currentColor").addClass("bi bi-x-circle-fill").attr("viewBox", "0 0 16 16").append($("<path>").attr("d", "M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"))));
+                        $("#labelsContainer").append(span);
+
+                        // Xóa giá trị trong ô input và cập nhật ô input bên dưới
+                        $("#txt_label").val('');
+                        if (label_submit.length > 0) {
+                            label_submit += "," + label;
+                        } else {
+                            label_submit = label;
+                        }
+                        $("#txt_label_submit").val(label_submit);
+
+                        // Tăng biến đếm số lượng nhãn
+                        count++;
+                    }
+                }
+            }
+            $('#txt_label').keypress(function (event) {
+                addLabel();
+            });
+        });
+    </script>
+    <script src="~/lib/mustache.js/mustache.min.js"></script>
+    <script src="~/js/controllers/accountController.js" asp-append-version="true"></script>
+
+
+    <script>
+        var controller = new accountController();
+        controller.initialize();
+    </script>
+
+}
+
+<div class="mt-3">
+    <div id="labelsContainer" class="tagcloud d-flex flex-wrap"></div>
+</div>
+<div class="mt-2">
+    <div class="form-group">
+        <input id="txt_label" class="form-control" type="text" aria-labelledby="passwordHelpBlock"
+            placeholder="Nhập tên nhãn dán">
+        <div id="passwordHelpBlock" class="form-text">
+            Nhấn enter đển thêm nhãn vào danh sách.
+        </div>
+        <form class="row" action="/account/Labels" method="post" enctype="multipart/form-data">
+            <input id="txt_label_submit" name="txt_label_submit" hidden class="form-control mt-1" type="text">
+            <div class="mt-3">
+                <input type="submit" name="submit" value="Xác nhận" class="btn btn-success">
+                <img src="/images/loading.gif" id="contact-loader" alt="Đang xử lý...">
+            </div>
+        </form>
+    </div>
+</div>
+
+<label class="title">Danh sách 100 nhãn phổ biến nhất</label>
+<div id="label_list" class="tagcloud d-flex flex-wrap">
+</div>
+
+<script id="tmpl_labels" type="x-tmpl-mustache">
+    <label id="label_click" class="px-1 m-1 align-items-center p-1 pe-2 bg-success-subtle border rounded-pill flex-fill"><i
+                    class="bi bi-bookmark me-1"></i>{{name}}</label>
+</script>

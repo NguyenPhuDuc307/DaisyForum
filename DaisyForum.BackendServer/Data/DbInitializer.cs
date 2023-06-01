@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using AutoMapper;
 using DaisyForum.BackendServer.Data.Entities;
+using DaisyForum.BackendServer.Services;
+using DaisyForum.ViewModels.Contents;
 using Microsoft.AspNetCore.Identity;
 
 namespace DaisyForum.BackendServer.Data;
@@ -8,16 +12,22 @@ public class DbInitializer
     private readonly ApplicationDbContext _context;
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IContentBasedService _contentBasedService;
+    private readonly IMapper _mapper;
     private readonly string AdminRoleName = "Admin";
     private readonly string UserRoleName = "Member";
 
     public DbInitializer(ApplicationDbContext context,
       UserManager<User> userManager,
-      RoleManager<IdentityRole> roleManager)
+      RoleManager<IdentityRole> roleManager,
+      IContentBasedService contentBasedService,
+      IMapper mapper)
     {
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
+        _contentBasedService = contentBasedService;
+        _mapper = mapper;
     }
 
     public async Task Seed()
@@ -95,6 +105,14 @@ public class DbInitializer
                 new Function {Id = "SYSTEM_PERMISSION", Name = "Quyền hạn",ParentId = "SYSTEM",Url = "/systems/permissions",Icon="fa-desktop"},
             });
             await _context.SaveChangesAsync();
+        }
+
+        //KnowledgeBase
+        if (!_context.KnowledgeBases.Any())
+        {
+            List<KnowledgeBasesFromCSV> listPost = _contentBasedService.GetData("/Users/daisy/Desktop/ĐỒ ÁN TỐT NGHIỆP 2023/DaisyForum/train copy.csv");
+            List<KnowledgeBaseCreateRequest> listKnowledgeBase = _mapper.Map<List<KnowledgeBasesFromCSV>, List<KnowledgeBaseCreateRequest>>(listPost);
+            await _contentBasedService.SeedData(listKnowledgeBase, "45c2a768-549e-4d57-95a7-ad19939403e0");
         }
 
         if (!_context.Commands.Any())

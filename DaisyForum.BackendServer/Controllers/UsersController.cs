@@ -1,3 +1,5 @@
+using System.Collections;
+using AutoMapper;
 using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
 using DaisyForum.BackendServer.Data;
@@ -6,6 +8,7 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
 using DaisyForum.ViewModels.Systems;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +20,223 @@ public class UsersController : BaseController
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
+    public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context, IMapper mapper)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _context = context;
+        _mapper = mapper;
+    }
+
+    [HttpGet("suggested")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetKnowledgeBasesSuggested(string userId, int size = 5)
+    {
+        var listKnowledgeBases = await _context.KnowledgeBases.ToListAsync();
+        List<KnowledgeBasesFromCSV> listPost = _mapper.Map<List<KnowledgeBase>, List<KnowledgeBasesFromCSV>>(listKnowledgeBases);
+
+        HashSet<string> setTag = new HashSet<string>();
+        foreach (var post in listPost)
+        {
+            if (post.Tags != null && post.Tags.Any())
+            {
+                foreach (var tag in post.Tags)
+                {
+                    setTag.Add(tag);
+                }
+            }
+        }
+        List<string> listTag = setTag.ToList();
+
+        var userBase = await _userManager.FindByIdAsync(userId);
+        if (userBase == null)
+        {
+            return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
+        }
+
+        UserBases user = new UserBases()
+        {
+            UserId = userBase.Id,
+            Tags = TextHelper.Split(userBase.Labels, ",")
+        };
+
+        BitArray vector_user = new BitArray(listTag.Count);
+        for (int i = 0; i < listTag.Count; i++)
+        {
+            if (user.Tags != null && user.Tags.Contains(listTag[i]))
+            {
+                vector_user[i] = true;
+            }
+        }
+
+        List<KnowledgeBasesVector> listVectors = new List<KnowledgeBasesVector>();
+        foreach (var post in listPost)
+        {
+            if (post.Tags != null && post.Tags.Any())
+            {
+                BitArray vector_post = new BitArray(listTag.Count);
+                for (int i = 0; i < listTag.Count; i++)
+                {
+                    if (post.Tags.Contains(listTag[i]))
+                    {
+                        vector_post[i] = true;
+                    }
+                }
+                listVectors.Add(new KnowledgeBasesVector()
+                {
+                    Id = post.Id,
+                    Vector = vector_post
+                });
+            }
+        }
+
+        List<UserBases> userBases = new List<UserBases>();
+        for (int i = 0; i < listVectors.Count; i++)
+        {
+            double cosine = Content_Based.CosineSimilarity(listVectors[i].Vector, vector_user);
+            if (cosine > 0)
+            {
+                userBases.Add(new UserBases()
+                {
+                    UserId = user.UserId,
+                    PostId = listVectors[i].Id,
+                    Cosine = cosine,
+                });
+            }
+        }
+        userBases = userBases.OrderByDescending(x => x.Cosine).Take(size).ToList();
+        var listKnowledgeBaseViewModel = new List<KnowledgeBaseQuickViewModel>();
+        foreach (var kb in userBases)
+        {
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(kb.PostId);
+            if (knowledgeBase == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id: {kb.PostId}"));
+            var category = await _context.Categories.FindAsync(knowledgeBase.CategoryId);
+            if (category == null)
+                return NotFound(new ApiNotFoundResponse($"Cannot found category with id: {knowledgeBase.CategoryId}"));
+            var attachments = await _context.Attachments
+                .Where(x => x.KnowledgeBaseId == kb.PostId)
+                .Select(x => new AttachmentViewModel()
+                {
+                    FileName = x.FileName,
+                    FilePath = x.FilePath,
+                    FileSize = x.FileSize,
+                    Id = x.Id,
+                    FileType = x.FileType
+                }).ToListAsync();
+            var knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
+            knowledgeBaseViewModel.CategoryName = category.Name;
+            knowledgeBaseViewModel.CategoryAlias = category.SeoAlias;
+            listKnowledgeBaseViewModel.Add(knowledgeBaseViewModel);
+        }
+        return Ok(listKnowledgeBaseViewModel);
+    }
+
+    private static KnowledgeBaseQuickViewModel CreateKnowledgeBaseViewModel(KnowledgeBase knowledgeBase)
+    {
+        return new KnowledgeBaseQuickViewModel()
+        {
+            Id = knowledgeBase.Id,
+
+            CategoryId = knowledgeBase.CategoryId,
+
+            Title = knowledgeBase.Title,
+
+            SeoAlias = knowledgeBase.SeoAlias,
+
+            Description = knowledgeBase.Description,
+
+            Labels = !string.IsNullOrEmpty(knowledgeBase.Labels) ? knowledgeBase.Labels.Split(',') : null,
+
+            CreateDate = knowledgeBase.CreateDate,
+
+            NumberOfComments = knowledgeBase.NumberOfComments,
+
+            NumberOfVotes = knowledgeBase.NumberOfVotes
+        };
+    }
+
+    [HttpGet("analysisKnowledgeBases")]
+    [AllowAnonymous]
+    public async Task<IActionResult> AnalysisKnowledgeBases()
+    {
+
+        var listKnowledgeBases = await _context.KnowledgeBases.ToListAsync();
+        List<KnowledgeBasesFromCSV> listPost = _mapper.Map<List<KnowledgeBase>, List<KnowledgeBasesFromCSV>>(listKnowledgeBases);
+
+        HashSet<string> setTag = new HashSet<string>();
+        foreach (var post in listPost)
+        {
+            if (post.Tags != null && post.Tags.Any())
+            {
+                foreach (var tag in post.Tags)
+                {
+                    setTag.Add(tag);
+                }
+            }
+        }
+        List<string> listTag = setTag.ToList();
+
+        UserBases user1 = new UserBases()
+        {
+            UserId = "1",
+            Tags = new string[]{
+            "java",
+            ".Net",
+            "C#",
+            "optional",
+            "haskell"
+            }
+        };
+
+        BitArray vector_user = new BitArray(listTag.Count);
+        for (int i = 0; i < listTag.Count; i++)
+        {
+            if (user1.Tags != null && user1.Tags.Contains(listTag[i]))
+            {
+                vector_user[i] = true;
+            }
+        }
+
+        List<KnowledgeBasesVector> listVectors = new List<KnowledgeBasesVector>();
+        foreach (var post in listPost)
+        {
+            if (post.Tags != null && post.Tags.Any())
+            {
+                BitArray vector_post = new BitArray(listTag.Count);
+                for (int i = 0; i < listTag.Count; i++)
+                {
+                    if (post.Tags.Contains(listTag[i]))
+                    {
+                        vector_post[i] = true;
+                    }
+                }
+                listVectors.Add(new KnowledgeBasesVector()
+                {
+                    Id = post.Id,
+                    Vector = vector_post
+                });
+            }
+        }
+        List<UserBases> userBases = new List<UserBases>();
+        for (int i = 0; i < listVectors.Count; i++)
+        {
+            double cosine = Content_Based.CosineSimilarity(listVectors[i].Vector, vector_user);
+            if (cosine > 0)
+            {
+                userBases.Add(new UserBases()
+                {
+                    UserId = user1.UserId,
+                    PostId = listVectors[i].Id,
+                    Cosine = cosine
+                });
+            }
+        }
+        userBases = userBases.OrderByDescending(x => x.Cosine).ToList();
+
+        return Ok(userBases);
     }
 
     [HttpPost]
@@ -56,6 +270,22 @@ public class UsersController : BaseController
         }
     }
 
+    private static UserViewModel CreateUserViewModel(User user)
+    {
+        return new UserViewModel()
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Dob = user.Dob,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            CreateDate = user.CreateDate,
+            Labels = !string.IsNullOrEmpty(user.Labels) ? user.Labels.Split(',') : null
+        };
+    }
+
     [HttpGet]
     [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
     public async Task<IActionResult> GetUsers()
@@ -71,7 +301,8 @@ public class UsersController : BaseController
             PhoneNumber = u.PhoneNumber,
             FirstName = u.FirstName,
             LastName = u.LastName,
-            CreateDate = u.CreateDate
+            CreateDate = u.CreateDate,
+            Labels = TextHelper.Split(u.Labels, ",")
         }).ToListAsync();
 
         return Ok(userViewModels);
@@ -130,7 +361,8 @@ public class UsersController : BaseController
             PhoneNumber = user.PhoneNumber,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            CreateDate = user.CreateDate
+            CreateDate = user.CreateDate,
+            Labels = TextHelper.Split(user.Labels, ",")
         };
         return Ok(userViewModel);
     }
@@ -326,5 +558,22 @@ public class UsersController : BaseController
             PageSize = pageSize
         };
         return Ok(pagination);
+    }
+
+    [HttpPut("{userId}/putLabels")]
+    [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
+    public async Task<IActionResult> PutLabels(string userId, [FromForm] string[] labels)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found user with userId: {userId}"));
+
+        user.Labels = string.Join(',', labels);
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return NoContent();
+        }
+        return BadRequest(new ApiBadRequestResponse(result));
     }
 }
