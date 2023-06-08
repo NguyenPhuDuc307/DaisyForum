@@ -53,4 +53,6 @@ public class KnowledgeBase : IDateTracking
     public int? NumberOfReports { get; set; }
 
     public int? ViewCount { get; set; }
+
+    public bool? IsProcessed { get; set; }
 }

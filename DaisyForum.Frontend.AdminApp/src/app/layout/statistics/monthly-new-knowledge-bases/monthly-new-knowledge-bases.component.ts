@@ -4,8 +4,8 @@ import { BaseComponent } from '@app/layout/base/base.component';
 
 @Component({
   selector: 'app-monthly-new-kbs',
-  templateUrl: './monthly-new-kbs.component.html',
-  styleUrls: ['./monthly-new-kbs.component.css']
+  templateUrl: './monthly-new-knowledge-bases.component.html',
+  styleUrls: ['./monthly-new-knowledge-bases.component.css']
 })
 export class MonthlyNewKbsComponent extends BaseComponent implements OnInit {
   // Default

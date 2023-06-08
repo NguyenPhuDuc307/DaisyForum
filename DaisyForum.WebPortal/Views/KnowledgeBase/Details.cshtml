@@ -5,14 +5,8 @@
     Layout = "_SubLayout";
 }
 
-<style>
-    .comment-meta {
-        padding-bottom: 0 !important;
-    }
-</style>
-
 @section scripts{
-    <script src="https://cdn.ckeditor.com/ckeditor5/37.1.0/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/38.0.1/super-build/ckeditor.js"></script>
     <script>
         $(document).ready(function () {
             var count = 0; // Biến đếm số lượng nhãn đã được thêm vào
@@ -71,11 +65,150 @@
 
 
     <script>
-        ClassicEditor
-            .create(document.querySelector('#txt_new_comment_content'))
-            .catch(error => {
-                console.error(error);
-            });
+        CKEDITOR.ClassicEditor.create(document.getElementById("txt_new_comment_content"), {
+            // https://ckeditor.com/docs/ckeditor5/latest/features/toolbar/toolbar.html#extended-toolbar-configuration-format
+            toolbar: {
+                items: [
+                    'exportPDF', 'exportWord', 'findAndReplace', '|',
+                    'heading', '|',
+                    'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', 'removeFormat', '|',
+                    'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent', '|',
+                    'undo', 'redo',
+                    '-',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                    'alignment', '|',
+                    'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', 'codeBlock', 'htmlEmbed', '|',
+                    'specialCharacters', 'horizontalLine', 'pageBreak', '|',
+                    'textPartLanguage', '|',
+                    'sourceEditing'
+                ],
+                shouldNotGroupWhenFull: true
+            },
+            // Changing the language of the interface requires loading the language file using the <script> tag.
+            // language: 'es',
+            list: {
+                properties: {
+                    styles: true,
+                    startIndex: true,
+                    reversed: true
+                }
+            },
+            // https://ckeditor.com/docs/ckeditor5/latest/features/headings.html#configuration
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                    { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                    { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                ]
+            },
+            // https://ckeditor.com/docs/ckeditor5/latest/features/editor-placeholder.html#using-the-editor-configuration
+            placeholder: 'Nhập nội dung',
+            // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-family-feature
+            fontFamily: {
+                options: [
+                    'default',
+                    'Arial, Helvetica, sans-serif',
+                    'Courier New, Courier, monospace',
+                    'Georgia, serif',
+                    'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                    'Tahoma, Geneva, sans-serif',
+                    'Times New Roman, Times, serif',
+                    'Trebuchet MS, Helvetica, sans-serif',
+                    'Verdana, Geneva, sans-serif'
+                ],
+                supportAllValues: true
+            },
+            // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-size-feature
+            fontSize: {
+                options: [10, 12, 14, 'default', 18, 20, 22],
+                supportAllValues: true
+            },
+            // Be careful with the setting below. It instructs CKEditor to accept ALL HTML markup.
+            // https://ckeditor.com/docs/ckeditor5/latest/features/general-html-support.html#enabling-all-html-features
+            htmlSupport: {
+                allow: [
+                    {
+                        name: /.*/,
+                        attributes: true,
+                        classes: true,
+                        styles: true
+                    }
+                ]
+            },
+            // Be careful with enabling previews
+            // https://ckeditor.com/docs/ckeditor5/latest/features/html-embed.html#content-previews
+            htmlEmbed: {
+                showPreviews: true
+            },
+            // https://ckeditor.com/docs/ckeditor5/latest/features/link.html#custom-link-attributes-decorators
+            link: {
+                decorators: {
+                    addTargetToExternalLinks: true,
+                    defaultProtocol: 'https://',
+                    toggleDownloadable: {
+                        mode: 'manual',
+                        label: 'Downloadable',
+                        attributes: {
+                            download: 'file'
+                        }
+                    }
+                }
+            },
+            // https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html#configuration
+            mention: {
+                feeds: [
+                    {
+                        marker: '@@',
+                        feed: [
+                            '@@apple', '@@bears', '@@brownie', '@@cake', '@@cake', '@@candy', '@@canes', '@@chocolate', '@@cookie', '@@cotton', '@@cream',
+                            '@@cupcake', '@@danish', '@@donut', '@@dragée', '@@fruitcake', '@@gingerbread', '@@gummi', '@@ice', '@@jelly-o',
+                            '@@liquorice', '@@macaroon', '@@marzipan', '@@oat', '@@pie', '@@plum', '@@pudding', '@@sesame', '@@snaps', '@@soufflé',
+                            '@@sugar', '@@sweet', '@@topping', '@@wafer'
+                        ],
+                        minimumCharacters: 1
+                    }
+                ]
+            },
+            // The "super-build" contains more premium features that require additional configuration, disable them below.
+            // Do not turn them on unless you read the documentation and know how to configure them and setup the editor.
+            removePlugins: [
+                // These two are commercial, but you can try them out without registering to a trial.
+                // 'ExportPdf',
+                // 'ExportWord',
+                'CKBox',
+                'CKFinder',
+                'EasyImage',
+                // This sample uses the Base64UploadAdapter to handle image uploads as it requires no configuration.
+                // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/base64-upload-adapter.html
+                // Storing images as Base64 is usually a very bad idea.
+                // Replace it on production website with other solutions:
+                // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/image-upload.html
+                // 'Base64UploadAdapter',
+                'RealTimeCollaborativeComments',
+                'RealTimeCollaborativeTrackChanges',
+                'RealTimeCollaborativeRevisionHistory',
+                'PresenceList',
+                'Comments',
+                'TrackChanges',
+                'TrackChangesData',
+                'RevisionHistory',
+                'Pagination',
+                'WProofreader',
+                // Careful, with the Mathtype plugin CKEditor will not load when loading this sample
+                // from a local file system (file://) - load this site via HTTP server if you enable MathType.
+                'MathType',
+                // The following features are part of the Productivity Pack and require additional license.
+                'SlashCommand',
+                'Template',
+                'DocumentOutline',
+                'FormatPainter',
+                'TableOfContents'
+            ]
+        });
     </script>
 
 
@@ -89,6 +222,7 @@
 @if (User.Identity.IsAuthenticated)
 {
     <input type="hidden" id="hid_current_login_name" value="@Model.CurrentUser.FirstName @Model.CurrentUser.LastName" />
+    <input type="hidden" id="hid_current_id" value="@Model.CurrentUser.Id" />
 
 }
 <div class="">
@@ -129,7 +263,7 @@
             @if (User.Identity.IsAuthenticated)
             {
                 <button type="button"
-                    class="btn btn-outline-danger mx-2 btn-sm badge rounded-pill text-danger bg-danger-subtle"
+                    class="ml-1 badge d-flex align-items-center p-1 pe-2 text-danger bg-danger-subtle border border-danger-subtle rounded-pill"
                     data-bs-toggle="modal" data-bs-target="#reportModal">
                     Báo xấu
                 </button>
@@ -192,11 +326,12 @@
                     <input type="hidden" name="knowledgeBaseId" value="@Model.Detail.Id" />
                     <div>
                         <label for="comment">Bình luận</label>
-                        <textarea class="form-control" name="content" id="txt_new_comment_content" cols="58"
-                            rows="10"></textarea>
-                    </div>
+                        <div id="comment_content">
+                            <textarea class="form-control" name="content" id="txt_new_comment_content" cols="58"
+                                rows="10"></textarea>
+                        </div>
 
-                    <p id="message-result" style="display:none;"></p>
+                    </div>
 
                     <div class="mb-4">
                         <button class="btn btn-outline-secondary btn-sm mt-1" name="submit" type="submit"
@@ -230,12 +365,13 @@
 </div>
 
 <script id="tmpl_children_comments" type="x-tmpl-mustache">
-    <br>
+    <div id="comment_{{id}}">
+<br>
        <div class="ml-4 mb-3 border-left" id="li-comment-2">
         <article id="comment-2" class="d-flex">
             <i class="bi bi-arrow-return-right me-2"></i>
             <div>
-                <div class="comment-meta border-bottom bg-light rounded p-2"><h6>
+                <div class="comment-meta border-bottom bg-body-tertiary rounded p-3" style="padding-bottom:12px !important">
                     <label>{{ownerName}}</label>
                     <br>
                     {{{content}}}
@@ -244,7 +380,7 @@
                     <time>{{createDate}}</time>
                 </i> 
                 <a class="comment-reply-link_child h6" style="font-weight: 500" href="#" data-commentid="{{id}}">Phản hồi</a>
-                <a class="comment-reply-link_child h6 ml-3" style="font-weight: 500" href="#" data-commentid="{{id}}">Xóa bình luận</a>
+                <a class="comment-reply-link h6 ml-3 text-danger" style="font-weight: 500" href="#" id="delete_{{id}}">Xóa bình luận</a>
                 <div id="reply_comment_child_{{id}}"></div>
             </div>
         </article>
@@ -252,21 +388,23 @@
             {{{childrenHtml}}}
         </div>
     </div>
+    </div>
+
 </script>
 
 <script id="tmpl_comments" type="x-tmpl-mustache">
+    <div id="comment_{{id}}">
     <div class="mb-3" id="li-comment-2">
         <article id="comment-2">
-            <div class="comment-meta border-bottom bg-light rounded p-2"><h6>
+            <div class="comment-meta border-bottom bg-body-tertiary rounded p-3" style="padding-bottom:12px !important">
                     <label>{{ownerName}}</label>
-                    <br>
                     {{{content}}}
             </div>
             <i class="me-2 small">
                 <time>{{createDate}}</time>
             </i> 
             <a class="comment-reply-link h6" style="font-weight: 500" href="#" data-commentid="{{id}}">Phản hồi</a>
-            <a class="comment-reply-link h6 ml-3" style="font-weight: 500" href="#" data-commentid="{{id}}">Xóa</a>
+            <a class="comment-reply-link h6 ml-3 text-danger" style="font-weight: 500" href="#" id="delete_{{id}}">Xóa bình luận</a>
             <div id="reply_comment_{{id}}"></div>
         </article><!-- end of comment -->
 
@@ -274,6 +412,7 @@
 
             {{{childrenHtml}}}
         </div>
+    </div>
     </div>
 </script>
 
@@ -310,10 +449,28 @@
                     <p id="message-result-report" style="display:none;"></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm" id="btn_send_report">Báo cáo</button>
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="btn_send_report">Báo cáo</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Xác nhận xóa bình luận</h5>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa bình luận này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger btn-sm" id="confirmDeleteButton">Xóa</button>
+            </div>
         </div>
     </div>
 </div>

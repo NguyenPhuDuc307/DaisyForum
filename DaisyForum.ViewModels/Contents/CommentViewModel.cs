@@ -12,5 +12,6 @@ public class CommentViewModel
     public DateTime CreateDate { get; set; }
     public DateTime? LastModifiedDate { get; set; }
     public int? ReplyId { get; set; }
+    public float NavigationScore { get; set; }
     public Pagination<CommentViewModel> Children { get; set; } = new Pagination<CommentViewModel>();
 }

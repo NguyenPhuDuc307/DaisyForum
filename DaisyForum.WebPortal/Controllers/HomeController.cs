@@ -28,10 +28,10 @@ namespace DaisyForum.WebPortal.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var latestKbs = await _knowledgeBaseApiClient.GetLatestKnowledgeBases(10);
-            var popularKbs = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(10);
+            var latestKbs = await _knowledgeBaseApiClient.GetLatestKnowledgeBases(12);
+            var popularKbs = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(12);
 
-            var labels = await _labelApiClient.GetPopularLabels(20);
+            var labels = await _labelApiClient.GetPopularLabels(100);
             var viewModel = new HomeViewModel()
             {
                 LatestKnowledgeBases = latestKbs,

@@ -27,5 +27,5 @@ public class Comment : IDateTracking
     public DateTime? LastModifiedDate { get; set; }
     public int? ReplyId { get; set; }
 
-    public bool IsNavigation { get; set; }
+    public float NavigationScore { get; set; }
 }

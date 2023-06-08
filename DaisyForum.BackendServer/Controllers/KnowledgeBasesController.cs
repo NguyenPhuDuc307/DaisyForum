@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Collections;
 using AutoMapper;
+using Google.Cloud.Language.V1;
 
 namespace DaisyForum.BackendServer.Controllers;
 
@@ -28,6 +29,7 @@ public partial class KnowledgeBasesController : BaseController
     private readonly ICacheService _cacheService;
     private readonly IOneSignalService _oneSignalService;
     private readonly IContentBasedService _cSVService;
+    private readonly LanguageServiceClient _languageServiceClient;
 
     public KnowledgeBasesController(ApplicationDbContext context,
             ISequenceService sequenceService,
@@ -48,6 +50,17 @@ public partial class KnowledgeBasesController : BaseController
         _cacheService = cacheService;
         _oneSignalService = oneSignalService;
         _cSVService = cSVService;
+
+        var credentialsPath = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS");
+
+        if (string.IsNullOrEmpty(credentialsPath))
+        {
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            var filePath = Path.Combine(basePath, "google-natural-language.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filePath);
+        }
+
+        _languageServiceClient = LanguageServiceClient.Create();
     }
 
     [HttpPost]
@@ -116,7 +129,8 @@ public partial class KnowledgeBasesController : BaseController
             CategoryId = u.CategoryId,
             Description = u.Description,
             SeoAlias = u.SeoAlias,
-            Title = u.Title
+            Title = u.Title,
+            IsProcessed = u.IsProcessed
         }).ToListAsync();
 
         return Ok(knowledgeBaseViewModels);
@@ -151,7 +165,8 @@ public partial class KnowledgeBasesController : BaseController
                 CategoryName = u.c.Name,
                 NumberOfVotes = u.k.NumberOfVotes,
                 CreateDate = u.k.CreateDate,
-                NumberOfComments = u.k.NumberOfComments
+                NumberOfComments = u.k.NumberOfComments,
+                IsProcessed = u.k.IsProcessed
             })
             .ToListAsync();
 
@@ -189,6 +204,7 @@ public partial class KnowledgeBasesController : BaseController
                     CategoryName = u.c.Name,
                     NumberOfVotes = u.k.NumberOfVotes,
                     CreateDate = u.k.CreateDate,
+                    IsProcessed = u.k.IsProcessed,
                     Labels = TextHelper.Split(u.k.Labels, ",")
                 }).ToListAsync();
             await _cacheService.SetAsync(CacheConstants.LatestKnowledgeBases, knowledgeBaseViewModels, 2);
@@ -222,6 +238,7 @@ public partial class KnowledgeBasesController : BaseController
                     CategoryName = u.c.Name,
                     NumberOfVotes = u.k.NumberOfVotes,
                     CreateDate = u.k.CreateDate,
+                    IsProcessed = u.k.IsProcessed,
                     Labels = TextHelper.Split(u.k.Labels, ",")
                 }).ToListAsync();
             await _cacheService.SetAsync(CacheConstants.PopularKnowledgeBases, knowledgeBasedViewModels, 24);
@@ -321,7 +338,8 @@ public partial class KnowledgeBasesController : BaseController
                 CategoryName = u.c.Name,
                 NumberOfVotes = u.k.NumberOfVotes,
                 CreateDate = u.k.CreateDate,
-                NumberOfComments = u.k.NumberOfComments
+                NumberOfComments = u.k.NumberOfComments,
+                IsProcessed = u.k.IsProcessed
             })
             .ToListAsync();
 
@@ -435,6 +453,8 @@ public partial class KnowledgeBasesController : BaseController
             NumberOfVotes = knowledgeBase.NumberOfVotes,
 
             NumberOfReports = knowledgeBase.NumberOfReports,
+
+            IsProcessed = knowledgeBase.IsProcessed
         };
     }
 
@@ -460,7 +480,9 @@ public partial class KnowledgeBasesController : BaseController
 
             Workaround = request.Workaround,
 
-            Note = request.Note
+            Note = request.Note,
+
+            IsProcessed = false
         };
         if (request.Labels?.Length > 0)
         {
@@ -542,6 +564,11 @@ public partial class KnowledgeBasesController : BaseController
         knowledgeBase.Workaround = request.Workaround;
 
         knowledgeBase.Note = request.Note;
+
+        if (request.IsProcessed != null)
+        {
+            knowledgeBase.IsProcessed = request.IsProcessed;
+        }
 
         if (request.Labels != null)
         {

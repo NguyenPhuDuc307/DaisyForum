@@ -22,5 +22,6 @@ namespace DaisyForum.ViewModels.Contents
         public int? NumberOfVotes { get; set; }
         public int? NumberOfReports { get; set; }
         public List<AttachmentViewModel>? Attachments { set; get; }
+        public bool? IsProcessed { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using DaisyForum.BackendServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DaisyForum.BackendServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230601070043_UpdateKnowledgeBasesv1")]
+    partial class UpdateKnowledgeBasesv1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,14 +191,14 @@ namespace DaisyForum.BackendServer.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsNavigation")
+                        .HasColumnType("bit");
+
                     b.Property<int>("KnowledgeBaseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<float>("NavigationScore")
-                        .HasColumnType("real");
 
                     b.Property<string>("OwnerUserId")
                         .HasMaxLength(50)

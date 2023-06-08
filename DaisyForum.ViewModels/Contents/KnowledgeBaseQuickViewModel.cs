@@ -14,4 +14,5 @@ public class KnowledgeBaseQuickViewModel
     public int? NumberOfVotes { get; set; } = 0;
     public int? NumberOfComments { get; set; } = 0;
     public string[]? Labels { get; set; }
+    public bool? IsProcessed { get; set; }
 }

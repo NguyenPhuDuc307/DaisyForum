@@ -9,5 +9,6 @@ namespace DaisyForum.ViewModels.Contents
         public int SortOrder { get; set; }
         public int? ParentId { get; set; }
         public int? NumberOfTickets { get; set; }
+        public List<CategoryViewModel>? Children { get; set; }
     }
 }

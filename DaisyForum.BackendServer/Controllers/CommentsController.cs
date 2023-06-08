@@ -6,6 +6,7 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Models;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
+using Google.Cloud.Language.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,6 +57,29 @@ public partial class KnowledgeBasesController
         return Ok(pagination);
     }
 
+    [HttpGet("natural-language")]
+    public async Task<IActionResult> AnalyzeSentiment([FromQuery] string content)
+    {
+        var document = new Document
+        {
+            Content = content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
+
+        var result = new
+        {
+            Score = sentiment.Score,
+            Magnitude = sentiment.Magnitude
+        };
+
+        return Ok(result);
+    }
+
+
     [HttpGet("{knowledgeBaseId}/comments/{commentId}")]
     [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
     public async Task<IActionResult> GetCommentDetail(int commentId)
@@ -84,12 +108,23 @@ public partial class KnowledgeBasesController
     [HttpPost("{knowledgeBaseId}/comments")]
     public async Task<IActionResult> PostComment(int knowledgeBaseId, [FromBody] CommentCreateRequest request)
     {
+        var document = new Document
+        {
+            Content = request.Content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
+
         var comment = new Comment()
         {
             Content = request.Content,
             KnowledgeBaseId = knowledgeBaseId,
             OwnerUserId = User.GetUserId(),
-            ReplyId = request.ReplyId
+            ReplyId = request.ReplyId,
+            NavigationScore = sentiment.Score
         };
         _context.Comments.Add(comment);
 
@@ -135,6 +170,15 @@ public partial class KnowledgeBasesController
     [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.UPDATE)]
     public async Task<IActionResult> PutComment(int commentId, [FromBody] CommentCreateRequest request)
     {
+        var document = new Document
+        {
+            Content = request.Content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
         var comment = await _context.Comments.FindAsync(commentId);
         if (comment == null)
             return BadRequest(new ApiBadRequestResponse($"Cannot found comment with id: {commentId}"));
@@ -143,6 +187,7 @@ public partial class KnowledgeBasesController
                 return Forbid();
 
         comment.Content = request.Content;
+        comment.NavigationScore = sentiment.Score;
         _context.Comments.Update(comment);
 
         var result = await _context.SaveChangesAsync();
@@ -220,6 +265,7 @@ public partial class KnowledgeBasesController
 
         return Ok(cachedData);
     }
+
 
     [HttpGet("{knowledgeBaseId}/comments/tree")]
     [AllowAnonymous]
