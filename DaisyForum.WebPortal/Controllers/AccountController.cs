@@ -149,26 +149,6 @@ public class AccountController : Controller
         return BadRequest();
     }
 
-    private List<CategoryViewModel> BuildCategoryTree(List<CategoryViewModel> categories, int? parentId = null)
-    {
-        var tree = new List<CategoryViewModel>();
-        foreach (var category in categories.Where(x => x.ParentId == parentId))
-        {
-            var node = new CategoryViewModel
-            {
-                Id = category.Id,
-                Name = category.Name,
-                ParentId = category.ParentId,
-                NumberOfTickets = category.NumberOfTickets,
-                SeoAlias = category.SeoAlias,
-                SeoDescription = category.SeoDescription,
-                SortOrder = category.SortOrder,
-            };
-            node.Children = BuildCategoryTree(categories, category.Id);
-            tree.Add(node);
-        }
-        return tree;
-    }
 
     private async Task SetCategoriesViewBag(int? selectedValue = null)
     {

@@ -90,13 +90,13 @@
                 </div>
             </div>
             <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                    strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+
+                <p-progressSpinner></p-progressSpinner>
             </p-blockUI>
         </p-panel>
     </div>
     <div class="modal-footer">
-        <button type="submit" pbutton class="btn btn-primary" [disabled]="!entityForm.valid || btnDisabled">Lưu
+        <button type="submit" pbutton class="btn btn-primary">Lưu
             lại</button>
         &nbsp;
         <button type="button" pbutton class="btn btn-default" (click)="bsModalRef.hide()">Đóng</button>

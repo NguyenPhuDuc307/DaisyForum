@@ -40,9 +40,9 @@ export class RolesComponent implements OnInit, OnDestroy {
     this.subscription.add(this.rolesService.getAllPaging(this.keyword, this.pageIndex, this.pageSize)
       .subscribe((response: Pagination<Role>) => {
         this.processLoadData(selectedId, response);
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
   private processLoadData(selectedId = null, response: Pagination<Role>) {
@@ -90,10 +90,10 @@ export class RolesComponent implements OnInit, OnDestroy {
         backdrop: 'static'
       });
 
-   this.subscription.add( this.bsModalRef.content.savedEvent.subscribe((response) => {
-    this.bsModalRef.hide();
-    this.loadData(response.id);
-  }));
+    this.subscription.add(this.bsModalRef.content.savedEvent.subscribe((response) => {
+      this.bsModalRef.hide();
+      this.loadData(response.id);
+    }));
   }
 
   deleteItems() {
@@ -107,9 +107,9 @@ export class RolesComponent implements OnInit, OnDestroy {
       this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
       this.loadData();
       this.selectedItems = [];
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }));
   }
 

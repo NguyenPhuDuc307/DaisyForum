@@ -43,7 +43,7 @@ export class RolesAssignComponent implements OnInit {
       if (this.selectedItems.length === 0 && this.items.length > 0) {
         this.selectedItems.push(this.items[0]);
       }
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     });
   }
 
@@ -58,7 +58,7 @@ export class RolesAssignComponent implements OnInit {
     };
     this.usersService.assignRolesToUser(this.userId, assignRolesToUser).subscribe(() => {
       this.chosenEvent.emit(this.selectedItems);
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     });
   }
 

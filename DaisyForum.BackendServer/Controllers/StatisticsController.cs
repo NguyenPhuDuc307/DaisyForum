@@ -55,10 +55,10 @@ public class StatisticsController : BaseController
     {
         var data = await _context.Users.Where(x => x.CreateDate.Date.Year == year)
            .GroupBy(x => x.CreateDate.Date.Month)
-           .Select(g => new MonthlyNewKnowledgeBasesViewModel()
+           .Select(g => new MonthlyNewRegistersViewModel()
            {
                Month = g.Key,
-               NumberOfNewKnowledgeBases = g.Count()
+               NumberOfRegisters = g.Count()
            })
            .ToListAsync();
 

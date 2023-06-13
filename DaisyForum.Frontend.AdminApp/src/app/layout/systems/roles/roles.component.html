@@ -54,8 +54,8 @@
             <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
                 [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
             <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                    strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+
+                <p-progressSpinner></p-progressSpinner>
             </p-blockUI>
         </p-footer>
     </p-panel>

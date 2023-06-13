@@ -3,13 +3,14 @@
     <p-panel #pnl>
         <p-header>
             <div class="ui-g-6">
-                <button appPermission appFunction="CONTENT_COMMENT" appAction="VIEW" pButton type="button" label="Chi tiết"
-                    icon="fa fa-eye" (click)="showDetailModel()"></button>
-                <button appPermission appFunction="CONTENT_COMMENT" appAction="DELETE" pButton type="button" label="Xóa"
-                    icon="fa fa-trash" class="ui-button-danger" *ngIf="selectedItems.length > 0"
-                    (click)="deleteItems()"></button>
+                <p-button appPermission appFunction="CONTENT_COMMENT" appAction="VIEW" type="button"
+                    styleClass="p-button-outlined p-button-sm mr-2" label="Chi tiết" icon="fa fa-eye"
+                    (click)="showDetailModel()"></p-button>
+                <p-button appPermission appFunction="CONTENT_COMMENT" appAction="DELETE" label="Xóa" icon="pi pi-trash"
+                    *ngIf="selectedItems.length > 0" (click)="deleteItems()"
+                    styleClass="p-button-outlined p-button-warning p-button-sm mr-2"></p-button>
             </div>
-            <div class="ui-g-6">
+            <div class="ui-g-6 mt-2">
                 <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
                     placeholder="Nhập từ khóa..." type="text">
             </div>
@@ -59,8 +60,8 @@
             <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
                 [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
             <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                    strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+
+                <p-progressSpinner></p-progressSpinner>
             </p-blockUI>
         </p-footer>
     </p-panel>

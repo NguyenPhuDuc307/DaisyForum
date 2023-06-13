@@ -16,7 +16,7 @@ export class MonthlyNewCommentsComponent extends BaseComponent implements OnInit
   public totalItems = 0;
   constructor(
     private statisticService: StatisticsService) {
-      super('STATISTIC_MONTHLY_COMMENT');
+    super('STATISTIC_MONTHLY_COMMENT');
   }
   ngOnInit() {
     super.ngOnInit();
@@ -29,11 +29,11 @@ export class MonthlyNewCommentsComponent extends BaseComponent implements OnInit
         this.totalItems = 0;
         this.items = response;
         response.forEach(element => {
-          this.totalItems += element.NumberOfUsers;
+          this.totalItems += element.numberOfComments;
         });
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       });
   }
 }

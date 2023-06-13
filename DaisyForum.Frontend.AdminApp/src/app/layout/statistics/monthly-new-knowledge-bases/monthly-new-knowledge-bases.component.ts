@@ -30,11 +30,11 @@ export class MonthlyNewKbsComponent extends BaseComponent implements OnInit {
         this.totalItems = 0;
         this.items = response;
         response.forEach(element => {
-          this.totalItems += element.NumberOfUsers;
+          this.totalItems += element.numberOfNewKnowledgeBases;
         });
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       });
   }
 

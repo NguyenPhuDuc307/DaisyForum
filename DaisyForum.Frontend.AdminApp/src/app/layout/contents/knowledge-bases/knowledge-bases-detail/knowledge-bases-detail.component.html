@@ -28,7 +28,8 @@
                         <span class="required">Tiêu đề:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <input type="text" (keyup)="generateSeoAlias()" pInputText formControlName="title">
+                        <input type="text" (keyup)="generateSeoAlias()" [style]="{'width':'100%'}" pInputText
+                            formControlName="title">
                     </div>
                     <div class="ui-grid-col-4">
                         <app-validation-message [entityForm]="entityForm" fieldName="title"
@@ -40,7 +41,8 @@
                         <span class="required">Tiêu đề SEO:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <input type="text" pInputText pKeyFilter="alphanum" formControlName="seoAlias">
+                        <input type="text" pInputText pKeyFilter="alphanum" [style]="{'width':'100%'}"
+                            formControlName="seoAlias">
                     </div>
                     <div class="ui-grid-col-4">
                         <app-validation-message [entityForm]="entityForm" fieldName="seoAlias"
@@ -52,8 +54,8 @@
                         <span class="required">Mô tả:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="description"
-                            rows="5"></textarea>
+                        <textarea [rows]="5" [cols]="30" [style]="{'width':'100%'}" pInputTextarea
+                            formControlName="description" rows="5"></textarea>
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -64,7 +66,7 @@
                         <span class="required">Môi trường:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <p-editor formControlName="environment" [style]=" {'height':'320px'}"></p-editor>
+                        <input type="text" pInputText [style]="{'width':'100%'}" formControlName="environment">
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -76,7 +78,7 @@
                         <span class="required">Vấn đề:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="problem" rows="5"></textarea>
+                        <p-editor formControlName="problem" [style]=" {'height':'320px'}"></p-editor>
                     </div>
                     <div class="ui-grid-col-4">
                         <app-validation-message [entityForm]="entityForm" fieldName="problem"
@@ -89,8 +91,8 @@
                         <span class="required">Các bước để tái hiện:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="stepToReproduce"
-                            rows="5"></textarea>
+                        <textarea [style]="{'width':'100%'}" [rows]="5" [cols]="30" pInputTextarea
+                            formControlName="stepToReproduce" rows="5"></textarea>
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -102,8 +104,8 @@
                         <span class="required">Lỗi:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="errorMessage"
-                            rows="5"></textarea>
+                        <textarea [style]="{'width':'100%'}" [rows]="5" [cols]="30" pInputTextarea
+                            formControlName="errorMessage" rows="5"></textarea>
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -114,8 +116,8 @@
                         <span class="required">Sửa nhanh:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="workaround"
-                            rows="5"></textarea>
+                        <textarea [style]="{'width':'100%'}" [rows]="5" [cols]="30" pInputTextarea
+                            formControlName="workaround" rows="5"></textarea>
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -127,7 +129,8 @@
                         <span class="required">Chú ý:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <textarea [rows]="5" [cols]="30" pInputTextarea formControlName="note" rows="5"></textarea>
+                        <textarea [style]="{'width':'100%'}" [rows]="5" [cols]="30" pInputTextarea
+                            formControlName="note" rows="5"></textarea>
                     </div>
                     <div class="ui-grid-col-4">
                     </div>
@@ -137,7 +140,7 @@
                         <span class="required">Nhãn:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <p-chips formControlName="labels"></p-chips>
+                        <p-chips formControlName="labels" [style]="{'width':'100%'}"></p-chips>
                     </div>
                     <div class="ui-grid-col-4">
 
@@ -176,8 +179,8 @@
                 (click)="saveChange()"></button>
 
             <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                    strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+
+                <p-progressSpinner></p-progressSpinner>
             </p-blockUI>
         </p-footer>
     </p-panel>

@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
+import { ButtonModule } from 'primeng/button';
 
 @NgModule({
     imports: [
@@ -17,7 +18,8 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
         BrowserAnimationsModule,
         HttpClientModule,
         LanguageTranslationModule,
-        AppRoutingModule
+        AppRoutingModule,
+        ButtonModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard,

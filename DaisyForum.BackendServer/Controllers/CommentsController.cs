@@ -45,7 +45,8 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = c.c.KnowledgeBaseId,
                 LastModifiedDate = c.c.LastModifiedDate,
                 OwnerUserId = c.c.OwnerUserId,
-                OwnerName = c.u.FirstName + " " + c.u.LastName
+                OwnerName = c.u.FirstName + " " + c.u.LastName,
+                NavigationScore = c.c.NavigationScore
             })
             .ToListAsync();
 
@@ -99,7 +100,8 @@ public partial class KnowledgeBasesController
             KnowledgeBaseId = comment.KnowledgeBaseId,
             LastModifiedDate = comment.LastModifiedDate,
             OwnerUserId = comment.OwnerUserId,
-            OwnerName = user.FirstName + " " + user.LastName
+            OwnerName = user.FirstName + " " + user.LastName,
+            NavigationScore = comment.NavigationScore
         };
 
         return Ok(commentViewModel);
@@ -251,12 +253,15 @@ public partial class KnowledgeBasesController
             var comments = await query.Take(take).Select(x => new CommentViewModel()
             {
                 Id = x.c.Id,
+                Content = x.c.Content,
                 CreateDate = x.c.CreateDate,
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 KnowledgeBaseTitle = x.k.Title,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
-                KnowledgeBaseSeoAlias = x.k.SeoAlias
+                KnowledgeBaseSeoAlias = x.k.SeoAlias,
+                NavigationScore = x.c.NavigationScore
+
             }).ToListAsync();
 
             await _cacheService.SetAsync(CacheConstants.RecentComments, comments);

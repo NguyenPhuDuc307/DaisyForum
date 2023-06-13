@@ -113,9 +113,9 @@ export class PermissionsComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this._notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
 
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
   loadData(roleId) {
@@ -127,9 +127,9 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           this.functions = <TreeNode[]>unflattering;
           this.flattenFunctions = response;
           this.fillPermissions(roleId);
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     }
 
@@ -291,11 +291,11 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           if (element.commandId === SystemConstants.APPROVE_ACTION) {
             this.selectedApproves.push(element.functionId);
           }
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         });
 
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
   loadAllRoles() {
@@ -303,7 +303,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     this.subscription.add(this.rolesService.getAll()
       .subscribe((response: any) => {
         this.roles = response;
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
 

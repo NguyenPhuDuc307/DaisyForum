@@ -3,35 +3,28 @@
     <p-panel #pnl>
         <p-header>
             <div class="ui-g-6">
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="CREATE" pButton type="button"
-                    label="Thêm" icon="fa fa-plus" (click)="showAddModal()"></button>
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="DELETE" pButton type="button"
-                    label="Xóa" icon="fa fa-trash" class="ui-button-danger" *ngIf="selectedItems.length > 0"
-                    (click)="deleteItems()"></button>
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="UPDATE" pButton type="button"
-                    label="Sửa" icon="fa fa-edit" class="ui-button-warning" *ngIf="selectedItems.length== 1"
-                    (click)="showEditModal()"></button>
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="CREATE" label="Thêm"
+                    (click)="showAddModal()" icon="pi pi-plus"
+                    styleClass="p-button-outlined p-button-sm mr-2"></p-button>
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="UPDATE" label="Sửa"
+                    icon="pi pi-pencil" *ngIf="selectedItems && selectedItems.length > 0" (click)="showEditModal()"
+                    styleClass="p-button-outlined p-button-warning p-button-sm mr-2"></p-button>
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="DELETE" label="Xóa"
+                    *ngIf="selectedItems && selectedItems.length > 0" (click)="deleteItems()" icon="pi pi-trash"
+                    styleClass="p-button-outlined p-button-danger p-button-sm mr-2"></p-button>
             </div>
-            <div class="ui-g-6">
-                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
-                    placeholder="Nhập từ khóa..." type="text">
+            <div class="ui-g-6 mt-2">
+                <span class="p-input-icon-left" style="width: 100%;">
+                    <i class="pi pi-search"></i>
+                    <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                        class="p-inputtext-sm" placeholder="Nhập từ khóa..." type="text">
+                </span>
             </div>
         </p-header>
 
         <p-treeTable *ngIf="items" [value]="items" selectionMode="multiple" [(selection)]="selectedItems"
-            [metaKeySelection]="true" (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnSelect($event)"
-            [scrollable]="true">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 10%;">
-                        <p-treeTableHeaderCheckbox></p-treeTableHeaderCheckbox>
-                    </th>
-                    <th>Mã</th>
-                    <th class="pgrid-hidden-xs">Tên</th>
-                    <th class="pgrid-hidden-xs">Alias</th>
-                    <th>Thứ tự</th>
-                </tr>
-            </ng-template>
+            [tableStyle]="{'min-width':'50rem'}" [metaKeySelection]="true" (onNodeSelect)="nodeSelect($event)"
+            (onNodeUnselect)="nodeUnSelect($event)" [scrollable]="true">
             <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
                 <tr [ttSelectableRow]="rowNode">
                     <td style="width: 10%;">
@@ -50,10 +43,20 @@
                     <td class="pgrid-hidden-sm">
                         {{rowData.sortOrder}}
                     </td>
-
                 </tr>
             </ng-template>
+            <ng-template pTemplate="summary">
+                <div style="text-align: left">
+                    Tổng số bản ghi: {{totalRecords | number}}
+                </div>
+            </ng-template>
         </p-treeTable>
-
+        <p-footer>
+            <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+                [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+            <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+                <p-progressSpinner></p-progressSpinner>
+            </p-blockUI>
+        </p-footer>
     </p-panel>
 </div>

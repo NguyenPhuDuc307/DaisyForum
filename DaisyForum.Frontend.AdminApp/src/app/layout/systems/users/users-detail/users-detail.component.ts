@@ -18,7 +18,7 @@ export class UsersDetailComponent implements OnInit {
         private notificationService: NotificationService,
         private fb: UntypedFormBuilder,
         private datePipe: DatePipe
-        ) {
+    ) {
     }
     public blockedPanel = false;
     public myRoles: string[] = [];
@@ -149,7 +149,7 @@ export class UsersDetailComponent implements OnInit {
         this.btnDisabled = true;
         this.blockedPanel = true;
         const rawValues = this.entityForm.getRawValue();
-         rawValues.dob = this.datePipe.transform(this.entityForm.controls['dob'].value, 'MM/dd/yyyy');
+        rawValues.dob = this.datePipe.transform(this.entityForm.controls['dob'].value, 'MM/dd/yyyy');
         if (this.entityId) {
             this.usersService.update(this.entityId, rawValues)
                 .subscribe(() => {

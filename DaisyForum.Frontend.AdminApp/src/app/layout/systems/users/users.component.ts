@@ -42,7 +42,6 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-
   }
 
   showHideRoleTable() {
@@ -74,9 +73,9 @@ export class UsersComponent implements OnInit {
           this.loadUserRoles();
         }
 
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       });
   }
 
@@ -160,11 +159,11 @@ export class UsersComponent implements OnInit {
       this.loadData();
       this.selectedItems = [];
       this.loadUserRoles();
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }, error => {
       this.notificationService.showError(error);
 
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     });
   }
 

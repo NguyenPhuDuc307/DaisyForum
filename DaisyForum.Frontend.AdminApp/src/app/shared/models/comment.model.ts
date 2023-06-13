@@ -6,4 +6,6 @@ export class Comment {
     ownerName: string;
     createDate: string;
     lastModifiedDate: string;
+    navigationScore: number;
+    navigation: string;
 }

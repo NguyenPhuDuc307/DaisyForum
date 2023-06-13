@@ -31,8 +31,8 @@ export class KnowledgeBasesComponent extends BaseComponent implements OnInit, On
   constructor(private knowledgeBasesService: KnowledgeBasesService,
     private notificationService: NotificationService,
     private router: Router) {
-      super('CONTENT_KNOWLEDGE_BASE');
-    }
+    super('CONTENT_KNOWLEDGE_BASE');
+  }
 
   ngOnInit(): void {
     super.ngOnInit();
@@ -44,9 +44,9 @@ export class KnowledgeBasesComponent extends BaseComponent implements OnInit, On
     this.subscription.add(this.knowledgeBasesService.getAllPaging(this.keyword, this.pageIndex, this.pageSize)
       .subscribe((response: Pagination<KnowledgeBase>) => {
         this.processLoadData(selectedId, response);
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
   viewComments() {
@@ -103,9 +103,9 @@ export class KnowledgeBasesComponent extends BaseComponent implements OnInit, On
       this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
       this.loadData();
       this.selectedItems = [];
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }));
   }
 

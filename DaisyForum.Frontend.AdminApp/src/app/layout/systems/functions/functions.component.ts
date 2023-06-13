@@ -61,9 +61,9 @@ export class FunctionsComponent implements OnInit {
                     this.selectedItems = this.items.filter(x => x.data.id == selectionId);
                 }
 
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             });
     }
 
@@ -135,9 +135,9 @@ export class FunctionsComponent implements OnInit {
             this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
             this.loadData();
             this.selectedItems = [];
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         }, error => {
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         });
     }
     loadDataCommand() {

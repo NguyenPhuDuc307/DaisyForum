@@ -50,9 +50,9 @@ export class ReportsComponent extends BaseComponent implements OnInit, OnDestroy
         this.subscription.add(this.reportsService.getAllPaging(this.entityId, this.keyword, this.pageIndex, this.pageSize)
             .subscribe((response: Pagination<Report>) => {
                 this.processLoadData(selectedId, response);
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             }));
     }
     private processLoadData(selectedId = null, response: Pagination<Report>) {
@@ -102,9 +102,9 @@ export class ReportsComponent extends BaseComponent implements OnInit, OnDestroy
             this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
             this.loadData();
             this.selectedItems = [];
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         }, error => {
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     }
 
