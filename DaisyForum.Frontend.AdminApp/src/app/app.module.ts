@@ -10,7 +10,7 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
 import { ButtonModule } from 'primeng/button';
-
+// import { ChartModule } from 'primeng/chart';
 @NgModule({
     imports: [
         CommonModule,
@@ -19,7 +19,8 @@ import { ButtonModule } from 'primeng/button';
         HttpClientModule,
         LanguageTranslationModule,
         AppRoutingModule,
-        ButtonModule
+        ButtonModule,
+        // ChartModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard,

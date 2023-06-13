@@ -3,11 +3,11 @@
 <div class="animated fadeIn">
     <p-panel #pnl [style]="{'margin-bottom':'10px'}">
         <p-header>
-            <div class="ui-g-6">
-                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="year" type="number">
-            </div>
-            <div class="ui-g-6">
-                <button pButton type="button" label="Tải báo cáo" icon="fa fa-plus" (click)="loadData()"></button>
+            <div class="d-flex">
+                <input class="p-inputtext-sm mr-1" pInputText (keyup.enter)="loadData()" [(ngModel)]="year"
+                    type="number">
+                <p-button styleClass="p-button-outlined p-button-sm" type="button" label="Tải báo cáo"
+                    icon="pi pi-filter" (click)="loadData()"></p-button>
             </div>
         </p-header>
         <p-table #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
@@ -40,6 +40,10 @@
                 </div>
             </ng-template>
         </p-table>
+
+        <hr>
+        <label for="" class="text-uppercase text-center">Biểu đồ {{screenTitle}}</label>
+        <p-chart type="bar" [data]="data" [options]="options"></p-chart>
 
         <p-blockUI [target]="pnl" [blocked]="blockedPanel">
             <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"

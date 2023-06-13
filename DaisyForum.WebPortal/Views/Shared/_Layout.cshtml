@@ -1,5 +1,9 @@
-﻿<!doctype html>
-<html lang="en-US">
+﻿@* @inject IConfiguration Configuration
+@{
+var siteKey = Configuration.GetSection("GoogleRecaptcha").GetSection("Sitekey").Value ?? "";
+} *@
+<!DOCTYPE html>
+<html lang="vi-VN">
 
 <head>
     <!-- META TAGS -->
@@ -23,6 +27,7 @@
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,400i,700&display=fallback">
 
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t"></script>
     <script>
         window.OneSignal = window.OneSignal || [];
         OneSignal.push(function () {
@@ -32,7 +37,6 @@
         });
     </script>
 </head>
-
 
 <body data-bs-theme="light">
     <!-- Start of Header -->
@@ -51,7 +55,6 @@
     @await Component.InvokeAsync("Footer")
     <!-- End of Footer -->
 
-    <!-- script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @* <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treeview/1.0.1/jquery.treeview.min.css"
     rel="stylesheet" />
@@ -69,8 +72,29 @@
     <script type='text/javascript' src='/js/jquery.validate.min.js'></script>
     <script type='text/javascript' src='/js/custom.js'></script>
     <script type="text/javascript" src="/js/site.js"></script>
+    </script>
     <partial name="_ValidationScriptsPartial" />
     @RenderSection("scripts", required: false)
 </body>
 
 </html>
+
+<script>
+    $('form').submit(function (e) {
+        e.preventDefault();
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t', { action: 'homepage' }).then(function (token) {
+                $.getJSON("/Account/Verify?token=" + token,
+                    function (data) {
+                        console.log(data);
+                        if (data) {
+                            $('form').unbind('submit').submit();
+                        }
+                        else {
+                            document.location = "@Url.Action("Error", "Home")";
+                        }
+                    });
+            });
+        });
+    });
+</script>

@@ -15,10 +15,19 @@ export class MonthlyNewMembersComponent extends BaseComponent implements OnInit 
   public items: any[];
   public year: number = new Date().getFullYear();
   public totalItems = 0;
+
+  // Thêm các biến để cấu hình chart
+  public data: any;
+  public options: any;
+
   constructor(
     private statisticService: StatisticsService) {
     super('STATISTIC_MONTHLY_NEW_MEMBER');
-
+    // Cấu hình options cho chart
+    this.options = {
+      responsive: true,
+      maintainAspectRatio: false,
+    };
   }
   ngOnInit() {
     super.ngOnInit();
@@ -33,6 +42,18 @@ export class MonthlyNewMembersComponent extends BaseComponent implements OnInit 
         response.forEach(element => {
           this.totalItems += element.numberOfRegisters;
         });
+        // Cấu hình dữ liệu cho chart
+        this.data = {
+          labels: response.map(item => 'Tháng ' + item.month),
+          datasets: [
+            {
+              label: 'Số thành viên mới theo tháng',
+              backgroundColor: '#42A5F5',
+              borderColor: '#1E88E5',
+              data: response.map(item => item.numberOfRegisters)
+            }
+          ]
+        };
         setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
         setTimeout(() => { this.blockedPanel = false; }, 100);

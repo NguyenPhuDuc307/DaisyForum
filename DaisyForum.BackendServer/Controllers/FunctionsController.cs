@@ -53,19 +53,45 @@ public class FunctionsController : BaseController
     [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
     public async Task<IActionResult> GetFunctions()
     {
-        var functions = _context.Functions;
+        var query = _context.Functions.AsQueryable();
+        query = query.Where(x => x.ParentId == null);
+        var items = await query.ToListAsync();
 
-        var functionViewModels = await functions.Select(u => new FunctionViewModel()
+        var functionViewModels = items.Select(c => new FunctionTreeViewModel
         {
-            Id = u.Id,
-            Name = u.Name,
-            Url = u.Url,
-            SortOrder = u.SortOrder,
-            ParentId = u.ParentId,
-            Icon = u.Icon
-        }).ToListAsync();
+            Id = c.Id,
+            Name = c.Name,
+            Url = c.Url,
+            SortOrder = c.SortOrder,
+            ParentId = c.ParentId,
+            Icon = c.Icon,
+            Children = GetChildrenFunctions(c.Id)
+        }).ToList();
 
         return Ok(functionViewModels);
+    }
+
+    private List<FunctionTreeViewModel>? GetChildrenFunctions(string? parentId)
+    {
+        var query = _context.Functions.Where(x => x.ParentId == parentId);
+
+        var items = query.ToList();
+
+        if (items.Count == 0)
+        {
+            return null;
+        }
+
+        return items.Select(c => new FunctionTreeViewModel
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Url = c.Url,
+            SortOrder = c.SortOrder,
+            ParentId = c.ParentId,
+            Icon = c.Icon,
+            Children = GetChildrenFunctions(c.Id)
+        }).ToList();
     }
 
     [HttpGet("{functionId}/parents")]
@@ -99,25 +125,31 @@ public class FunctionsController : BaseController
                 || (x.Name != null && x.Name.Contains(keyword))
                 || (x.Url != null && x.Url.Contains(keyword)));
         }
-        var i = await query.ToListAsync();
-        var totalRecords = await query.CountAsync();
-        var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
-            .Select(u => new FunctionViewModel()
-            {
-                Id = u.Id,
-                Name = u.Name,
-                Url = u.Url,
-                SortOrder = u.SortOrder,
-                ParentId = u.ParentId,
-                Icon = u.Icon
-            })
-            .ToListAsync();
+        query = query.Where(x => x.ParentId == null);
 
-        var pagination = new Pagination<FunctionViewModel>
+        var totalRecords = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize)
+            .Take(pageSize).ToListAsync();
+
+        var data = items.Select(c => new FunctionTreeViewModel
         {
-            Items = items,
+            Id = c.Id,
+            Name = c.Name,
+            Url = c.Url,
+            SortOrder = c.SortOrder,
+            ParentId = c.ParentId,
+            Icon = c.Icon,
+            Children = GetChildrenFunctions(c.Id)
+        }).ToList();
+
+        var pagination = new Pagination<FunctionTreeViewModel>
+        {
+            PageIndex = page,
+            PageSize = pageSize,
+            Items = data,
             TotalRecords = totalRecords,
         };
+
         return Ok(pagination);
     }
 
@@ -246,12 +278,13 @@ public class FunctionsController : BaseController
 
         if (request.AddToAllFunctions)
         {
-            var otherFunctions = _context.Functions.Where(x => x.Id != functionId);
+            var otherFunctions = _context.Functions.Where(x => x.ParentId == functionId);
+
             foreach (var function in otherFunctions)
             {
                 foreach (var commandId in request.CommandIds)
                 {
-                    if (await _context.CommandInFunctions.FindAsync(request.CommandIds, function.Id) == null)
+                    if (await _context.CommandInFunctions.FindAsync(commandId, function.Id) == null)
                     {
                         _context.CommandInFunctions.Add(new CommandInFunction()
                         {

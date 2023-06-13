@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseService } from './base.service';
+import { TreeNode } from 'primeng/api';
 
 @Injectable({ providedIn: 'root' })
 export class UtilitiesService extends BaseService {
@@ -22,6 +23,13 @@ export class UtilitiesService extends BaseService {
       }
     }
     return roots;
+  }
+
+  convertToTreeNode(item: any): TreeNode {
+    return {
+      data: item,
+      children: item.children ? item.children.map(child => this.convertToTreeNode(child)) : null
+    };
   }
 
   UnflatteringForTree = (arr: any[]): any[] => {

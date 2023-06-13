@@ -68,9 +68,9 @@ export class RolesDetailComponent implements OnInit, OnDestroy {
         id: response.id,
         name: response.name,
       });
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }));
   }
   public saveChange() {
@@ -82,9 +82,9 @@ export class RolesDetailComponent implements OnInit, OnDestroy {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     } else {
       this.subscription.add(this.rolesService.add(this.entityForm.getRawValue())
@@ -92,9 +92,9 @@ export class RolesDetailComponent implements OnInit, OnDestroy {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     }
   }

@@ -12,7 +12,7 @@ import { TableModule } from 'primeng/table';
 import { BlockUIModule } from 'primeng/blockui';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-
+import { ChartModule } from 'primeng/chart';
 
 
 @NgModule({
@@ -26,7 +26,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     BlockUIModule,
     InputTextModule,
     ProgressSpinnerModule,
-    FormsModule
+    FormsModule,
+    ChartModule
   ],
   exports: [MonthlyNewMembersComponent, MonthlyNewCommentsComponent, MonthlyNewKbsComponent]
 })

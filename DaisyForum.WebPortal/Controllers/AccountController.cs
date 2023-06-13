@@ -75,8 +75,6 @@ public class AccountController : Controller
         return View(kbs);
     }
 
-
-
     [HttpGet]
     public async Task<IActionResult> CreateNewKnowledgeBase()
     {
@@ -148,7 +146,6 @@ public class AccountController : Controller
         }
         return BadRequest();
     }
-
 
     private async Task SetCategoriesViewBag(int? selectedValue = null)
     {

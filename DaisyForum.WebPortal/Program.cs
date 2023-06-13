@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using DaisyForum.ViewModels.Contents.Validators;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Builder;
+using DaisyForum.WebPortal.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -158,6 +158,9 @@ services.AddTransient<ICategoryApiClient, CategoryApiClient>();
 services.AddTransient<IKnowledgeBaseApiClient, KnowledgeBaseApiClient>();
 services.AddTransient<ILabelApiClient, LabelApiClient>();
 services.AddTransient<IUserApiClient, UserApiClient>();
+services.AddSingleton<IRecaptchaExtension, RecaptchaExtension>();
+services.AddHttpClient();
+services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -205,7 +208,6 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
         name: "My KBs",

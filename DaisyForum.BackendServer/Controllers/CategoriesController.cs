@@ -95,6 +95,8 @@ public class CategoriesController : BaseController
 
         var pagination = new Pagination<CategoryTreeViewModel>
         {
+            PageIndex = page,
+            PageSize = pageSize,
             Items = data,
             TotalRecords = totalRecords,
         };
@@ -123,29 +125,6 @@ public class CategoriesController : BaseController
             Children = GetChildrenCategories(c.Id)
         }).ToList();
     }
-
-    // [HttpGet("filter")]
-    // [AllowAnonymous]
-    // public async Task<IActionResult> GetCategoriesPaging(string? keyword, int page = 1, int pageSize = 10)
-    // {
-    //     var query = _context.Categories.AsQueryable();
-    //     if (!string.IsNullOrEmpty(keyword))
-    //     {
-    //         query = query.Where(x => x.Name != null && x.Name.Contains(keyword));
-    //     }
-    //     var totalRecords = await query.CountAsync();
-    //     var items = await query.Skip((page - 1) * pageSize)
-    //         .Take(pageSize).ToListAsync();
-
-    //     var data = items.Select(c => CreateCategoryViewModel(c)).ToList();
-
-    //     var pagination = new Pagination<CategoryViewModel>
-    //     {
-    //         Items = data,
-    //         TotalRecords = totalRecords,
-    //     };
-    //     return Ok(pagination);
-    // }
 
     [HttpGet("{id}")]
     [AllowAnonymous]

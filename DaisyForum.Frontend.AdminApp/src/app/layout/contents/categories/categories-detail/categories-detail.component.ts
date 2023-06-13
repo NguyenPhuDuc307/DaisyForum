@@ -89,9 +89,9 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
         seoDescription: response.seoDescription,
         sortOrder: response.sortOrder
       });
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }));
   }
   public saveChange() {
@@ -103,9 +103,9 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     } else {
       this.subscription.add(this.categoriesService.add(this.entityForm.getRawValue())
@@ -113,9 +113,9 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     }
   }

@@ -5,7 +5,7 @@ import { FunctionsService } from '@app/shared/services/functions.service';
 import { NotificationService, UtilitiesService } from '@app/shared/services';
 import { FunctionsDetailComponent } from './functions-detail/functions-detail.component';
 import { MessageConstants } from '@app/shared/constants';
-import { CommandAssign } from '@app/shared/models';
+import { CommandAssign, Function } from '@app/shared/models';
 import { CommandsAssignComponent } from './commands-assign/commands-assign.component';
 
 @Component({
@@ -20,8 +20,13 @@ export class FunctionsComponent implements OnInit {
     public blockedPanelCommand = false;
     public showCommandGrid = false;
     // -----------------Function-----------------
-    public items: TreeNode[] = [];
-    public selectedItems = [];
+    public page: number = 0;
+    public rows: number = 10;
+    public totalRecords: number;
+    public keyword = '';
+    public items: TreeNode[];
+    public selectedItems: TreeNode[];
+    public selection: TreeNode[] = []; // thêm biến selection
 
     // ---------------Command------------------------------
     public commands: any[] = [];
@@ -32,6 +37,7 @@ export class FunctionsComponent implements OnInit {
         private functionsService: FunctionsService,
         private notificationService: NotificationService,
         private utilitiesService: UtilitiesService) {
+        this.selectedItems = [];
     }
 
     ngOnInit() {
@@ -48,19 +54,22 @@ export class FunctionsComponent implements OnInit {
     }
     loadData(selectionId = null) {
         this.blockedPanel = true;
-        this.functionsService.getAll()
+        this.functionsService.getAllPaging(this.keyword, this.page, this.rows)
             .subscribe((response: any) => {
-                const functionTree = this.utilitiesService.UnflatteringForTree(response);
-                this.items = <TreeNode[]>functionTree;
-                if (this.selectedItems.length === 0 && this.items.length > 0) {
-                    this.selectedItems.push(this.items[0]);
-                    this.loadDataCommand();
+                if (response) {
+                    const functions: Function[] = response.items;
+                    const treeNodes: TreeNode[] = functions.map(func => this.utilitiesService.convertToTreeNode(func));
+                    this.items = treeNodes;
+                    if (this.selectedItems.length === 0 && this.items.length > 0) {
+                        this.selectedItems.push(this.items[0]);
+                        this.loadDataCommand();
+                    }
+                    // Nếu có là sửa thì chọn selection theo Id
+                    if (this.selectedItems.length === 0 && this.items.length > 0) {
+                        this.selectedItems = this.items.filter(x => x.data.id == selectionId);
+                    }
+                    this.totalRecords = response.totalRecords;
                 }
-                // Nếu có là sửa thì chọn selection theo Id
-                if (selectionId != null && this.items.length > 0) {
-                    this.selectedItems = this.items.filter(x => x.data.id == selectionId);
-                }
-
                 setTimeout(() => { this.blockedPanel = false; }, 100);
             }, error => {
                 setTimeout(() => { this.blockedPanel = false; }, 100);
@@ -81,6 +90,11 @@ export class FunctionsComponent implements OnInit {
         });
     }
 
+    pageChanged(event: any): void {
+        this.page = event.page;
+        this.rows = event.rows;
+        this.loadData();
+    }
     showEditModal() {
         if (this.selectedItems.length === 0) {
             this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
@@ -104,16 +118,22 @@ export class FunctionsComponent implements OnInit {
     }
 
     nodeSelect(event: any) {
-        this.selectedCommandItems = [];
-        this.commands = [];
+        this.selection = [];
+        this.selection.push(event.node);
+        //this.propagateSelectionDown(event.node, true);
+        this.selectedItems = this.selection;
         if (this.selectedItems.length === 1 && this.showCommandGrid) {
             this.loadDataCommand();
         }
     }
 
     nodeUnSelect(event: any) {
-        this.selectedCommandItems = [];
-        this.commands = [];
+        const index = this.selection.findIndex(node => node.key === event.node.key);
+        if (index !== -1) {
+            this.selection.splice(index, 1);
+            // this.propagateSelectionDown(event.node, false);
+            this.selectedItems = this.selection;
+        }
         if (this.selectedItems.length === 1 && this.showCommandGrid) {
             this.loadDataCommand();
         }
@@ -124,7 +144,7 @@ export class FunctionsComponent implements OnInit {
             this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
             return;
         }
-        const id = this.selectedItems[0].id;
+        const id = this.selectedItems[0]?.data?.id;
         this.notificationService.showConfirmation(MessageConstants.CONFIRM_DELETE_MSG,
             () => this.deleteItemsConfirm(id));
     }
@@ -140,9 +160,10 @@ export class FunctionsComponent implements OnInit {
             setTimeout(() => { this.blockedPanel = false; }, 100);
         });
     }
+
     loadDataCommand() {
         this.blockedPanelCommand = true;
-        this.functionsService.getAllCommandsByFunctionId(this.selectedItems[0].id)
+        this.functionsService.getAllCommandsByFunctionId(this.selectedItems[0]?.data?.id)
             .subscribe((response: any) => {
 
                 this.commands = response;
@@ -168,7 +189,7 @@ export class FunctionsComponent implements OnInit {
         this.blockedPanelCommand = true;
         const entity = new CommandAssign();
         entity.commandIds = ids;
-        this.functionsService.deleteCommandsFromFunction(this.selectedItems[0].id, entity).subscribe(() => {
+        this.functionsService.deleteCommandsFromFunction(this.selectedItems[0]?.data?.id, entity).subscribe(() => {
             this.loadDataCommand();
             this.selectedCommandItems = [];
             this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
@@ -185,7 +206,7 @@ export class FunctionsComponent implements OnInit {
         }
         const initialState = {
             existingCommands: this.commands.map(x => x.Id),
-            functionId: this.selectedItems[0].id
+            functionId: this.selectedItems[0]?.data?.id
         };
         this.bsModalRef = this.modalService.show(CommandsAssignComponent,
             {

@@ -33,9 +33,9 @@ export class CommentsDetailComponent implements OnInit, OnDestroy {
         this.subscription.add(this.commentsService.getDetail(knowledgeBaseId, commentId)
             .subscribe((response: Comment) => {
                 this.comment = mapNavigation(response);
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }));
     }
     ngOnDestroy(): void {

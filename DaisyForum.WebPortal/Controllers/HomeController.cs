@@ -14,16 +14,19 @@ namespace DaisyForum.WebPortal.Controllers
         private readonly IKnowledgeBaseApiClient _knowledgeBaseApiClient;
         private readonly IUserApiClient _userApiClient;
         private readonly ILabelApiClient _labelApiClient;
+        private readonly IRecaptchaExtension _recaptcha;
 
         public HomeController(ILogger<HomeController> logger,
             ILabelApiClient labelApiClient,
             IKnowledgeBaseApiClient knowledgeBaseApiClient,
-            IUserApiClient userApiClient)
+            IUserApiClient userApiClient,
+            IRecaptchaExtension recaptcha)
         {
             _logger = logger;
             _labelApiClient = labelApiClient;
             _knowledgeBaseApiClient = knowledgeBaseApiClient;
             _userApiClient = userApiClient;
+            _recaptcha = recaptcha;
         }
 
         public async Task<IActionResult> Index()
@@ -72,6 +75,13 @@ namespace DaisyForum.WebPortal.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> Verify(string token)
+        {
+            var verified = await _recaptcha.VerifyAsync(token);
+            return Json(verified);
         }
     }
 }

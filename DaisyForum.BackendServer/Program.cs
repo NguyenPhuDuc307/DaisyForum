@@ -87,6 +87,8 @@ services.Configure<ApiBehaviorOptions>(options =>
 });
 
 // Add services to the container.
+services.AddSingleton<IRecaptchaExtension, RecaptchaExtension>();
+services.AddHttpClient();
 services.AddControllersWithViews();
 
 // Add validator to the service collection

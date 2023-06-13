@@ -16,6 +16,7 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t"></script>
 
     <style>
         .bd-placeholder-img {
@@ -117,3 +118,24 @@
 @RenderSection("Scripts", required: false)
 
 </html>
+
+@* <script>
+$('form').submit(function (e) {
+e.preventDefault();
+grecaptcha.ready(function () {
+grecaptcha.execute('6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t', { action: 'homepage' }).then(function (token) {
+$.getJSON("/Home/Verify?token=" + token,
+function (data) {
+console.log(token);
+console.log(data);
+if (data) {
+$('form').unbind('submit').submit();
+}
+else {
+//document.location = "@Url.Action("Error", "Home")";
+}
+});
+});
+});
+});
+</script> *@

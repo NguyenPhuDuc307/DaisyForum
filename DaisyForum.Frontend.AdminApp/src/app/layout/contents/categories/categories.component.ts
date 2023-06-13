@@ -37,7 +37,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
 
   constructor(private categoriesService: CategoriesService,
     private notificationService: NotificationService,
-    private modalService: BsModalService) {
+    private modalService: BsModalService,
+    private utilitiesService: UtilitiesService) {
     super('CONTENT_CATEGORY');
     this.selectedItems = [];
   }
@@ -52,7 +53,7 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
     this.categoriesService.getAllPaging(this.keyword, this.page, this.rows)
       .subscribe((response: any) => {
         const categories: Category[] = response.items;
-        const treeNodes: TreeNode[] = categories.map(category => this.convertToTreeNode(category));
+        const treeNodes: TreeNode[] = categories.map(category => this.utilitiesService.convertToTreeNode(category));
         this.items = treeNodes;
 
         if (this.selectedItems.length === 0 && this.items.length > 0) {
@@ -64,13 +65,6 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
       }, error => {
         setTimeout(() => { this.blockedPanel = false; }, 100);
       });
-  }
-
-  convertToTreeNode(category: Category): TreeNode {
-    return {
-      data: category,
-      children: category.children ? category.children.map(child => this.convertToTreeNode(child)) : null
-    };
   }
 
   nodeSelect(event) {

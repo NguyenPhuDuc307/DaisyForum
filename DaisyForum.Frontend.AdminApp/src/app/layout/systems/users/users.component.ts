@@ -180,13 +180,13 @@ export class UsersComponent implements OnInit {
         if (this.selectedRoleItems.length === 0 && this.userRoles.length > 0) {
           this.selectedRoleItems.push(this.userRoles[0]);
         }
-        setTimeout(() => { this.blockedPanelRole = false; }, 1000);
+        setTimeout(() => { this.blockedPanelRole = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanelRole = false; }, 1000);
+        setTimeout(() => { this.blockedPanelRole = false; }, 100);
       });
     } else {
       this.selectedRoleItems = [];
-      setTimeout(() => { this.blockedPanelRole = false; }, 1000);
+      setTimeout(() => { this.blockedPanelRole = false; }, 100);
     }
   }
   removeRoles() {
@@ -202,10 +202,10 @@ export class UsersComponent implements OnInit {
       this.loadUserRoles();
       this.selectedRoleItems = [];
       this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
-      setTimeout(() => { this.blockedPanelRole = false; }, 1000);
+      setTimeout(() => { this.blockedPanelRole = false; }, 100);
     }, error => {
       this.notificationService.showError(error);
-      setTimeout(() => { this.blockedPanelRole = false; }, 1000);
+      setTimeout(() => { this.blockedPanelRole = false; }, 100);
     });
   }
 
