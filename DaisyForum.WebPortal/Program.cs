@@ -19,11 +19,11 @@ services.AddHttpClient("BackendApi").ConfigurePrimaryHttpMessageHandler(() =>
     var handler = new HttpClientHandler();
     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-    //if (environment == Environments.Development)
-    //{
-    //    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-    //}
-    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    if (environment == Environments.Development)
+    {
+        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    }
+    // handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
     return handler;
 });
 services.AddSession(options =>
@@ -185,11 +185,6 @@ app.UseSession();
 
 app.UseHttpsRedirection();
 
-app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
-app.UseXContentTypeOptions();
-app.UseReferrerPolicy(opts => opts.NoReferrer());
-app.UseXXssProtection(options => options.EnabledWithBlockMode());
-app.UseXfo(options => options.Deny());
 //app.UseCsp(opts => opts
 //        .BlockAllMixedContent()
 //        .StyleSources(s => s.Self())

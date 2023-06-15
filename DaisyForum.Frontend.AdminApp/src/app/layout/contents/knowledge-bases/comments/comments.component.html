@@ -1,72 +1,65 @@
 <p>Danh sách danh mục</p>
 <div class="animated fadeIn">
-    <p-panel #pnl>
-        <p-header>
-            <div class="ui-g-6">
+    <p-table [tableStyle]="{'min-width': '60rem'}" #pnl #dt [value]="items" selectionMode="multiple"
+        [(selection)]="selectedItems" [metaKeySelection]="true" [responsive]="true" [scrollable]="true"
+        styleClass="p-datatable-gridlines">
+        <ng-template styleClass="border" pTemplate="caption">
+            <div class="d-flex">
                 <p-button appPermission appFunction="CONTENT_COMMENT" appAction="VIEW" type="button"
-                    styleClass="p-button-outlined p-button-sm mr-2" label="Chi tiết" icon="fa fa-eye"
-                    (click)="showDetailModel()"></p-button>
+                    styleClass="btn mr-2" label="Chi tiết" icon="fa fa-eye" (click)="showDetailModel()"></p-button>
                 <p-button appPermission appFunction="CONTENT_COMMENT" appAction="DELETE" label="Xóa" icon="pi pi-trash"
                     *ngIf="selectedItems.length > 0" (click)="deleteItems()"
-                    styleClass="p-button-outlined p-button-warning p-button-sm mr-2"></p-button>
-            </div>
-            <div class="ui-g-6 mt-2">
-                <span class="p-input-icon-left" style="width: 100%;">
+                    styleClass="p-button-warning btn mr-2"></p-button>
+                <span class="p-input-icon-left ml-auto">
                     <i class="pi pi-search"></i>
-                    <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
-                        class="p-inputtext-sm" placeholder="Nhập từ khóa..." type="text">
+                    <input class="form-control" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                        placeholder="Nhập từ khóa..." type="text">
                 </span>
             </div>
-        </p-header>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="text-nowrap" [pSortableColumn]="'id'">Mã
+                    <p-sortIcon [field]="'id'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'content'">Nội dung
+                    <p-sortIcon [field]="'content'"></p-sortIcon>
+                </th>
+                <th class="text-nowrap" [pSortableColumn]="'navigationScore'">Mức độ cảm xúc
+                    <p-sortIcon [field]="'navigationScore'"></p-sortIcon>
+                </th>
+                <th class="text-nowrap" [pSortableColumn]="'createDate'">Ngày tạo
+                    <p-sortIcon [field]="'createDate'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'ownerName'">Người tạo
+                    <p-sortIcon [field]="'ownerName'"></p-sortIcon>
+                </th>
+            </tr>
 
-        <p-table #dt [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
-            [responsive]="true" [scrollable]="true">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 35px">
-                    </th>
-                    <th [pSortableColumn]="'id'">Mã
-                        <p-sortIcon [field]="'id'"></p-sortIcon>
-                    </th>
-                    <th [pSortableColumn]="'content'">Nội dung
-                        <p-sortIcon [field]="'content'"></p-sortIcon>
-                    </th>
-                    <th [pSortableColumn]="'navigationScore'">Mức độ cảm xúc
-                        <p-sortIcon [field]="'navigationScore'"></p-sortIcon>
-                    </th>
-                    <th [pSortableColumn]="'createDate'">Ngày tạo
-                        <p-sortIcon [field]="'createDate'"></p-sortIcon>
-                    </th>
-                    <th [pSortableColumn]="'ownerName'">Người tạo
-                        <p-sortIcon [field]="'ownerName'"></p-sortIcon>
-                    </th>
-                </tr>
-
-            </ng-template>
-            <ng-template pTemplate="body" let-row>
-                <tr [pSelectableRow]="row">
-                    <td style="width: 35px;">
-                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
-                    </td>
-                    <td>{{row.id}}</td>
-                    <td [innerHTML]="row.content"></td>
-                    <td>{{row.navigationScore}} ({{row.navigation}})</td>
-                    <td>{{row.createDate | date:'dd/MM/yyyy hh:mm'}} - {{row.timeDiff}}</td>
-                    <td>{{row.ownerName}}</td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="summary">
-                <div style="text-align: left">
-                    Tổng số bản ghi: {{totalRecords | number}}
-                </div>
-            </ng-template>
-        </p-table>
-        <p-footer>
-            <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
-                [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
-            <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner></p-progressSpinner>
-            </p-blockUI>
-        </p-footer>
-    </p-panel>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+            <tr [pSelectableRow]="row">
+                <td>
+                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    {{row.id}}
+                </td>
+                <td [innerHTML]="row.content"></td>
+                <td>{{row.navigationScore}} ({{row.navigation}})</td>
+                <td>{{row.createDate | date:'dd/MM/yyyy hh:mm'}} - {{row.timeDiff}}</td>
+                <td>{{row.ownerName}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div style="text-align: left">
+                Tổng: {{totalRecords | number}}
+            </div>
+        </ng-template>
+    </p-table>
+    <p-footer>
+        <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+            [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+        <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+            <p-progressSpinner></p-progressSpinner>
+        </p-blockUI>
+    </p-footer>
 </div>

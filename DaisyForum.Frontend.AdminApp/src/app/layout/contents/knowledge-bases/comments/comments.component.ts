@@ -143,9 +143,9 @@ export class CommentsComponent implements OnInit, OnDestroy {
 }
 
 function mapNavigation(comment: Comment): Comment {
-    if (comment.navigationScore > 0.3) {
+    if (comment.navigationScore >= 0.3) {
         comment.navigation = "Tích cực";
-    } else if (comment.navigationScore < -0.3) {
+    } else if (comment.navigationScore <= -0.3) {
         comment.navigation = "Tiêu cực";
     } else {
         comment.navigation = "Trung tính";

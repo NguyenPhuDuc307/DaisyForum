@@ -60,7 +60,7 @@ namespace DaisyForum.WebPortal.Controllers
                     // Lưu danh sách suggestedKbs vào cookie
                     var options = new CookieOptions
                     {
-                        Expires = DateTime.UtcNow.AddDays(7),
+                        Expires = DateTime.UtcNow.AddHours(1),
                         IsEssential = true
                     };
                     var suggestedKbsJsonSet = JsonConvert.SerializeObject(suggestedKbs);

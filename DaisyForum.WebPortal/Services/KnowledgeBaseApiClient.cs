@@ -157,6 +157,7 @@ namespace DaisyForum.WebPortal.Services
             requestContent.Add(new StringContent(request.StepToReproduce.ToString()), "stepToReproduce");
             requestContent.Add(new StringContent(request.ErrorMessage.ToString()), "errorMessage");
             requestContent.Add(new StringContent(request.Workaround.ToString()), "workaround");
+            requestContent.Add(new StringContent(request.IsProcessed.ToString()), "isProcessed");
             if (request.Labels?.Length > 0)
             {
                 foreach (var label in request.Labels)
@@ -191,6 +192,11 @@ namespace DaisyForum.WebPortal.Services
         public async Task<ReportViewModel> PostReport(ReportCreateRequest request)
         {
             return await PostAsync<ReportCreateRequest, ReportViewModel>($"/api/knowledgeBases/{request.KnowledgeBaseId}/reports", request);
+        }
+
+        public async Task<bool> DeleteKnowledgeBase(int id)
+        {
+            return await DeleteAsync<bool>($"/api/knowledgeBases/{id}");
         }
     }
 }

@@ -23,13 +23,15 @@ export class MonthlyNewCommentsComponent extends BaseComponent implements OnInit
     // Cấu hình options cho chart
     this.options = {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
     };
   }
+
   ngOnInit() {
     super.ngOnInit();
     this.loadData();
   }
+
   loadData() {
     this.blockedPanel = true;
     this.statisticService.getMonthlyNewComments(this.year)
@@ -45,10 +47,36 @@ export class MonthlyNewCommentsComponent extends BaseComponent implements OnInit
           labels: response.map(item => 'Tháng ' + item.month),
           datasets: [
             {
-              label: 'Số bình luận theo tháng',
-              backgroundColor: '#42A5F5',
+              label: 'Tổng số bình luận theo tháng',
+              type: 'line',
+              borderColor: '#a9bbcb',
+              borderWidth: 2,
+              data: response.map(item => item.numberOfComments),
+              lineTension: 0.4
+            },
+            {
+              label: 'Tổng số bình luận theo tháng',
+              backgroundColor: '#7254f3',
               borderColor: '#1E88E5',
               data: response.map(item => item.numberOfComments)
+            },
+            {
+              label: 'Số bình luận tích cực theo tháng',
+              backgroundColor: '#29c76f',
+              borderColor: '#FB8C00',
+              data: response.map(item => item.numberOfPositiveComments)
+            },
+            {
+              label: 'Số bình luận trung tính theo tháng',
+              backgroundColor: '#c6d1dd',
+              borderColor: '#FB8C00',
+              data: response.map(item => item.numberOfNeutralComments)
+            },
+            {
+              label: 'Số bình luận tiêu cực theo tháng',
+              backgroundColor: '#ff9f42',
+              borderColor: '#FB8C00',
+              data: response.map(item => item.numberOfNegativeComments)
             }
           ]
         };

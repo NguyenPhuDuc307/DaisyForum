@@ -57,7 +57,8 @@ public class AccountController : Controller
 
         string[] listLabel = txt_label_submit.Split(',');
 
-        var user = await _userApiClient.PutLabels(User.GetUserId(), listLabel);
+        var result = await _userApiClient.PutLabels(User.GetUserId(), listLabel);
+        Response.Cookies.Delete("suggestedKbs");
         return RedirectToAction("MyProfile");
     }
 
@@ -113,8 +114,13 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> EditKnowledgeBase(int id)
     {
+
+        var categories = await _categoryApiClient.GetCategories();
+        var treeNodes = TreeNode.ConvertToTreeNodes(categories);
+
         var knowledgeBase = await _knowledgeBaseApiClient.GetKnowledgeBaseDetail(id);
         await SetCategoriesViewBag();
+
         return View(new KnowledgeBaseCreateRequest()
         {
             CategoryId = knowledgeBase.CategoryId,
@@ -127,7 +133,9 @@ public class AccountController : Controller
             StepToReproduce = knowledgeBase.StepToReproduce,
             Title = knowledgeBase.Title,
             Workaround = knowledgeBase.Workaround,
-            Id = knowledgeBase.Id
+            Id = knowledgeBase.Id,
+            TreeNodes = treeNodes,
+            IsProcessed = knowledgeBase.IsProcessed
         });
     }
 
@@ -162,5 +170,11 @@ public class AccountController : Controller
             Text = "--Chọn danh mục--"
         });
         ViewBag.Categories = new SelectList(items, "Value", "Text", selectedValue);
+    }
+
+    public async Task<IActionResult> DeleteKnowledgeBases(int id)
+    {
+        var result = await _knowledgeBaseApiClient.DeleteKnowledgeBase(id);
+        return RedirectToAction("MyKnowledgeBases");
     }
 }

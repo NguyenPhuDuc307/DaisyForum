@@ -21,6 +21,27 @@
 }
 
 @section scripts{
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t"></script>
+
+    @* <script>
+        $('form').submit(function (e) {
+            e.preventDefault();
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t', { action: 'homepage' }).then(function (token) {
+                    $.getJSON("/Home/Verify?token=" + token,
+                        function (data) {
+                            console.log(data);
+                            if (data) {
+                                $('form').unbind('submit').submit();
+                            }
+                            else {
+                                document.location = "@Url.Action("Error", "Home")";
+                            }
+                        });
+                });
+            });
+        });
+    </script> *@
     <script src="https://cdn.ckeditor.com/ckeditor5/38.0.1/super-build/ckeditor.js"></script>
     <script>
         $(document).ready(function () {
@@ -369,9 +390,7 @@
             ]
         });
     </script>
-
-
-
+    
     <script>
         var controller = new accountController();
         controller.initialize();

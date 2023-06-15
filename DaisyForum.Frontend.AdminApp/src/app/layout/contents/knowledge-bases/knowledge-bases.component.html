@@ -1,81 +1,73 @@
 <p>{{screenTitle}}</p>
 <div class="animated fadeIn">
-    <p-panel #pnl>
-        <p-header>
-            <div class="ui-g-6">
+    <p-table #dt #pnl [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
+        [responsive]="true" [scrollable]="true" [tableStyle]="{'min-width': '60rem'}"
+        styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="caption">
+            <div class="d-flex">
                 <p-button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="CREATE" label="Thêm"
-                    (click)="showAddModal()" icon="pi pi-plus"
-                    styleClass="p-button-outlined p-button-sm mr-2"></p-button>
+                    (click)="showAddModal()" icon="pi pi-plus" styleClass="btn mr-2"></p-button>
                 <p-button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="UPDATE" label="Sửa"
                     icon="pi pi-trash" *ngIf="selectedItems.length > 0" (click)="showEditModal()"
-                    styleClass="p-button-outlined p-button-warning p-button-sm mr-2"></p-button>
+                    styleClass="p-button-warning btn mr-2"></p-button>
                 <p-button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="DELETE" label="Xóa"
                     *ngIf="selectedItems.length== 1" (click)="deleteItems()" icon="pi pi-plus"
-                    styleClass="p-button-outlined p-button-danger p-button-sm mr-2"></p-button>
+                    styleClass="p-button-danger btn mr-2"></p-button>
                 <p-button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="VIEW" label="Bình luận"
                     *ngIf="selectedItems.length== 1" (click)="viewComments()" icon="pi pi-plus"
-                    styleClass="p-button-outlined p-button-success p-button-sm mr-2"></p-button>
+                    styleClass="p-button-success btn mr-2"></p-button>
                 <p-button appPermission appFunction="CONTENT_KNOWLEDGE_BASE" appAction="VIEW" label="Báo xấu"
                     *ngIf="selectedItems.length== 1" (click)="viewReports()" icon="pi pi-plus"
-                    styleClass="p-button-outlined p-button-help p-button-sm"></p-button>
-            </div>
-            <div class="ui-g-6 mt-2">
-                <span class="p-input-icon-left" style="width: 100%;">
+                    styleClass="p-button-help btn"></p-button>
+                <span class="p-input-icon-left ml-auto">
                     <i class="pi pi-search"></i>
-                    <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
-                        class="p-inputtext-sm" placeholder="Nhập từ khóa..." type="text">
+                    <input class="form-control" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                        placeholder="Nhập từ khóa..." type="text">
                 </span>
             </div>
-        </p-header>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" style="width:10%">Mã <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="title" style="width:60%">Tiêu đề <p-sortIcon field="title"></p-sortIcon></th>
+                <th pSortableColumn="categoryName" style="width:30%">Danh mục <p-sortIcon
+                        field="categoryName"></p-sortIcon></th>
+                <th pSortableColumn="numberOfVotes" style="width:2rem">
+                    <i class="pi pi-thumbs-up" style="font-size: 1.5rem"></i>
+                </th>
+                <th pSortableColumn="numberOfComments" style="width:2rem">
+                    <i class="pi pi-comment" style="font-size: 1.5rem"></i>
+                </th>
+                <th pSortableColumn="numberOfReports" style="width:2rem">
+                    <i class="pi pi-exclamation-triangle" style="font-size: 1.5rem"></i>
+                </th>
+            </tr>
 
-        <p-table #dt [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
-            [responsive]="true" [scrollable]="true" [tableStyle]="{'min-width': '60rem'}">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                    </th>
-                    <th pSortableColumn="id" style="width:10%">Mã <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="title" style="width:60%">Tiêu đề <p-sortIcon field="title"></p-sortIcon></th>
-                    <th pSortableColumn="categoryName" style="width:30%">Danh mục <p-sortIcon
-                            field="categoryName"></p-sortIcon></th>
-                    <th pSortableColumn="numberOfVotes" style="width:2rem">
-                        <i class="pi pi-thumbs-up" style="font-size: 1.5rem"></i>
-                    </th>
-                    <th pSortableColumn="numberOfComments" style="width:2rem">
-                        <i class="pi pi-comment" style="font-size: 1.5rem"></i>
-                    </th>
-                    <th pSortableColumn="numberOfReports" style="width:2rem">
-                        <i class="pi pi-exclamation-triangle" style="font-size: 1.5rem"></i>
-                    </th>
-                </tr>
-
-            </ng-template>
-            <ng-template pTemplate="body" let-row>
-                <tr [pSelectableRow]="row">
-                    <td>
-                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
-                    </td>
-                    <td>{{row.id}}</td>
-                    <td>{{row.title}}</td>
-                    <td>{{row.categoryName}}</td>
-                    <td>{{row.numberOfVotes}}</td>
-                    <td>{{row.numberOfComments}}</td>
-                    <td>{{row.numberOfReports}}</td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="summary">
-                <div style="text-align: left">
-                    Tổng số bản ghi: {{totalRecords | number}}
-                </div>
-            </ng-template>
-        </p-table>
-        <p-footer>
-            <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
-                [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
-            <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner></p-progressSpinner>
-            </p-blockUI>
-        </p-footer>
-    </p-panel>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+            <tr [pSelectableRow]="row">
+                <td>
+                    <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    {{row.id}}
+                </td>
+                <td>{{row.title}}</td>
+                <td>{{row.categoryName}}</td>
+                <td>{{row.numberOfVotes}}</td>
+                <td>{{row.numberOfComments}}</td>
+                <td>{{row.numberOfReports}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div style="text-align: left">
+                Tổng: {{totalRecords | number}}
+            </div>
+        </ng-template>
+    </p-table>
+    <p-footer>
+        <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+            [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+        <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+            <p-progressSpinner></p-progressSpinner>
+        </p-blockUI>
+    </p-footer>
 </div>

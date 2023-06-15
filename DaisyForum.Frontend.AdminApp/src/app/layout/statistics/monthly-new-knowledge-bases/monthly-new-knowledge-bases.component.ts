@@ -24,7 +24,7 @@ export class MonthlyNewKbsComponent extends BaseComponent implements OnInit {
     // Cấu hình options cho chart
     this.options = {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
     };
   }
 
@@ -45,7 +45,15 @@ export class MonthlyNewKbsComponent extends BaseComponent implements OnInit {
           datasets: [
             {
               label: 'Số bài viết theo tháng',
-              backgroundColor: '#42A5F5',
+              type: 'line',
+              borderColor: '#ff9f42',
+              borderWidth: 2,
+              data: response.map(item => item.numberOfNewKnowledgeBases),
+              lineTension: 0.4
+            },
+            {
+              label: 'Số bài viết theo tháng',
+              backgroundColor: '#7254f3',
               borderColor: '#1E88E5',
               data: response.map(item => item.numberOfNewKnowledgeBases)
             }

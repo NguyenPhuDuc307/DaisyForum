@@ -1,10 +1,4 @@
 <!--Modal add and edit-->
-<div class="modal-header">
-  <h4 class="modal-title pull-left">{{title}}</h4>
-  <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
 <div class="modal-body div-scroll">
   <p-table #dt2 [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
     [responsive]="true" [scrollable]="true">
@@ -33,7 +27,7 @@
   </p-table>
 </div>
 <div class="modal-footer">
-  <button type="submit" class="btn btn-success" *ngIf="selectedItems.length > 0" (click)="chooseRoles()">Chọn</button>
+  <p-button type="submit" styleClass="btn" *ngIf="selectedItems.length > 0" (click)="chooseRoles()">Chọn</p-button>
   &nbsp;
   <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Đóng</button>
 </div>

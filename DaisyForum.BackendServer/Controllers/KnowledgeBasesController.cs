@@ -166,6 +166,7 @@ public partial class KnowledgeBasesController : BaseController
                 NumberOfVotes = u.k.NumberOfVotes,
                 CreateDate = u.k.CreateDate,
                 NumberOfComments = u.k.NumberOfComments,
+                NumberOfReports = u.k.NumberOfReports,
                 IsProcessed = u.k.IsProcessed
             })
             .ToListAsync();

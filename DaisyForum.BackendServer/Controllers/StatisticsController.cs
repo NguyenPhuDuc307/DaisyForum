@@ -26,8 +26,30 @@ public class StatisticsController : BaseController
             .Select(g => new MonthlyCommentsViewModel()
             {
                 Month = g.Key,
+                NumberOfComments = g.Count(),
+                NumberOfNegativeComments = g.Where(x => x.NavigationScore <= -0.3).Count(),
+                NumberOfPositiveComments = g.Where(x => x.NavigationScore >= 0.3).Count(),
+                NumberOfNeutralComments = g.Where(x => x.NavigationScore < 0.3 && x.NavigationScore > -0.3).Count(),
+            })
+            .OrderBy(x => x.Month)
+            .ToListAsync();
+
+        return Ok(data);
+    }
+
+    [HttpGet("monthly-navigation-comments")]
+    [ClaimRequirement(FunctionCode.STATISTIC, CommandCode.VIEW)]
+    public async Task<IActionResult> GetMonthlyNewNavigationComments(int year)
+    {
+        var data = await _context.Comments.Where(x => x.CreateDate.Date.Year == year && x.NavigationScore < -0.3)
+            .GroupBy(x => x.CreateDate.Date.Month)
+            .OrderBy(x => x.Key)
+            .Select(g => new MonthlyCommentsViewModel()
+            {
+                Month = g.Key,
                 NumberOfComments = g.Count()
             })
+            .OrderBy(x => x.Month)
             .ToListAsync();
 
         return Ok(data);
@@ -44,6 +66,7 @@ public class StatisticsController : BaseController
                 Month = g.Key,
                 NumberOfNewKnowledgeBases = g.Count()
             })
+            .OrderBy(x => x.Month)
             .ToListAsync();
 
         return Ok(data);
@@ -60,6 +83,7 @@ public class StatisticsController : BaseController
                Month = g.Key,
                NumberOfRegisters = g.Count()
            })
+           .OrderBy(x => x.Month)
            .ToListAsync();
 
         return Ok(data);

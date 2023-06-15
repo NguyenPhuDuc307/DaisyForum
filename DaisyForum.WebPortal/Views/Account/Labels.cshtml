@@ -80,11 +80,13 @@
         <div id="passwordHelpBlock" class="form-text">
             Nhấn enter đển thêm nhãn vào danh sách.
         </div>
-        <form class="row" action="/account/Labels" method="post" enctype="multipart/form-data">
-            <input id="txt_label_submit" name="txt_label_submit" hidden class="form-control mt-1" type="text">
+        <form class="row" action="/Account/Labels" method="post" enctype="multipart/form-data">
+            <div class="span6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            </div>
+            <input id="txt_label_submit" name="txt_label_submit" hidden required class="form-control mt-1" type="text">
             <div class="mt-3">
                 <input type="submit" name="submit" value="Xác nhận" class="btn btn-success">
-                <img src="/images/loading.gif" id="contact-loader" alt="Đang xử lý...">
             </div>
         </form>
     </div>

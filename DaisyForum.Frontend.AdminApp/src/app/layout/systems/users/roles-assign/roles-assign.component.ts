@@ -15,7 +15,7 @@ export class RolesAssignComponent implements OnInit {
   // User Role
   public items: any[];
   public selectedItems = [];
-  public title: string;
+  public title: string = 'Gán quyền cho người dùng';
   public userId: string;
   public existingRoles: any[];
 

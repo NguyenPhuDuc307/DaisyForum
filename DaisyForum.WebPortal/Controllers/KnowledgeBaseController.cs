@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DaisyForum.ViewModels.Contents;
 using DaisyForum.WebPortal.Extensions;
 using DaisyForum.WebPortal.Models;
 using DaisyForum.WebPortal.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace DaisyForum.WebPortal.Controllers
 {

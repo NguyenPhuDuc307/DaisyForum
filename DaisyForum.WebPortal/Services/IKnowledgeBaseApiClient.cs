@@ -33,6 +33,8 @@ public interface IKnowledgeBaseApiClient
 
     Task<bool> PutKnowledgeBase(int id, KnowledgeBaseCreateRequest request);
 
+    Task<bool> DeleteKnowledgeBase(int id);
+
     Task<bool> UpdateViewCount(int id);
 
     Task<int> PostVote(VoteCreateRequest request);
