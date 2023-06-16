@@ -1,3 +1,4 @@
+@using DaisyForum.WebPortal.Extensions;
 @model KnowledgeBaseDetailViewModel
 @{
     ViewData["Title"] = Model.Detail.Title + " - Daisy Forum";
@@ -270,6 +271,17 @@
                     Báo xấu
                 </button>
             }
+            @if (User.Identity.IsAuthenticated)
+            {
+                @if (User.GetUserId() == Model.Detail.OwnerUserId)
+                {
+                    <a href="/chinh-sua-bai-dang/@Model.Detail.Id"
+                        class="ml-1 badge d-flex align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill text-decoration-none">
+                        Chỉnh sửa
+                    </a>
+                }
+            }
+
         </div>
 
         <p class="mt-3"> <strong>Mô tả:</strong> @Html.Raw(Model.Detail.Description)</p>
@@ -368,7 +380,7 @@
 
 <script id="tmpl_children_comments" type="x-tmpl-mustache">
     <div id="comment_{{id}}">
-<br>
+    <br>
        <div class="ml-4 mb-3 border-left" id="li-comment-2">
         <article id="comment-2" class="d-flex">
             <i class="bi bi-arrow-return-right me-2"></i>
@@ -377,6 +389,7 @@
                     <label>{{ownerName}}</label>
                     <br>
                     {{{content}}}
+                    <p style="display: block;" class="small opacity-75 text-danger m-0 p-0" style="">{{note}}</p>
                 </div>
                 <i class="me-2 small">
                     <time>{{createDate}}</time>
@@ -401,7 +414,9 @@
             <div class="comment-meta border-bottom bg-body-tertiary rounded p-3" style="padding-bottom:12px !important">
                     <label>{{ownerName}}</label>
                     {{{content}}}
+                    <p style="display: block;" class="small opacity-75 text-danger m-0 p-0" style="">{{note}}</p>
             </div>
+
             <i class="me-2 small">
                 <time>{{createDate}}</time>
             </i> 
@@ -411,7 +426,6 @@
         </article><!-- end of comment -->
 
         <div class="children" id="children_comments_{{id}}">
-
             {{{childrenHtml}}}
         </div>
     </div>

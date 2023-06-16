@@ -140,7 +140,7 @@ public class FunctionsController : BaseController
             ParentId = c.ParentId,
             Icon = c.Icon,
             Children = GetChildrenFunctions(c.Id)
-        }).ToList();
+        }).OrderBy(x => x.SortOrder).ToList();
 
         var pagination = new Pagination<FunctionTreeViewModel>
         {

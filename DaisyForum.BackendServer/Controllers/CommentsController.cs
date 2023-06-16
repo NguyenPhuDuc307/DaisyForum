@@ -46,7 +46,8 @@ public partial class KnowledgeBasesController
                 LastModifiedDate = c.c.LastModifiedDate,
                 OwnerUserId = c.c.OwnerUserId,
                 OwnerName = c.u.FirstName + " " + c.u.LastName,
-                NavigationScore = c.c.NavigationScore
+                NavigationScore = c.c.NavigationScore,
+                Note = c.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             })
             .ToListAsync();
 
@@ -101,7 +102,8 @@ public partial class KnowledgeBasesController
             LastModifiedDate = comment.LastModifiedDate,
             OwnerUserId = comment.OwnerUserId,
             OwnerName = user.FirstName + " " + user.LastName,
-            NavigationScore = comment.NavigationScore
+            NavigationScore = comment.NavigationScore,
+            Note = comment.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
         };
 
         return Ok(commentViewModel);
@@ -228,7 +230,8 @@ public partial class KnowledgeBasesController
                 CreateDate = comment.CreateDate,
                 KnowledgeBaseId = comment.KnowledgeBaseId,
                 LastModifiedDate = comment.LastModifiedDate,
-                OwnerUserId = comment.OwnerUserId
+                OwnerUserId = comment.OwnerUserId,
+                Note = comment.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             };
             return Ok(commentViewModel);
         }
@@ -260,8 +263,8 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseTitle = x.k.Title,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
                 KnowledgeBaseSeoAlias = x.k.SeoAlias,
-                NavigationScore = x.c.NavigationScore
-
+                NavigationScore = x.c.NavigationScore,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             }).ToListAsync();
 
             await _cacheService.SetAsync(CacheConstants.RecentComments, comments);
@@ -293,6 +296,7 @@ public partial class KnowledgeBasesController
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
                 Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
                 {
                     PageIndex = pageIndex,
@@ -338,6 +342,7 @@ public partial class KnowledgeBasesController
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
                 Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
                 {
                     PageIndex = pageIndex,
@@ -387,7 +392,8 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
-                Content = x.c.Content
+                Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             })
             .ToListAsync();
 

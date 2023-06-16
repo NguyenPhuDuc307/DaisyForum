@@ -1,5 +1,5 @@
 <div [@routerTransition]>
-    <h2 class="text-muted">Tổng quan</h2>
+    <h4 class="text-muted">Tổng quan</h4>
 
     <hr>
     <div class="row">
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <div #pnl class="animated fadeIn">
+    <div class="animated fadeIn">
         <div class="row mt-5">
             <div class="col-xl-4 col-lg-4">
                 <label for="" class="text-uppercase text-center">Biểu đồ thành viên theo tháng</label>
@@ -46,7 +46,7 @@
                 <p-chart type="bar" [data]="dataComment" [options]="optionComments" height="400"></p-chart>
             </div>
         </div>
-        <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+        <p-blockUI [blocked]="blockedPanel">
             <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
                 strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
         </p-blockUI>

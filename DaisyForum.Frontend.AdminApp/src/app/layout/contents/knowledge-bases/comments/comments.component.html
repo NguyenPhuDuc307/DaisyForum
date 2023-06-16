@@ -1,4 +1,4 @@
-<p>Danh sách danh mục</p>
+<h4 class="text-muted">{{screenTitle}}</h4>
 <div class="animated fadeIn">
     <p-table [tableStyle]="{'min-width': '60rem'}" #pnl #dt [value]="items" selectionMode="multiple"
         [(selection)]="selectedItems" [metaKeySelection]="true" [responsive]="true" [scrollable]="true"
@@ -31,7 +31,7 @@
                 <th class="text-nowrap" [pSortableColumn]="'createDate'">Ngày tạo
                     <p-sortIcon [field]="'createDate'"></p-sortIcon>
                 </th>
-                <th [pSortableColumn]="'ownerName'">Người tạo
+                <th class="text-nowrap" [pSortableColumn]="'ownerName'">Người tạo
                     <p-sortIcon [field]="'ownerName'"></p-sortIcon>
                 </th>
             </tr>

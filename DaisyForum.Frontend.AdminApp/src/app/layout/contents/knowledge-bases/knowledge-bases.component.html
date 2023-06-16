@@ -1,4 +1,4 @@
-<p>{{screenTitle}}</p>
+<h4 class="text-muted">{{screenTitle}}</h4>
 <div class="animated fadeIn">
     <p-table #dt #pnl [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
         [responsive]="true" [scrollable]="true" [tableStyle]="{'min-width': '60rem'}"
@@ -42,7 +42,6 @@
                     <i class="pi pi-exclamation-triangle" style="font-size: 1.5rem"></i>
                 </th>
             </tr>
-
         </ng-template>
         <ng-template pTemplate="body" let-row>
             <tr [pSelectableRow]="row">

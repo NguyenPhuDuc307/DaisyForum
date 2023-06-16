@@ -1,8 +1,9 @@
-<p>{{screenTitle}}</p>
-<div #pnl class="animated fadeIn">
-    <p-treeTable *ngIf="items" [value]="items" selectionMode="multiple" [(selection)]="selectedItems"
+<p-toast></p-toast>
+<h4 class="text-muted">{{screenTitle}}</h4>
+<div class="animated fadeIn">
+    <p-treeTable #pnl *ngIf="items" [value]="items" selectionMode="multiple" [(selection)]="selectedItems"
         [tableStyle]="{'min-width':'50rem'}" [metaKeySelection]="true" (onNodeSelect)="nodeSelect($event)"
-        (onNodeUnselect)="nodeUnSelect($event)" [scrollable]="true" styleClass="p-treetable-gridlines">
+        (onNodeUnselect)="nodeUnSelect($event)" styleClass="p-treetable-gridlines">
         <ng-template styleClass="border" pTemplate="caption">
             <div class="d-flex">
                 <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="CREATE" label="Thêm"
@@ -20,22 +21,40 @@
                 </span>
             </div>
         </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th ttSortableColumn="id">
+                    Mã danh mục
+                    <p-treeTableSortIcon field="id"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="name">
+                    Tên danh mục
+                    <p-treeTableSortIcon field="name"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="seoAlias">
+                    Tiêu đề SEO
+                    <p-treeTableSortIcon field="seoAlias"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="sortOrder">
+                    Thứ tự
+                    <p-treeTableSortIcon field="sortOrder"></p-treeTableSortIcon>
+                </th>
+            </tr>
+        </ng-template>
         <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
             <tr [ttSelectableRow]="rowNode">
-                <td style="width: 10%;">
+                <td>
                     <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
                     <p-treeTableCheckbox [value]="rowNode"></p-treeTableCheckbox>
-                </td>
-                <td>
                     {{rowData.id}}
                 </td>
                 <td>
                     {{rowData.name}}
                 </td>
-                <td class="pgrid-hidden-xs">
+                <td>
                     {{rowData.seoAlias}}
                 </td>
-                <td class="pgrid-hidden-sm">
+                <td>
                     {{rowData.sortOrder}}
                 </td>
             </tr>
@@ -49,7 +68,7 @@
     <p-footer>
         <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
             [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
-        <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+        <p-blockUI [blocked]="blockedPanel">
             <p-progressSpinner></p-progressSpinner>
         </p-blockUI>
     </p-footer>

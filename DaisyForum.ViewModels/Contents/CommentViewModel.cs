@@ -13,5 +13,6 @@ public class CommentViewModel
     public DateTime? LastModifiedDate { get; set; }
     public int? ReplyId { get; set; }
     public float NavigationScore { get; set; }
+    public string? Note { get; set; }
     public Pagination<CommentViewModel> Children { get; set; } = new Pagination<CommentViewModel>();
 }

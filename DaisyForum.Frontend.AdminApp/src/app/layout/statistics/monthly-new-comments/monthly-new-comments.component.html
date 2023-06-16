@@ -1,6 +1,6 @@
-<p>{{screenTitle}}</p>
-<div #pnl class="animated fadeIn">
-    <p-table #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
+<h4 class="text-muted">{{screenTitle}}</h4>
+<div class="animated fadeIn">
+    <p-table #pnl #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
         [responsive]="true" [scrollable]="true" styleClass="p-datatable-gridlines">
         <ng-template pTemplate="caption">
             <div class="d-flex">

@@ -2,17 +2,19 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MessageConstants } from '@app/shared/constants';
 import { CategoriesDetailComponent } from './categories-detail/categories-detail.component';
 import { CategoriesService, NotificationService, UtilitiesService } from '@app/shared/services';
-import { Pagination, Category } from '@app/shared/models';
+import { Category } from '@app/shared/models';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '@app/layout/base/base.component';
 import { TreeNode } from 'primeng/api/treenode';
 import { Paginator } from 'primeng/paginator';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-categories',
   templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.css']
+  styleUrls: ['./categories.component.css'],
+  providers: [MessageService]
 })
 export class CategoriesComponent extends BaseComponent implements OnInit, OnDestroy {
 
@@ -38,7 +40,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
   constructor(private categoriesService: CategoriesService,
     private notificationService: NotificationService,
     private modalService: BsModalService,
-    private utilitiesService: UtilitiesService) {
+    private utilitiesService: UtilitiesService,
+    private messageService: MessageService) {
     super('CONTENT_CATEGORY');
     this.selectedItems = [];
   }

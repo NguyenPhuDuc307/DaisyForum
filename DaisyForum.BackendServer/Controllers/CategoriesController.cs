@@ -91,7 +91,7 @@ public class CategoriesController : BaseController
             SeoDescription = c.SeoDescription,
             SeoAlias = c.SeoAlias,
             Children = GetChildrenCategories(c.Id)
-        }).ToList();
+        }).OrderBy(x => x.SortOrder).ToList();
 
         var pagination = new Pagination<CategoryTreeViewModel>
         {

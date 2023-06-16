@@ -602,6 +602,7 @@ var knowledgeBaseController = function () {
             content: comment.content,
             createDate: formatRelativeTime(comment.createDate),
             ownerName: comment.ownerName,
+            note: comment.note,
             repliedCommentPaginationHtml,
         });
     }

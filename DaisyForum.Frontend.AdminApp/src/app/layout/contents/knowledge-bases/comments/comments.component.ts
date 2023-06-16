@@ -18,6 +18,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
     public bsModalRef: BsModalRef;
     public blockedPanel = false;
     public entityId: number;
+    public screenTitle: string;
     /**
      * Paging
      */

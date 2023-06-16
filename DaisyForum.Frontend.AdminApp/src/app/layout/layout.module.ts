@@ -9,13 +9,14 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HeaderComponent } from './components/header/header.component';
 import { BaseComponent } from './base/base.component';
 
+
 @NgModule({
     imports: [
         CommonModule,
         LayoutRoutingModule,
         TranslateModule,
-        NgbDropdownModule
+        NgbDropdownModule,
     ],
     declarations: [LayoutComponent, SidebarComponent, HeaderComponent, BaseComponent]
 })
-export class ProtectedZoneModule {}
+export class ProtectedZoneModule { }
