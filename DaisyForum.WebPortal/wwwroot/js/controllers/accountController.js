@@ -90,6 +90,28 @@ var accountController = function () {
             }
         });
 
+        $('#frm_follow').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post('/account/follow', form.serialize()).done(function (response) {
+                $('#follower-num').text(response);
+            });
+        });
+        $('#frm_follow .follower-it').click(function () {
+            $('#frm_follow').submit();
+        });
+
+        $('#frm_notification').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post('/account/notification', form.serialize()).done(function (response) {
+                $('#notification-num').text(response);
+            });
+        });
+        $('#frm_notification #notification-it').click(function () {
+            $('#frm_notification').submit();
+        });
+
         $("#frm_edit_kb").submit(function (e) {
             e.preventDefault(); // avoid to execute the actual submit of the form.
 

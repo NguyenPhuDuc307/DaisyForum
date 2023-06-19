@@ -45,6 +45,7 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = c.c.KnowledgeBaseId,
                 LastModifiedDate = c.c.LastModifiedDate,
                 OwnerUserId = c.c.OwnerUserId,
+                Avatar = c.u.Avatar,
                 OwnerName = c.u.FirstName + " " + c.u.LastName,
                 NavigationScore = c.c.NavigationScore,
                 Note = c.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
@@ -101,6 +102,7 @@ public partial class KnowledgeBasesController
             KnowledgeBaseId = comment.KnowledgeBaseId,
             LastModifiedDate = comment.LastModifiedDate,
             OwnerUserId = comment.OwnerUserId,
+            Avatar = user.Avatar,
             OwnerName = user.FirstName + " " + user.LastName,
             NavigationScore = comment.NavigationScore,
             Note = comment.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
@@ -260,6 +262,7 @@ public partial class KnowledgeBasesController
                 CreateDate = x.c.CreateDate,
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
+                Avatar = x.u.Avatar,
                 KnowledgeBaseTitle = x.k.Title,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
                 KnowledgeBaseSeoAlias = x.k.SeoAlias,
@@ -295,6 +298,7 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
+                Avatar = x.u.Avatar,
                 Content = x.c.Content,
                 Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
@@ -341,6 +345,7 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
+                Avatar = x.u.Avatar,
                 Content = x.c.Content,
                 Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
@@ -392,6 +397,7 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
+                Avatar = x.u.Avatar,
                 Content = x.c.Content,
                 Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             })

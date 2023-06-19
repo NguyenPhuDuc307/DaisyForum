@@ -7,17 +7,27 @@
 }
 @inject IConfiguration Configuration
 
-<div class="span8 page-content">
+<div class="">
     <ul class="breadcrumb">
         <li><a href="/">Trang chủ</a><span class="divider">/</span></li>
         <li class="active">Thông tin cá nhân</li>
     </ul>
 
-    <article class=" type-post format-standard hentry clearfix">
-
-        <h1 class="post-title">@Model.UserName</h1>
-        <a asp-controller="Account" asp-action="SignOut" class="btn btn-logout btn-sm btn-danger"
-            style="display: inline-block; float: right;">Đăng xuất</a>
+    <div>
+        @if (string.IsNullOrEmpty(Model.Avatar))
+        {
+            @* <span class="avatar avatar-lg mx-2 text-uppercase">@Model.LastName?.ElementAt(0)</span> *@
+        }
+        else
+        {
+            <img style="object-fit: cover;" class="rounded-circle me-1 mb-2" width="42" height="42"
+                src="@Configuration["BackendApiUrl"]/avatars/@Model.Avatar" alt="">
+        }
+        <h1 class="post-title m-0">@Model.UserName</h1>
+        <p class="d-flex">
+            @Html.Raw(Model.Description)
+        </p>
+        <a asp-controller="Account" asp-action="SignOut" class="btn btn-sm btn-danger">Đăng xuất</a>
 
         <style>
             .post-title {
@@ -28,14 +38,11 @@
             .post-title {
                 text-align: left;
             }
-
-            .btn-logout {
-                margin-left: 20px;
-                margin-top: 8px;
-            }
         </style>
 
-        <table class="table table-bordered">
+
+
+        <table class="table table-bordered mt-2">
             <tr>
                 <td>Họ tên</td>
                 <td>@Model.FirstName @Model.LastName</td>
@@ -79,5 +86,5 @@
                 }
             </div>
         }
-    </article>
+    </div>
 </div>

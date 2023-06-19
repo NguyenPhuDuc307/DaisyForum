@@ -56,7 +56,16 @@ export class ReportsComponent extends BaseComponent implements OnInit, OnDestroy
             }));
     }
     private processLoadData(selectedId = null, response: Pagination<Report>) {
-        this.items = response.items;
+        const now = new Date(); // Lấy thời điểm hiện tại
+        const reports = response.items.map(report => {
+            const timeDiff = now.getTime() - new Date(report.createDate).getTime();
+            const timeDiffString = this.getTimeDiffString(timeDiff);
+            return {
+                ...report,
+                timeDiff: timeDiffString
+            };
+        });
+        this.items = reports;
         this.pageIndex = this.pageIndex;
         this.pageSize = this.pageSize;
         this.totalRecords = response.totalRecords;
@@ -88,6 +97,27 @@ export class ReportsComponent extends BaseComponent implements OnInit, OnDestroy
                 class: 'modal-lg',
                 backdrop: 'static'
             });
+    }
+
+    private getTimeDiffString(timeDiff: number): string {
+        const seconds = Math.floor(timeDiff / 1000);
+        if (seconds < 60) {
+            return 'khoảng vài giây trước';
+        }
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) {
+            return `khoảng ${minutes} phút trước`;
+        }
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) {
+            return `khoảng ${hours} giờ trước`;
+        }
+        const days = Math.floor(hours / 24);
+        if (days < 7) {
+            return `khoảng ${days} ngày trước`;
+        }
+        const weeks = Math.floor(days / 7);
+        return `khoảng ${weeks} tuần trước`;
     }
 
     deleteItems() {

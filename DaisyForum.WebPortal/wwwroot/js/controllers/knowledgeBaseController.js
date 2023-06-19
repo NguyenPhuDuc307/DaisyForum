@@ -602,8 +602,10 @@ var knowledgeBaseController = function () {
             content: comment.content,
             createDate: formatRelativeTime(comment.createDate),
             ownerName: comment.ownerName,
+            avatar: comment.avatar,
             note: comment.note,
-            repliedCommentPaginationHtml,
+            avatarChar: comment.ownerName.charAt(0),
+            repliedCommentPaginationHtml
         });
     }
 
@@ -625,7 +627,9 @@ var knowledgeBaseController = function () {
                                 content: item.content,
                                 createDate: formatRelativeTime(item.createDate),
                                 ownerName: item.ownerName,
+                                avatar: comment.avatar,
                                 content: item.content,
+                                avatarChar: comment.ownerName.charAt(0),
                                 deleteButtonHtml: deleteButtonHtml
                             });
                         });

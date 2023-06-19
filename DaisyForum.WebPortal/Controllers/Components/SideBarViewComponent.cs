@@ -21,8 +21,8 @@ public class SideBarViewComponent : ViewComponent
     {
         var categories = await _categoryApiClient.GetCategories();
         var treeNodes = TreeNode.ConvertToTreeNodes(categories);
-        var popularKnowledgeBases = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(4);
-        var recentComments = await _knowledgeBaseApiClient.GetRecentComments(4);
+        var popularKnowledgeBases = await _knowledgeBaseApiClient.GetPopularKnowledgeBases(5);
+        var recentComments = await _knowledgeBaseApiClient.GetRecentComments(5);
         var viewModel = new SideBarViewModel()
         {
             TreeNodes = treeNodes,

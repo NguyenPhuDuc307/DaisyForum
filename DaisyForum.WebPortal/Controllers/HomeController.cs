@@ -83,5 +83,11 @@ namespace DaisyForum.WebPortal.Controllers
             var verified = await _recaptcha.VerifyAsync(token);
             return Json(verified);
         }
+
+        [HttpGet("messenger")]
+        public IActionResult Chat()
+        {
+            return View();
+        }
     }
 }

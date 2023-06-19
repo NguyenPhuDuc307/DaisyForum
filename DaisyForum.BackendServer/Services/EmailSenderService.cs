@@ -21,7 +21,12 @@ public class EmailSenderService : IEmailSender
         var emailMessage = new MimeMessage();
 
         emailMessage.From.Add(new MailboxAddress(_emailSettings.FromName, _emailSettings.From));
-        emailMessage.To.Add(new MailboxAddress("", email));
+
+        var emailList = email.Split(",");
+        foreach (var e in emailList)
+        {
+            emailMessage.To.Add(new MailboxAddress("", e));
+        }
         emailMessage.Subject = subject;
         emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message };
 
@@ -33,8 +38,5 @@ public class EmailSenderService : IEmailSender
 
             await client.DisconnectAsync(true);
         }
-
-
-
     }
 }

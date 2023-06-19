@@ -8,9 +8,14 @@ namespace DaisyForum.ViewModels.Systems
         public string? PhoneNumber { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public string? Avatar { get; set; }
+        public string? Description { get; set; }
         public DateTime Dob { get; set; }
         public string[]? Labels { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
+        public string? CurrentRoom { get; set; }
+        public string? Device { get; set; }
+        public int? NumberOfFollowers { get; set; }
     }
 }

@@ -7,17 +7,17 @@
 }
 
 @functions {
-  public static IHtmlContent RenderChildOptions(DaisyForum.ViewModels.Contents.TreeNode node, int level)
-  {
-    if (node.Children.Count == 0)
+    public static IHtmlContent RenderChildOptions(DaisyForum.ViewModels.Contents.TreeNode node, int level)
     {
-      return HtmlString.Empty;
+        if (node.Children.Count == 0)
+        {
+            return HtmlString.Empty;
+        }
+
+        var childOptionsHtml = string.Join(string.Empty, node.Children.Select(child => $"<option value=\"{child.Id}\">{new string('-', level * 2)} {child.Name}</option>{RenderChildOptions(child, level + 1)}"));
+
+        return new HtmlString($"{childOptionsHtml}");
     }
-
-    var childOptionsHtml = string.Join(string.Empty, node.Children.Select(child => $"<option value=\"{child.Id}\">{new string('-', level * 2)} {child.Name}</option>{RenderChildOptions(child, level + 1)}"));
-
-    return new HtmlString($"{childOptionsHtml}");
-  }
 }
 @section scripts{
     <script src="https://www.google.com/recaptcha/api.js?render=6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t"></script>
@@ -372,22 +372,6 @@
     <script src="~/js/controllers/accountController.js" asp-append-version="true"></script>
 
     <script>
-        ClassicEditor
-            .create(document.querySelector('#txt_problem'))
-            .catch(error => {
-                console.error(error);
-            });
-
-        ClassicEditor
-            .create(document.querySelector('#txt_workaround'))
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
-
-
-
-    <script>
         var controller = new accountController();
         controller.initialize();
     </script>
@@ -396,7 +380,7 @@
 <div class="span8 page-content">
 
     <article class="type-page hentry clearfix">
-        <h1 class="post-title">
+        <h1 class="post-title h3">
             Cập nhật bài đăng
         </h1>
         <hr>
@@ -411,17 +395,17 @@
         </div>
 
         <div class="span6">
-            <label>Danh mục</label>
-            <select asp-for="CategoryId" id="category-select" required class="form-select">
-            <option value="">Chọn danh mục</option>
-            @foreach (var node in Model.TreeNodes.Where(n => n.ParentId == null))
-            {
-                <option value="@node.Id">@node.Name</option>
-                @RenderChildOptions(node, 1)
-            }
-            </select>
-            <span asp-validation-for="CategoryId" class="text-danger"></span>
-        </div>
+    <label>Danh mục</label>
+    <select asp-for="CategoryId" id="category-select" class="form-select">
+        <option value="0">Chọn danh mục</option>
+        @foreach (var node in Model.TreeNodes.Where(n => n.ParentId == null))
+        {
+            <option value="@node.Id">@node.Name</option>
+            @RenderChildOptions(node, 1)
+        }
+    </select>
+    <span asp-validation-for="CategoryId" class="text-danger"></span>
+</div>
 
         <div class="span6 mt-3">
             <label>Tiêu đề</label>
@@ -506,8 +490,7 @@
         </div>
 
         <div class="span6 offset2 bm30">
-            <input type="submit" name="submit" value="Cập nhật" class="btn btn-inverse">
-            <img src="/images/loading.gif" id="contact-loader" alt="Đang xử lý...">
+            <input type="submit" name="submit" value="Cập nhật" class="btn btn-success">
         </div>
 
         <div class="span6 offset2 error-container"></div>

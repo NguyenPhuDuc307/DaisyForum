@@ -16,6 +16,17 @@
         {
             "library": "twitter-bootstrap@2.2.2",
             "destination": "wwwroot/lib/twitter-bootstrap"
+        },
+        {
+            "library": "@microsoft/signalr@latest",
+            "destination": "wwwroot/js/signalr",
+            "files": [
+                "dist/browser/signalr.js"
+            ]
+        },
+        {
+            "library": "knockout@3.5.1",
+            "destination": "wwwroot/lib/knockout/"
         }
     ]
 }

@@ -1,10 +1,13 @@
 @using DaisyForum.WebPortal.Extensions;
+@using Microsoft.Extensions.Configuration
 @model KnowledgeBaseDetailViewModel
 @{
     ViewData["Title"] = Model.Detail.Title + " - Daisy Forum";
     ViewData["Description"] = Model.Detail.Description;
     Layout = "_SubLayout";
 }
+
+@inject IConfiguration Configuration
 
 @section scripts{
     <script src="https://www.google.com/recaptcha/api.js?render=6LfFjwMmAAAAAHW8hxSxISs4T8EXzjI7SLaAsj4t"></script>
@@ -65,7 +68,6 @@
     </script>
     <script src="~/lib/mustache.js/mustache.min.js"></script>
     <script src="~/js/controllers/knowledgeBaseController.js" asp-append-version="true"></script>
-
 
     <script>
         CKEDITOR.ClassicEditor.create(document.getElementById("txt_new_comment_content"), {
@@ -214,7 +216,6 @@
         });
     </script>
 
-
     <script>
         var controller = new knowledgeBaseController();
         controller.initialize();
@@ -241,23 +242,34 @@
     <hr>
 
     <div>
-        <h1 class="post-title text-bold h2">@Model.Detail.Title</h1>
+        <label class="text-bold h3"
+            style="max-width: 100% !important; word-wrap: break-word;">@Model.Detail.Title</label>
+
 
         <div class="d-flex align-items-center">
+            <a asp-controller="Account" asp-action="Profile" asp-route-id="@Model.Detail.OwnerUserId"
+                class="text-decoration-none">
+                <span style="width: fit-content; cursor: pointer;"
+                    class="badge d-flex align-items-center p-1 pe-2 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-pill me-2">
+                    <img style="object-fit: cover;" class="rounded-circle me-1" width="24" height="24"
+                        src="@Configuration["BackendApiUrl"]/avatars/@Model.Detail.Avatar" alt="">@Model.Detail.FullName
+                </span>
+            </a>
+
             <span class="d-block opacity-50 me-2">@Model.Detail.CreateDate.ToString("dd/MM/yyyy")
                 trong
             </span>
-            <span class="me-3"><a class="text-decoration-none" href="/tag/@Model.Detail.SeoAlias-@Model.Detail.Id"
+            <span class="me-3"><a class="text-decoration-none"
                     title="Xem tất cả bài viết trong @Model.Detail.CategoryName">@Model.Detail.CategoryName</a></span>
 
             <div style="width: fit-content"
-                class="me-2 badge d-flex align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                class="me-2 badge d-flex align-items-center p-1 pe-2 text-primary rounded-pill">
                 <i class="bi bi-chat-quote-fill me-1"></i>Bình luận
                 @Model.Detail.NumberOfComments.GetValueOrDefault(0).ToString("N0")
             </div>
 
             <div style="width: fit-content"
-                class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                class="m-0 badge d-flex align-items-center p-1 pe-2 text-success rounded-pill">
                 <i class="bi bi-hand-thumbs-up-fill me-1"></i>Thích
                 <div class="ml-1" id="like-count">@Model.Detail.NumberOfVotes.GetValueOrDefault(0).ToString("N0")</div>
 

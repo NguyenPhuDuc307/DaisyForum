@@ -148,16 +148,17 @@ namespace DaisyForum.WebPortal.Services
                     requestContent.Add(bytes, "attachments", item.FileName);
                 }
             }
+
             requestContent.Add(new StringContent(request.CategoryId.ToString()), "categoryId");
-            requestContent.Add(new StringContent(request.Title.ToString()), "title");
-            requestContent.Add(new StringContent(request.Problem.ToString()), "problem");
-            requestContent.Add(new StringContent(request.Note.ToString()), "note");
-            requestContent.Add(new StringContent(request.Description.ToString()), "description");
-            requestContent.Add(new StringContent(request.Environment.ToString()), "environment");
-            requestContent.Add(new StringContent(request.StepToReproduce.ToString()), "stepToReproduce");
-            requestContent.Add(new StringContent(request.ErrorMessage.ToString()), "errorMessage");
-            requestContent.Add(new StringContent(request.Workaround.ToString()), "workaround");
-            requestContent.Add(new StringContent(request.IsProcessed.ToString()), "isProcessed");
+            requestContent.Add(new StringContent(request.Title != null ? request.Title.ToString() : ""), "title");
+            requestContent.Add(new StringContent(request.Problem != null ? request.Problem.ToString() : ""), "problem");
+            requestContent.Add(new StringContent(request.Note != null ? request.Note.ToString() : ""), "note");
+            requestContent.Add(new StringContent(request.Description != null ? request.Description.ToString() : ""), "description");
+            requestContent.Add(new StringContent(request.Environment != null ? request.Environment.ToString() : ""), "environment");
+            requestContent.Add(new StringContent(request.StepToReproduce != null ? request.StepToReproduce.ToString() : ""), "stepToReproduce");
+            requestContent.Add(new StringContent(request.ErrorMessage != null ? request.ErrorMessage.ToString() : ""), "errorMessage");
+            requestContent.Add(new StringContent(request.Workaround != null ? request.Workaround.ToString() : ""), "workaround");
+            requestContent.Add(new StringContent(request.IsProcessed == true ? "true" : "false"), "isProcessed");
             if (request.Labels?.Length > 0)
             {
                 foreach (var label in request.Labels)

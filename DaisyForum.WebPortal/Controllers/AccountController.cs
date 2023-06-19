@@ -34,10 +34,20 @@ public class AccountController : Controller
     }
 
     [Authorize]
+    [Route("my-profile")]
     public async Task<ActionResult> MyProfile()
     {
         var user = await _userApiClient.GetById(User.GetUserId());
         return View(user);
+    }
+
+    [Route("profile")]
+    public async Task<ActionResult> Profile(string id, int page = 1, int pageSize = 15)
+    {
+        var user = await _userApiClient.GetById(id);
+        var kbs = await _userApiClient.GetKnowledgeBasesByUserId(id, page, pageSize);
+        ViewBag.User = user;
+        return View(kbs);
     }
 
     [HttpGet]
@@ -70,7 +80,7 @@ public class AccountController : Controller
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> MyKnowledgeBases(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> MyKnowledgeBases(int page = 1, int pageSize = 15)
     {
         var kbs = await _userApiClient.GetKnowledgeBasesByUserId(User.GetUserId(), page, pageSize);
         return View(kbs);
@@ -176,5 +186,28 @@ public class AccountController : Controller
     {
         var result = await _knowledgeBaseApiClient.DeleteKnowledgeBase(id);
         return RedirectToAction("MyKnowledgeBases");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Follow([FromForm] FollowerCreateRequest request)
+    {
+        var result = await _userApiClient.Follow(request);
+        return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Notification([FromForm] NotificationCreateRequest request)
+    {
+        var result = await _userApiClient.Notification(request);
+        return Ok(result);
+    }
+
+    [Route("followers")]
+    public async Task<ActionResult> Followers(int page = 1, int pageSize = 15)
+    {
+        var followers = await _userApiClient.GetFollowers(User.GetUserId(), page, pageSize);
+        var subscribers = await _userApiClient.GetSubscribers(User.GetUserId(), page, pageSize);
+        ViewBag.Subscribers = subscribers;
+        return View(followers);
     }
 }

@@ -63,4 +63,26 @@ public class UserApiClient : BaseApiClient, IUserApiClient
         var response = await client.PutAsync($"/api/users/{userId}/putlabels", requestContent);
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<int> Follow(FollowerCreateRequest request)
+    {
+        return await PostAsync<FollowerCreateRequest, int>($"/api/users/follow/{request.OwnerUserId}", null);
+    }
+
+    public async Task<bool> Notification(NotificationCreateRequest request)
+    {
+        return await PostAsync<NotificationCreateRequest, bool>($"/api/users/notification/{request.OwnerUserId}", null);
+    }
+
+    public async Task<Pagination<FollowerViewModel>> GetFollowers(string userId, int pageIndex, int pageSize)
+    {
+        var apiUrl = $"/api/users/{userId}/followers?pageIndex={pageIndex}&pageSize={pageSize}";
+        return await GetAsync<Pagination<FollowerViewModel>>(apiUrl, true);
+    }
+
+    public async Task<Pagination<FollowerViewModel>> GetSubscribers(string userId, int pageIndex, int pageSize)
+    {
+        var apiUrl = $"/api/users/{userId}/subscribers?pageIndex={pageIndex}&pageSize={pageSize}";
+        return await GetAsync<Pagination<FollowerViewModel>>(apiUrl, true);
+    }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using AutoMapper;
 using DaisyForum.BackendServer.Authorization;
 using DaisyForum.BackendServer.Constants;
+using DaisyForum.BackendServer.Extensions;
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.Helpers;
@@ -282,7 +283,8 @@ public class UsersController : BaseController
             FirstName = user.FirstName,
             LastName = user.LastName,
             CreateDate = user.CreateDate,
-            Labels = !string.IsNullOrEmpty(user.Labels) ? user.Labels.Split(',') : null
+            Labels = !string.IsNullOrEmpty(user.Labels) ? user.Labels.Split(',') : null,
+            Avatar = user.Avatar
         };
     }
 
@@ -302,7 +304,9 @@ public class UsersController : BaseController
             FirstName = u.FirstName,
             LastName = u.LastName,
             CreateDate = u.CreateDate,
-            Labels = TextHelper.Split(u.Labels, ",")
+            Labels = TextHelper.Split(u.Labels, ","),
+            Avatar = u.Avatar,
+            Description = u.Description
         }).ToListAsync();
 
         return Ok(userViewModels);
@@ -331,7 +335,9 @@ public class UsersController : BaseController
             PhoneNumber = x.PhoneNumber,
             FirstName = x.FirstName,
             LastName = x.LastName,
-            CreateDate = x.CreateDate
+            CreateDate = x.CreateDate,
+            Avatar = x.Avatar,
+            Description = x.Description
         }).ToListAsync();
 
         var totalRecords = await query.CountAsync();
@@ -362,7 +368,10 @@ public class UsersController : BaseController
             FirstName = user.FirstName,
             LastName = user.LastName,
             CreateDate = user.CreateDate,
-            Labels = TextHelper.Split(user.Labels, ",")
+            Labels = TextHelper.Split(user.Labels, ","),
+            Avatar = user.Avatar,
+            Description = user.Description,
+            NumberOfFollowers = user.NumberOfFollowers
         };
         return Ok(userViewModel);
     }
@@ -434,7 +443,9 @@ public class UsersController : BaseController
                 PhoneNumber = user.PhoneNumber,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                CreateDate = user.CreateDate
+                CreateDate = user.CreateDate,
+                Avatar = user.Avatar,
+                Description = user.Description
             };
             return Ok(userViewModel);
         }
@@ -547,7 +558,8 @@ public class UsersController : BaseController
                CategoryAlias = u.c.SeoAlias,
                CategoryName = u.c.Name,
                NumberOfVotes = u.k.NumberOfVotes,
-               CreateDate = u.k.CreateDate
+               CreateDate = u.k.CreateDate,
+               IsProcessed = u.k.IsProcessed,
            }).ToListAsync();
 
         var pagination = new Pagination<KnowledgeBaseQuickViewModel>
@@ -572,8 +584,241 @@ public class UsersController : BaseController
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
+
             return NoContent();
         }
         return BadRequest(new ApiBadRequestResponse(result));
+    }
+
+    public async Task<UserViewModel?> GetUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return null;
+
+        var userViewModel = new UserViewModel()
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Dob = user.Dob,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            CreateDate = user.CreateDate,
+            Labels = TextHelper.Split(user.Labels, ","),
+            Avatar = user.Avatar,
+            Description = user.Description,
+            NumberOfFollowers = user.NumberOfFollowers
+        };
+        return userViewModel;
+    }
+
+    [HttpGet("{userId}/followers")]
+    public async Task<IActionResult> GetFollowers(string userId, int pageIndex, int pageSize)
+    {
+        var query = from f in _context.Followers
+                    where f.FollowerId == userId
+                    select new { f };
+
+        int totalRecords = await query.CountAsync();
+
+        var followers = await query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new FollowerViewModel()
+            {
+                OwnerUserId = u.f.OwnerUserId,
+                FollowerId = u.f.FollowerId,
+                CreateDate = u.f.CreateDate,
+                Notification = u.f.Notification
+            }).ToListAsync();
+        var items = new List<FollowerViewModel>();
+        foreach (var follower in followers)
+        {
+            var followerViewModel = new FollowerViewModel()
+            {
+                OwnerUserId = follower.OwnerUserId,
+                FollowerId = follower.FollowerId,
+                CreateDate = follower.CreateDate,
+                Notification = follower.Notification
+            };
+
+            followerViewModel.Owner = await GetUser(follower.OwnerUserId);
+            followerViewModel.Follower = await GetUser(follower.FollowerId);
+            items.Add(followerViewModel);
+        }
+        var pagination = new Pagination<FollowerViewModel>
+        {
+            Items = items,
+            TotalRecords = totalRecords,
+            PageIndex = pageIndex,
+            PageSize = pageSize
+        };
+
+        return Ok(pagination);
+    }
+
+    [HttpGet("{userId}/subscribers")]
+    public async Task<IActionResult> GetSubscribers(string userId, int pageIndex, int pageSize)
+    {
+        var query = from f in _context.Followers
+                    where f.OwnerUserId == userId
+                    select new { f };
+
+        int totalRecords = await query.CountAsync();
+
+        var followers = await query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new FollowerViewModel()
+            {
+                OwnerUserId = u.f.OwnerUserId,
+                FollowerId = u.f.FollowerId,
+                CreateDate = u.f.CreateDate,
+                Notification = u.f.Notification
+            }).ToListAsync();
+        var items = new List<FollowerViewModel>();
+        foreach (var follower in followers)
+        {
+            var followerViewModel = new FollowerViewModel()
+            {
+                OwnerUserId = follower.OwnerUserId,
+                FollowerId = follower.FollowerId,
+                CreateDate = follower.CreateDate,
+                Notification = follower.Notification
+            };
+
+            followerViewModel.Owner = await GetUser(follower.OwnerUserId);
+            followerViewModel.Follower = await GetUser(follower.FollowerId);
+            items.Add(followerViewModel);
+        }
+        var pagination = new Pagination<FollowerViewModel>
+        {
+            Items = items,
+            TotalRecords = totalRecords,
+            PageIndex = pageIndex,
+            PageSize = pageSize
+        };
+
+        return Ok(pagination);
+    }
+
+    [HttpPost("follow/{ownerUserId}")]
+    public async Task<IActionResult> Follow(string ownerUserId)
+    {
+        if (ownerUserId == User.GetUserId())
+        {
+            return BadRequest(new ApiBadRequestResponse($"Không thể theo dõi chính mình"));
+        }
+        var checkOwnerUser = await _userManager.FindByIdAsync(ownerUserId);
+        if (checkOwnerUser == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found ownerUser with id: {ownerUserId}"));
+
+        var checkFollower = await _userManager.FindByIdAsync(User.GetUserId());
+        if (checkFollower == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found follower with id: {User.GetUserId()}"));
+
+        var numberOfFollowers = await _context.Followers.CountAsync(x => x.OwnerUserId == ownerUserId);
+
+        var follower = await _context.Followers.FindAsync(ownerUserId, User.GetUserId());
+        if (follower != null)
+        {
+            _context.Followers.Remove(follower);
+            numberOfFollowers -= 1;
+        }
+        else
+        {
+            follower = new Follower()
+            {
+                OwnerUserId = ownerUserId,
+                FollowerId = User.GetUserId(),
+                CreateDate = DateTime.Now
+            };
+            _context.Followers.Add(follower);
+            numberOfFollowers += 1;
+        }
+
+        checkOwnerUser.NumberOfFollowers = numberOfFollowers;
+        var result = await _userManager.UpdateAsync(checkOwnerUser);
+
+        var result1 = await _context.SaveChangesAsync();
+        if (result.Succeeded)
+        {
+            return Ok(numberOfFollowers);
+        }
+        else
+        {
+            return BadRequest(new ApiBadRequestResponse($"Follow failed"));
+        }
+    }
+
+    [HttpPost("notification/{ownerUserId}")]
+    public async Task<IActionResult> Notification(string ownerUserId)
+    {
+        if (ownerUserId == User.GetUserId())
+        {
+            return BadRequest(new ApiBadRequestResponse($"Không thể theo dõi chính mình"));
+        }
+        var checkOwnerUser = await _userManager.FindByIdAsync(ownerUserId);
+        if (checkOwnerUser == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found ownerUser with id: {ownerUserId}"));
+
+        var checkFollower = await _userManager.FindByIdAsync(User.GetUserId());
+        if (checkFollower == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found follower with id: {User.GetUserId()}"));
+
+        var follower = await _context.Followers.FindAsync(ownerUserId, User.GetUserId());
+        if (follower != null)
+        {
+            if (follower.Notification == true)
+            {
+                follower.Notification = false;
+            }
+            else
+            {
+                follower.Notification = true;
+            }
+            var result = await _context.SaveChangesAsync();
+
+            return Ok(follower.Notification);
+        }
+        else
+        {
+            return BadRequest(new ApiBadRequestResponse($"Update notification failed"));
+        }
+    }
+
+    [HttpPost("un-follow/{ownerUserId}")]
+    public async Task<IActionResult> UnFollow(string ownerUserId)
+    {
+        var checkOwnerUser = await _userManager.FindByIdAsync(ownerUserId);
+        if (checkOwnerUser == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found ownerUser with id: {ownerUserId}"));
+
+        var checkFollower = await _userManager.FindByIdAsync(User.GetUserId());
+        if (checkFollower == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found follower with id: {User.GetUserId()}"));
+
+        var numberOfFollowers = await _context.Followers.CountAsync(x => x.OwnerUserId == ownerUserId && x.FollowerId == User.GetUserId());
+
+        var follower = await _context.Followers.FindAsync(ownerUserId, User.GetUserId());
+        if (follower != null)
+        {
+            _context.Followers.Remove(follower);
+            numberOfFollowers -= 1;
+        }
+        checkOwnerUser.NumberOfFollowers = numberOfFollowers;
+        var result = await _userManager.UpdateAsync(checkOwnerUser);
+
+        var result1 = await _context.SaveChangesAsync();
+        if (result.Succeeded && result1 > 0)
+        {
+            return Ok(numberOfFollowers);
+        }
+        else
+        {
+            return BadRequest(new ApiBadRequestResponse($"Un follow failed"));
+        }
     }
 }

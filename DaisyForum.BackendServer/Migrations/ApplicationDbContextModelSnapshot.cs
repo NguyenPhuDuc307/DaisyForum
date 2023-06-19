@@ -209,6 +209,27 @@ namespace DaisyForum.BackendServer.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Follower", b =>
+                {
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("FollowerId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Notification")
+                        .HasColumnType("bit");
+
+                    b.HasKey("OwnerUserId", "FollowerId");
+
+                    b.ToTable("Followers");
+                });
+
             modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Function", b =>
                 {
                     b.Property<string>("Id")
@@ -341,6 +362,40 @@ namespace DaisyForum.BackendServer.Migrations
                     b.ToTable("LabelInKnowledgeBases");
                 });
 
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ToRoomId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToRoomId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Permission", b =>
                 {
                     b.Property<string>("RoleId")
@@ -393,6 +448,28 @@ namespace DaisyForum.BackendServer.Migrations
                     b.ToTable("Reports");
                 });
 
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminId")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("Rooms");
+                });
+
             modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -403,12 +480,18 @@ namespace DaisyForum.BackendServer.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Avatar")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Dob")
                         .HasColumnType("datetime2");
@@ -450,6 +533,9 @@ namespace DaisyForum.BackendServer.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int?>("NumberOfFollowers")
+                        .HasColumnType("int");
 
                     b.Property<int?>("NumberOfKnowledgeBases")
                         .HasColumnType("int");
@@ -647,6 +733,34 @@ namespace DaisyForum.BackendServer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Message", b =>
+                {
+                    b.HasOne("DaisyForum.BackendServer.Data.Entities.User", "FromUser")
+                        .WithMany("Messages")
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("DaisyForum.BackendServer.Data.Entities.Room", "ToRoom")
+                        .WithMany("Messages")
+                        .HasForeignKey("ToRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToRoom");
+                });
+
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Room", b =>
+                {
+                    b.HasOne("DaisyForum.BackendServer.Data.Entities.User", "Admin")
+                        .WithMany("Rooms")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -696,6 +810,18 @@ namespace DaisyForum.BackendServer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.Room", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("DaisyForum.BackendServer.Data.Entities.User", b =>
+                {
+                    b.Navigation("Messages");
+
+                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }

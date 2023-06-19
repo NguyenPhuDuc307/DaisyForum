@@ -14,6 +14,7 @@
 @if (User != null && User.Identity != null && User.Identity.IsAuthenticated)
 {
     <li class="nav-item"><a href="/bai-dang-cua-toi" class="nav-link px-2 text-light">Bài đăng của tôi</a></li>
+    <li class="nav-item"><a href="/followers" class="nav-link px-2 text-light">Theo dõi</a></li>
     <li class="nav-item"><a asp-controller="Account" asp-action="MyProfile" class="nav-link px-2 d-flex text-light">
         <div id="avatar-container" class="me-1"></div>
         @User.Identity.Name

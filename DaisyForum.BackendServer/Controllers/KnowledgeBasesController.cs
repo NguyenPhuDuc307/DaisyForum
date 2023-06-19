@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
-using System.Collections;
-using AutoMapper;
 using Google.Cloud.Language.V1;
+using DaisyForum.ViewModels.Systems;
+using DaisyForum.BackendServer.Models;
 
 namespace DaisyForum.BackendServer.Controllers;
 
@@ -63,6 +63,53 @@ public partial class KnowledgeBasesController : BaseController
         _languageServiceClient = LanguageServiceClient.Create();
     }
 
+    public async Task<UserViewModel?> GetEmailUser(string id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return null;
+
+        var userViewModel = new UserViewModel()
+        {
+            Email = user.Email
+        };
+        return userViewModel;
+    }
+
+    public async Task<string> GetEmailNotification(string userId)
+    {
+        var query = from f in _context.Followers
+                    where f.OwnerUserId == userId && f.Notification == true
+                    select new { f };
+
+        int totalRecords = await query.CountAsync();
+
+        var followers = await query
+            .Select(u => new FollowerViewModel()
+            {
+                FollowerId = u.f.FollowerId,
+                Notification = u.f.Notification
+            }).ToListAsync();
+        var items = new List<FollowerViewModel>();
+        foreach (var follower in followers)
+        {
+            var followerViewModel = new FollowerViewModel()
+            {
+                FollowerId = follower.FollowerId,
+                Notification = follower.Notification
+            };
+
+            followerViewModel.Follower = await GetEmailUser(follower.FollowerId);
+            items.Add(followerViewModel);
+        }
+
+        string emailList = string.Join(",", items
+            .Where(item => item.Follower != null)
+            .Select(item => item.Follower.Email));
+
+        return emailList;
+    }
+
     [HttpPost]
     [ClaimRequirement(FunctionCode.CONTENT_KNOWLEDGE_BASE, CommandCode.CREATE)]
     [ApiValidationFilter]
@@ -72,6 +119,7 @@ public partial class KnowledgeBasesController : BaseController
         _logger.LogInformation("Begin PostKnowledgeBase API");
         KnowledgeBase knowledgeBase = CreateKnowledgeBaseEntity(request);
         knowledgeBase.OwnerUserId = User.GetUserId();
+        var user = await _context.Users.FindAsync(User.GetUserId());
         if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
         {
             knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title != null ? knowledgeBase.Title : "");
@@ -96,6 +144,16 @@ public partial class KnowledgeBasesController : BaseController
         }
 
         var result = await _context.SaveChangesAsync();
+        // var htmlContent = await _viewRenderService.RenderToStringAsync("_RepliedCommentEmail", emailModel);
+        var emailModel = new PostKnowledgeBasesViewModel()
+        {
+            OwnerName = user.FirstName + " " + user.LastName,
+            KnowledgeBaseId = knowledgeBase.Id,
+            KnowledgeBaseTitle = knowledgeBase.Title,
+            KnowledgeBaseSeoAlias = knowledgeBase.SeoAlias
+        };
+        var htmlContent = await _viewRenderService.RenderToStringAsync("_PostKnowledgeBasesEmail", emailModel);
+        await _emailSender.SendEmailAsync(await GetEmailNotification(User.GetUserId()), user.FirstName + " " + user.LastName + " vừa đăng một bài mới.", htmlContent);
 
         if (result > 0)
         {
@@ -259,6 +317,10 @@ public partial class KnowledgeBasesController : BaseController
         var category = await _context.Categories.FindAsync(knowledgeBase.CategoryId);
         if (knowledgeBase == null)
             return NotFound(new ApiNotFoundResponse($"Cannot found category with id: {knowledgeBase.CategoryId}"));
+
+        var user = await _context.Users.FindAsync(knowledgeBase.OwnerUserId);
+        if (user == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {knowledgeBase.OwnerUserId}"));
         var attachments = await _context.Attachments
             .Where(x => x.KnowledgeBaseId == id)
             .Select(x => new AttachmentViewModel()
@@ -272,6 +334,9 @@ public partial class KnowledgeBasesController : BaseController
         var knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
         knowledgeBaseViewModel.CategoryName = category.Name;
         knowledgeBaseViewModel.Attachments = attachments;
+        knowledgeBaseViewModel.Avatar = user.Avatar;
+        knowledgeBaseViewModel.FullName = user.FirstName + " " + user.LastName;
+        knowledgeBaseViewModel.IsProcessed = knowledgeBase.IsProcessed;
 
         return Ok(knowledgeBaseViewModel);
     }
@@ -543,7 +608,10 @@ public partial class KnowledgeBasesController : BaseController
 
     private static void UpdateKnowledgeBase(KnowledgeBaseCreateRequest request, KnowledgeBase knowledgeBase)
     {
-        knowledgeBase.CategoryId = request.CategoryId;
+        if (request.CategoryId != 0)
+        {
+            knowledgeBase.CategoryId = request.CategoryId;
+        }
 
         knowledgeBase.Title = request.Title;
 
