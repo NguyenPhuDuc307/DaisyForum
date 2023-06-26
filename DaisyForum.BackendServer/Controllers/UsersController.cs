@@ -38,15 +38,14 @@ public class UsersController : BaseController
         var listKnowledgeBases = await _context.KnowledgeBases.ToListAsync();
         List<KnowledgeBasesFromCSV> listPost = _mapper.Map<List<KnowledgeBase>, List<KnowledgeBasesFromCSV>>(listKnowledgeBases);
 
+        var listTags = await _context.Labels.ToListAsync();
+
         HashSet<string> setTag = new HashSet<string>();
-        foreach (var post in listPost)
+        foreach (var tag in listTags)
         {
-            if (post.Tags != null && post.Tags.Any())
+            if (tag.Name != null && tag.Name)
             {
-                foreach (var tag in post.Tags)
-                {
-                    setTag.Add(tag);
-                }
+                setTag.Add(tag.Name);
             }
         }
         List<string> listTag = setTag.ToList();
@@ -168,14 +167,14 @@ public class UsersController : BaseController
         List<KnowledgeBasesFromCSV> listPost = _mapper.Map<List<KnowledgeBase>, List<KnowledgeBasesFromCSV>>(listKnowledgeBases);
 
         HashSet<string> setTag = new HashSet<string>();
-        foreach (var post in listPost)
+        var listTags = await _context.Labels.ToListAsync();
+
+        HashSet<string> setTag = new HashSet<string>();
+        foreach (var tag in listTags)
         {
-            if (post.Tags != null && post.Tags.Any())
+            if (tag.Name != null && tag.Name)
             {
-                foreach (var tag in post.Tags)
-                {
-                    setTag.Add(tag);
-                }
+                setTag.Add(tag.Name);
             }
         }
         List<string> listTag = setTag.ToList();
