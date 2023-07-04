@@ -34,8 +34,9 @@ import { CommentsDetailComponent } from './knowledge-bases/comments-detail/comme
 import { CommentsComponent } from './knowledge-bases/comments/comments.component';
 import { ReportsDetailComponent } from './knowledge-bases/reports-detail/reports-detail.component';
 import { ReportsComponent } from './knowledge-bases/reports/reports.component';
-
-
+import { DialogService } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,7 @@ import { ReportsComponent } from './knowledge-bases/reports/reports.component';
     CategoriesDetailComponent,
     CommentsComponent,
     CommentsDetailComponent,
-    ReportsDetailComponent
+    ReportsDetailComponent,
   ],
   imports: [
     CommonModule,
@@ -71,12 +72,15 @@ import { ReportsComponent } from './knowledge-bases/reports/reports.component';
     FileUploadModule,
     EditorModule,
     SharedDirectivesModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    ToastModule
   ],
   providers: [
     NotificationService,
     BsModalService,
-    DatePipe
+    DatePipe,
+    DialogService,
+    MessageService
   ]
 })
 export class ContentsModule { }

@@ -6,4 +6,5 @@ export class Category {
     sortOrder: number;
     parentId?: number;
     numberOfTickets: number;
+    children?: Category[];
 }

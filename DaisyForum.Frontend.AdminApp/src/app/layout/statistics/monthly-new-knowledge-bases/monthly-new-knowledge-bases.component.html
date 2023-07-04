@@ -1,0 +1,53 @@
+<h4 class="text-muted">{{screenTitle}}</h4>
+<div class="animated fadeIn">
+    <p-table #pnl #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
+        [responsive]="true" [scrollable]="true" styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="caption">
+            <div class="d-flex">
+                <span class="p-input-icon-left mr-2">
+                    <i class="pi pi-calendar"></i>
+                    <input class="form-control mr-1" pInputText (keyup.enter)="loadData()" [(ngModel)]="year"
+                        type="number">
+                </span>
+                <p-button styleClass="btn" type="button" label="Tải báo cáo" icon="pi pi-filter"
+                    (click)="loadData()"></p-button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th [pSortableColumn]="'month'">Tháng
+                    <p-sortIcon [field]="'month'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'numberOfNewKnowledgeBases'">Bài mới
+                    <p-sortIcon [field]="'numberOfNewKnowledgeBases'"></p-sortIcon>
+                </th>
+            </tr>
+
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+            <tr [pSelectableRow]="row">
+                <td>
+                    <span class="ui-column-title">Tháng: </span>{{row.month}}
+                </td>
+                <td>
+                    <span class="ui-column-title">Bài mới: </span>{{row.numberOfNewKnowledgeBases | number}}
+                </td>
+
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div style="text-align: left">
+                Tổng: {{totalItems | number}}
+            </div>
+        </ng-template>
+    </p-table>
+    <br>
+    <hr>
+    <label for="" class="text-uppercase text-center">Biểu đồ {{screenTitle}}</label>
+    <p-chart type="bar" [data]="data" [options]="options" height="400"></p-chart>
+
+    <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+        <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+            strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+    </p-blockUI>
+</div>

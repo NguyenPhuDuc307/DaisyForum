@@ -34,9 +34,9 @@ export class ReportsDetailComponent implements OnInit, OnDestroy {
         this.subscription.add(this.reportServices.getDetail(knowledgeBaseId, commentId)
             .subscribe((response: Report) => {
                 this.report = response;
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }));
     }
     ngOnDestroy(): void {

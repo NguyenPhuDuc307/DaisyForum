@@ -76,18 +76,54 @@ public class CategoriesController : BaseController
         {
             query = query.Where(x => x.Name != null && x.Name.Contains(keyword));
         }
+        query = query.Where(x => x.ParentId == null || x.ParentId == 0);
         var totalRecords = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize)
             .Take(pageSize).ToListAsync();
 
-        var data = items.Select(c => CreateCategoryViewModel(c)).ToList();
-
-        var pagination = new Pagination<CategoryViewModel>
+        var data = items.Select(c => new CategoryTreeViewModel
         {
+            Id = c.Id,
+            Name = c.Name,
+            SortOrder = c.SortOrder,
+            ParentId = c.ParentId,
+            NumberOfTickets = c.NumberOfTickets,
+            SeoDescription = c.SeoDescription,
+            SeoAlias = c.SeoAlias,
+            Children = GetChildrenCategories(c.Id)
+        }).OrderBy(x => x.SortOrder).ToList();
+
+        var pagination = new Pagination<CategoryTreeViewModel>
+        {
+            PageIndex = page,
+            PageSize = pageSize,
             Items = data,
             TotalRecords = totalRecords,
         };
         return Ok(pagination);
+    }
+
+    private List<CategoryTreeViewModel>? GetChildrenCategories(int parentId)
+    {
+        var query = _context.Categories.Where(x => x.ParentId == parentId);
+        var items = query.ToList();
+
+        if (items.Count == 0)
+        {
+            return null;
+        }
+
+        return items.Select(c => new CategoryTreeViewModel
+        {
+            Id = c.Id,
+            Name = c.Name,
+            SortOrder = c.SortOrder,
+            ParentId = c.ParentId,
+            NumberOfTickets = c.NumberOfTickets,
+            SeoDescription = c.SeoDescription,
+            SeoAlias = c.SeoAlias,
+            Children = GetChildrenCategories(c.Id)
+        }).ToList();
     }
 
     [HttpGet("{id}")]

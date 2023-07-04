@@ -10,15 +10,23 @@
             <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
 
                 <div class="ui-grid-row">
-                    <div class="ui-grid-col-2">
+                    <div class="ui-grid-col-3">
                         <span class="required">Nội dung:</span>
                     </div>
                     <div class="ui-grid-col-6">
-                        <span>{{comment.content}}</span>
+                        <span [innerHTML]="comment.content"></span>
                     </div>
                 </div>
                 <div class="ui-grid-row">
-                    <div class="ui-grid-col-2">
+                    <div class="ui-grid-col-3">
+                        <span class="required">Mức độ cảm xúc:</span>
+                    </div>
+                    <div class="ui-grid-col-6">
+                        <span>{{comment.navigationScore}} ({{comment.navigation}})</span>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-3">
                         <span class="required">Ngày tạo:</span>
                     </div>
                     <div class="ui-grid-col-6">
@@ -26,7 +34,7 @@
                     </div>
                 </div>
                 <div class="ui-grid-row">
-                    <div class="ui-grid-col-2">
+                    <div class="ui-grid-col-3">
                         <span class="required">Người tạo:</span>
                     </div>
                     <div class="ui-grid-col-6">
@@ -35,8 +43,8 @@
                 </div>
             </div>
             <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                    strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+
+                <p-progressSpinner></p-progressSpinner>
             </p-blockUI>
         </p-panel>
     </div>

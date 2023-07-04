@@ -1,9 +1,48 @@
 var accountController = function () {
     this.initialize = function () {
+        loadLabels();
         registerEvents();
     };
 
+    function loadLabels(pageIndex) {
+        if (pageIndex === undefined) {
+            pageIndex = 1;
+        }
+        var keyword = $('#txt_label').val();
+        $.get(`/account/getLabels?keyword=${keyword}&page=${pageIndex}`)
+            .done(function (response, statusText, xhr) {
+                if (xhr.status === 200) {
+                    const template = $('#tmpl_labels').html();
+
+                    if (response?.items) {
+                        let html = '';
+                        response.items.forEach((item) => {
+                            html += generateLabelHtml(item, template);
+                        });
+                        if (html) {
+                            $('#label_list').html(html);
+                        }
+                        else {
+                            $('#label_list').html('Không tìm thấy nhãn nào cho từ khóa \'' + keyword + '\'');
+                        }
+                    }
+                }
+            });
+    }
+
+    function generateLabelHtml(label, template) {
+        return Mustache.render(template, {
+            name: label.name
+        });
+    }
+
     function registerEvents() {
+
+        $(document).ready(function () {
+            $("#txt_label").on("keyup", function () {
+                loadLabels();
+            });
+        });
 
         $('#btn_add_attachment').off('click').on('click', function () {
             $('#attachment_items').prepend('<p><input type="file" class="form-control" name="attachments" /></p>');
@@ -49,6 +88,28 @@ var accountController = function () {
                     }
                 });
             }
+        });
+
+        $('#frm_follow').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post('/account/follow', form.serialize()).done(function (response) {
+                $('#follower-num').text(response);
+            });
+        });
+        $('#frm_follow .follower-it').click(function () {
+            $('#frm_follow').submit();
+        });
+
+        $('#frm_notification').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post('/account/notification', form.serialize()).done(function (response) {
+                $('#notification-num').text(response);
+            });
+        });
+        $('#frm_notification #notification-it').click(function () {
+            $('#frm_notification').submit();
         });
 
         $("#frm_edit_kb").submit(function (e) {

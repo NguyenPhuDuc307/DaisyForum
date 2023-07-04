@@ -6,11 +6,13 @@ import { Subscription } from 'rxjs';
 import { MessageConstants } from '@app/shared/constants';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Category } from '@app/shared/models';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-categories-detail',
   templateUrl: './categories-detail.component.html',
-  styleUrls: ['./categories-detail.component.scss']
+  styleUrls: ['./categories-detail.component.scss'],
+  providers: [MessageService]
 })
 export class CategoriesDetailComponent implements OnInit, OnDestroy {
 
@@ -19,7 +21,8 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
     private categoriesService: CategoriesService,
     private notificationService: NotificationService,
     private utilitiesService: UtilitiesService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private messageService: MessageService) {
   }
 
   private subscription = new Subscription();
@@ -89,9 +92,9 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
         seoDescription: response.seoDescription,
         sortOrder: response.sortOrder
       });
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
     }));
   }
   public saveChange() {
@@ -102,10 +105,11 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
+          // this.messageService.add({ severity: 'success', summary: '', detail: MessageConstants.UPDATED_OK_MSG });
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     } else {
       this.subscription.add(this.categoriesService.add(this.entityForm.getRawValue())
@@ -113,9 +117,9 @@ export class CategoriesDetailComponent implements OnInit, OnDestroy {
           this.savedEvent.emit(this.entityForm.value);
           this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
           this.btnDisabled = false;
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
         }));
     }
   }

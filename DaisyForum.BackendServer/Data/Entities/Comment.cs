@@ -23,6 +23,9 @@ public class Comment : IDateTracking
     public string? OwnerUserId { get; set; }
 
     public DateTime CreateDate { get; set; }
+
     public DateTime? LastModifiedDate { get; set; }
     public int? ReplyId { get; set; }
+
+    public float NavigationScore { get; set; }
 }

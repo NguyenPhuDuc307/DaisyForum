@@ -31,9 +31,19 @@ public class User : IdentityUser, IDateTracking
 
     [Required]
     public DateTime Dob { get; set; }
+
+    public string? Avatar { get; set; }
+    public string? Description { get; set; }
+
+    [MaxLength(500)]
+    public string? Labels { get; set; }
     public int? NumberOfKnowledgeBases { get; set; }
     public int? NumberOfVotes { get; set; }
     public int? NumberOfReports { get; set; }
+    public int? NumberOfFollowers { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime? LastModifiedDate { get; set; }
+
+    public ICollection<Room>? Rooms { get; set; }
+    public ICollection<Message>? Messages { get; set; }
 }

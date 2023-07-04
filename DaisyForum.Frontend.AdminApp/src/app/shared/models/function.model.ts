@@ -5,4 +5,5 @@ export class Function {
     sortOrder: number;
     parentId: string;
     icon: string;
+    children?: Function[];
 }

@@ -15,6 +15,8 @@ namespace DaisyForum.ViewModels.Contents
         public string? Workaround { get; set; }
         public string? Note { get; set; }
         public string? OwnerUserId { get; set; }
+        public string? FullName { get; set; }
+        public string? Avatar { get; set; }
         public string[]? Labels { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
@@ -22,5 +24,6 @@ namespace DaisyForum.ViewModels.Contents
         public int? NumberOfVotes { get; set; }
         public int? NumberOfReports { get; set; }
         public List<AttachmentViewModel>? Attachments { set; get; }
+        public bool? IsProcessed { get; set; }
     }
 }

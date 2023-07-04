@@ -1,6 +1,6 @@
 @model DaisyForum.ViewModels.Pagination<DaisyForum.ViewModels.Contents.KnowledgeBaseQuickViewModel>
 @{
-    ViewData["Title"] = "Bài viết của bạn";
+    ViewData["Title"] = "Bài viết của tôi";
     Layout = "~/Views/Shared/_SubLayout.cshtml";
 }
 
@@ -8,10 +8,10 @@
 
     <ul class="breadcrumb">
         <li><a href="/">Trang chủ</a><span class="divider">/</span></li>
-        <li class="active">Bài viết của bạn</li>
+        <li class="active">Bài viết của tôi</li>
     </ul>
     <article class=" type-post format-standard hentry clearfix">
-        <h1 class="post-title"><a href="#">Bài đăng của bạn</a></h1>
+        <h1 class="post-title h3">Bài viết của tôi</h1>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -26,12 +26,41 @@
                 @foreach (var item in Model.Items)
                 {
                     <tr>
-                        <td width="40%">@item.Title</td>
+                        <td width="40%">
+                            @{
+                                var url = "/bai-dang/" + item.SeoAlias + "-" + item.Id + "/";
+                            }
+                            <a href="@url">@item.Title</a>
+                        </td>
                         <td>@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
                         <td>@item.CategoryName</td>
                         <td>@item.ViewCount.GetValueOrDefault(0).ToString("N0")</td>
-                        <td><a href="/chinh-sua-bai-dang/@item.Id">Chỉnh sửa</a></td>
+                        <td><a class="text-decoration-none text-success" href="/chinh-sua-bai-dang/@item.Id">Chỉnh sửa</a> |
+                            <a class="text-decoration-none text-danger" href="/chinh-sua-bai-dang/@item.Id"
+                                data-bs-toggle="modal" data-bs-target="#@item.Id-deleteModal">Xóa</a>
+                        </td>
                     </tr>
+
+                    <div class="modal fade" id="@item.Id-deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Bạn có chắc chắn muốn xóa bài viết
+                                    </h5>
+                                </div>
+                                <div class="modal-body">
+                                    @item.Title
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm"
+                                        data-bs-dismiss="modal">Đóng</button>
+                                    <a asp-action="DeleteKnowledgeBases" asp-controller="Account"
+                                        class="btn btn-danger btn-sm" asp-route-id="@item.Id">Xác nhận xóa</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
             </tbody>
             <tfoot>
@@ -44,3 +73,4 @@
         </table>
     </article>
 </div>
+

@@ -44,7 +44,6 @@ export class PermissionsComponent implements OnInit, OnDestroy {
 
     private permissionsService: PermissionsService,
     private rolesService: RolesService,
-    private commandsService: CommandsService,
     private _notificationService: NotificationService,
     private _utilityService: UtilitiesService) {
   }
@@ -113,9 +112,9 @@ export class PermissionsComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this._notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
 
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
   loadData(roleId) {
@@ -127,145 +126,175 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           this.functions = <TreeNode[]>unflattering;
           this.flattenFunctions = response;
           this.fillPermissions(roleId);
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     }
 
   }
+
   checkChanged(checked: boolean, commandId: string, functionId: string, parentId: string) {
     if (commandId === SystemConstants.VIEW_ACTION) {
       if (checked) {
-        this.selectedViews.push(functionId);
+        // Nếu checkbox chưa được chọn thì thêm vào các mảng lựa chọn
+        if (!this.selectedViews.includes(functionId)) {
+          this.selectedViews.push(functionId);
+        }
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
           this.selectedViews.push(...childFunctions);
         } else {
-          if (this.selectedViews.filter(x => x === parentId).length === 0) {
+          if (!this.selectedViews.includes(parentId)) {
             this.selectedViews.push(parentId);
           }
         }
       } else {
+        // Nếu checkbox đã được chọn thì bỏ chọn
         this.selectedViews = this.selectedViews.filter(x => x !== functionId);
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
-          this.selectedViews = this.selectedViews.filter(function (el) {
-            return !childFunctions.includes(el);
-          });
+          this.selectedViews = this.selectedViews.filter(el => !childFunctions.includes(el));
         }
       }
     } else if (commandId === SystemConstants.CREATE_ACTION) {
       if (checked) {
-        this.selectedCreates.push(functionId);
+        // Nếu checkbox chưa được chọn thì thêm vào các mảng lựa chọn
+        if (!this.selectedCreates.includes(functionId)) {
+          this.selectedCreates.push(functionId);
+        }
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
           this.selectedCreates.push(...childFunctions);
         } else {
-          if (this.selectedCreates.filter(x => x === parentId).length === 0) {
+          if (!this.selectedCreates.includes(parentId)) {
             this.selectedCreates.push(parentId);
           }
         }
       } else {
+        // Nếu checkbox đã được chọn thì bỏ chọn
         this.selectedCreates = this.selectedCreates.filter(x => x !== functionId);
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
-          this.selectedCreates = this.selectedCreates.filter(function (el) {
-            return !childFunctions.includes(el);
-          });
+          this.selectedCreates = this.selectedCreates.filter(el => !childFunctions.includes(el));
         }
       }
     } else if (commandId === SystemConstants.UPDATE_ACTION) {
       if (checked) {
-        this.selectedUpdates.push(functionId);
+        // Nếu checkbox chưa được chọn thì thêm vào các mảng lựa chọn
+        if (!this.selectedUpdates.includes(functionId)) {
+          this.selectedUpdates.push(functionId);
+        }
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
           this.selectedUpdates.push(...childFunctions);
         } else {
-          if (this.selectedUpdates.filter(x => x === parentId).length === 0) {
+          if (!this.selectedUpdates.includes(parentId)) {
             this.selectedUpdates.push(parentId);
           }
         }
       } else {
+        // Nếu checkbox đã được chọn thì bỏ chọn
         this.selectedUpdates = this.selectedUpdates.filter(x => x !== functionId);
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
-          this.selectedUpdates = this.selectedUpdates.filter(function (el) {
-            return !childFunctions.includes(el);
-          });
+          this.selectedUpdates = this.selectedUpdates.filter(el => !childFunctions.includes(el));
         }
       }
     } else if (commandId === SystemConstants.DELETE_ACTION) {
       if (checked) {
-        this.selectedDeletes.push(functionId);
+        // Nếu checkbox chưa được chọn thì thêm vào các mảng lựa chọn
+        if (!this.selectedDeletes.includes(functionId)) {
+          this.selectedDeletes.push(functionId);
+        }
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
           this.selectedDeletes.push(...childFunctions);
         } else {
-          if (this.selectedDeletes.filter(x => x === parentId).length === 0) {
+          if (!this.selectedDeletes.includes(parentId)) {
             this.selectedDeletes.push(parentId);
           }
         }
       } else {
+        // Nếu checkbox đã được chọn thì bỏ chọn
         this.selectedDeletes = this.selectedDeletes.filter(x => x !== functionId);
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
-          this.selectedDeletes = this.selectedDeletes.filter(function (el) {
-            return !childFunctions.includes(el);
-          });
+          this.selectedDeletes = this.selectedDeletes.filter(el => !childFunctions.includes(el));
         }
       }
     } else if (commandId === SystemConstants.APPROVE_ACTION) {
       if (checked) {
-        this.selectedApproves.push(functionId);
+        // Nếu checkbox chưa được chọn thì thêm vào các mảng lựa chọn
+        if (!this.selectedApproves.includes(functionId)) {
+          this.selectedApproves.push(functionId);
+        }
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
           this.selectedApproves.push(...childFunctions);
         } else {
-          if (this.selectedApproves.filter(x => x === parentId).length === 0) {
+          if (!this.selectedApproves.includes(parentId)) {
             this.selectedApproves.push(parentId);
           }
         }
       } else {
+        // Nếu checkbox đã được chọn thì bỏ chọn
         this.selectedApproves = this.selectedApproves.filter(x => x !== functionId);
         if (parentId === null) {
           const childFunctions = this.flattenFunctions.filter(x => x.parentId === functionId).map(x => x.id);
-          this.selectedApproves = this.selectedApproves.filter(function (el) {
-            return !childFunctions.includes(el);
-          });
+          this.selectedApproves = this.selectedApproves.filter(el => !childFunctions.includes(el));
         }
       }
     }
-
   }
+
+  clearSelections() {
+    // Đặt lại tất cả các mảng lựa chọn thành rỗng
+    this.selectedViews = [];
+    this.selectedCreates = [];
+    this.selectedUpdates = [];
+    this.selectedDeletes = [];
+    this.selectedApproves = [];
+  }
+
+
   selectAll(checked: boolean, uniqueCode: string) {
     if (uniqueCode === SystemConstants.VIEW_ACTION) {
-      this.selectedViews = [];
       if (checked) {
-        this.selectedViews.push(...this.flattenFunctions.map(x => x.id));
+        // Nếu checkbox chưa được chọn, thêm tất cả các ID vào mảng lựa chọn
+        this.selectedViews = this.flattenFunctions.map(x => x.id);
+      } else {
+        // Nếu checkbox đã được chọn, bỏ chọn tất cả các ID
+        this.selectedViews = [];
       }
     } else if (uniqueCode === SystemConstants.CREATE_ACTION) {
-      this.selectedCreates = [];
       if (checked) {
-        this.selectedCreates.push(...this.flattenFunctions.map(x => x.id));
+        // Tương tự cho các checkbox khác
+        this.selectedCreates = this.flattenFunctions.map(x => x.id);
+      } else {
+        this.selectedCreates = [];
       }
     } else if (uniqueCode === SystemConstants.UPDATE_ACTION) {
-      this.selectedUpdates = [];
       if (checked) {
-        this.selectedUpdates.push(...this.flattenFunctions.map(x => x.id));
+        this.selectedUpdates = this.flattenFunctions.map(x => x.id);
+      } else {
+        this.selectedUpdates = [];
       }
     } else if (uniqueCode === SystemConstants.DELETE_ACTION) {
-      this.selectedDeletes = [];
       if (checked) {
-        this.selectedDeletes.push(...this.flattenFunctions.map(x => x.id));
+        this.selectedDeletes = this.flattenFunctions.map(x => x.id);
+      } else {
+        this.selectedDeletes = [];
       }
     } else if (uniqueCode === SystemConstants.APPROVE_ACTION) {
-      this.selectedApproves = [];
       if (checked) {
-        this.selectedApproves.push(...this.flattenFunctions.map(x => x.id));
+        this.selectedApproves = this.flattenFunctions.map(x => x.id);
+      } else {
+        this.selectedApproves = [];
       }
     }
   }
+
   fillPermissions(roleId: any) {
     this.blockedPanel = true;
     this.subscription.add(this.rolesService.getRolePermissions(roleId)
@@ -291,19 +320,20 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           if (element.commandId === SystemConstants.APPROVE_ACTION) {
             this.selectedApproves.push(element.functionId);
           }
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         });
 
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
+
   loadAllRoles() {
     this.blockedPanel = true;
     this.subscription.add(this.rolesService.getAll()
       .subscribe((response: any) => {
         this.roles = response;
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
   }
 

@@ -32,13 +32,24 @@ export class CommentsDetailComponent implements OnInit, OnDestroy {
         this.blockedPanel = true;
         this.subscription.add(this.commentsService.getDetail(knowledgeBaseId, commentId)
             .subscribe((response: Comment) => {
-                this.comment = response;
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                this.comment = mapNavigation(response);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; this.btnDisabled = false; }, 100);
             }));
     }
     ngOnDestroy(): void {
         this.subscription.unsubscribe();
     }
+}
+
+function mapNavigation(comment: Comment): Comment {
+    if (comment.navigationScore > 0.3) {
+        comment.navigation = "Tích cực";
+    } else if (comment.navigationScore < -0.3) {
+        comment.navigation = "Tiêu cực";
+    } else {
+        comment.navigation = "Trung tính";
+    }
+    return comment;
 }

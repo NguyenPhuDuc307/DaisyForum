@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using Google.Cloud.Language.V1;
+using DaisyForum.ViewModels.Systems;
+using DaisyForum.BackendServer.Models;
 
 namespace DaisyForum.BackendServer.Controllers;
 
@@ -25,6 +28,8 @@ public partial class KnowledgeBasesController : BaseController
     private readonly IViewRenderService _viewRenderService;
     private readonly ICacheService _cacheService;
     private readonly IOneSignalService _oneSignalService;
+    private readonly IContentBasedService _cSVService;
+    private readonly LanguageServiceClient _languageServiceClient;
 
     public KnowledgeBasesController(ApplicationDbContext context,
             ISequenceService sequenceService,
@@ -33,7 +38,8 @@ public partial class KnowledgeBasesController : BaseController
             IEmailSender emailSender,
             IViewRenderService viewRenderService,
             ICacheService cacheService,
-            IOneSignalService oneSignalService)
+            IOneSignalService oneSignalService,
+            IContentBasedService cSVService)
     {
         _context = context;
         _sequenceService = sequenceService;
@@ -43,6 +49,65 @@ public partial class KnowledgeBasesController : BaseController
         _viewRenderService = viewRenderService;
         _cacheService = cacheService;
         _oneSignalService = oneSignalService;
+        _cSVService = cSVService;
+
+        var credentialsPath = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS");
+
+        if (string.IsNullOrEmpty(credentialsPath))
+        {
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            var filePath = Path.Combine(basePath, "google-natural-language.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filePath);
+        }
+
+        _languageServiceClient = LanguageServiceClient.Create();
+    }
+
+    public async Task<UserViewModel?> GetEmailUser(string id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return null;
+
+        var userViewModel = new UserViewModel()
+        {
+            Email = user.Email
+        };
+        return userViewModel;
+    }
+
+    public async Task<string> GetEmailNotification(string userId)
+    {
+        var query = from f in _context.Followers
+                    where f.OwnerUserId == userId && f.Notification == true
+                    select new { f };
+
+        int totalRecords = await query.CountAsync();
+
+        var followers = await query
+            .Select(u => new FollowerViewModel()
+            {
+                FollowerId = u.f.FollowerId,
+                Notification = u.f.Notification
+            }).ToListAsync();
+        var items = new List<FollowerViewModel>();
+        foreach (var follower in followers)
+        {
+            var followerViewModel = new FollowerViewModel()
+            {
+                FollowerId = follower.FollowerId,
+                Notification = follower.Notification
+            };
+
+            followerViewModel.Follower = await GetEmailUser(follower.FollowerId);
+            items.Add(followerViewModel);
+        }
+
+        string emailList = string.Join(",", items
+            .Where(item => item.Follower != null)
+            .Select(item => item.Follower.Email));
+
+        return emailList;
     }
 
     [HttpPost]
@@ -54,6 +119,7 @@ public partial class KnowledgeBasesController : BaseController
         _logger.LogInformation("Begin PostKnowledgeBase API");
         KnowledgeBase knowledgeBase = CreateKnowledgeBaseEntity(request);
         knowledgeBase.OwnerUserId = User.GetUserId();
+        var user = await _context.Users.FindAsync(User.GetUserId());
         if (string.IsNullOrEmpty(knowledgeBase.SeoAlias))
         {
             knowledgeBase.SeoAlias = TextHelper.ToUnsignedString(knowledgeBase.Title != null ? knowledgeBase.Title : "");
@@ -78,6 +144,16 @@ public partial class KnowledgeBasesController : BaseController
         }
 
         var result = await _context.SaveChangesAsync();
+        // var htmlContent = await _viewRenderService.RenderToStringAsync("_RepliedCommentEmail", emailModel);
+        var emailModel = new PostKnowledgeBasesViewModel()
+        {
+            OwnerName = user.FirstName + " " + user.LastName,
+            KnowledgeBaseId = knowledgeBase.Id,
+            KnowledgeBaseTitle = knowledgeBase.Title,
+            KnowledgeBaseSeoAlias = knowledgeBase.SeoAlias
+        };
+        var htmlContent = await _viewRenderService.RenderToStringAsync("_PostKnowledgeBasesEmail", emailModel);
+        await _emailSender.SendEmailAsync(await GetEmailNotification(User.GetUserId()), user.FirstName + " " + user.LastName + " vừa đăng một bài mới.", htmlContent);
 
         if (result > 0)
         {
@@ -111,7 +187,8 @@ public partial class KnowledgeBasesController : BaseController
             CategoryId = u.CategoryId,
             Description = u.Description,
             SeoAlias = u.SeoAlias,
-            Title = u.Title
+            Title = u.Title,
+            IsProcessed = u.IsProcessed
         }).ToListAsync();
 
         return Ok(knowledgeBaseViewModels);
@@ -146,7 +223,9 @@ public partial class KnowledgeBasesController : BaseController
                 CategoryName = u.c.Name,
                 NumberOfVotes = u.k.NumberOfVotes,
                 CreateDate = u.k.CreateDate,
-                NumberOfComments = u.k.NumberOfComments
+                NumberOfComments = u.k.NumberOfComments,
+                NumberOfReports = u.k.NumberOfReports,
+                IsProcessed = u.k.IsProcessed
             })
             .ToListAsync();
 
@@ -184,6 +263,7 @@ public partial class KnowledgeBasesController : BaseController
                     CategoryName = u.c.Name,
                     NumberOfVotes = u.k.NumberOfVotes,
                     CreateDate = u.k.CreateDate,
+                    IsProcessed = u.k.IsProcessed,
                     Labels = TextHelper.Split(u.k.Labels, ",")
                 }).ToListAsync();
             await _cacheService.SetAsync(CacheConstants.LatestKnowledgeBases, knowledgeBaseViewModels, 2);
@@ -217,6 +297,7 @@ public partial class KnowledgeBasesController : BaseController
                     CategoryName = u.c.Name,
                     NumberOfVotes = u.k.NumberOfVotes,
                     CreateDate = u.k.CreateDate,
+                    IsProcessed = u.k.IsProcessed,
                     Labels = TextHelper.Split(u.k.Labels, ",")
                 }).ToListAsync();
             await _cacheService.SetAsync(CacheConstants.PopularKnowledgeBases, knowledgeBasedViewModels, 24);
@@ -236,6 +317,10 @@ public partial class KnowledgeBasesController : BaseController
         var category = await _context.Categories.FindAsync(knowledgeBase.CategoryId);
         if (knowledgeBase == null)
             return NotFound(new ApiNotFoundResponse($"Cannot found category with id: {knowledgeBase.CategoryId}"));
+
+        var user = await _context.Users.FindAsync(knowledgeBase.OwnerUserId);
+        if (user == null)
+            return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {knowledgeBase.OwnerUserId}"));
         var attachments = await _context.Attachments
             .Where(x => x.KnowledgeBaseId == id)
             .Select(x => new AttachmentViewModel()
@@ -249,6 +334,9 @@ public partial class KnowledgeBasesController : BaseController
         var knowledgeBaseViewModel = CreateKnowledgeBaseViewModel(knowledgeBase);
         knowledgeBaseViewModel.CategoryName = category.Name;
         knowledgeBaseViewModel.Attachments = attachments;
+        knowledgeBaseViewModel.Avatar = user.Avatar;
+        knowledgeBaseViewModel.FullName = user.FirstName + " " + user.LastName;
+        knowledgeBaseViewModel.IsProcessed = knowledgeBase.IsProcessed;
 
         return Ok(knowledgeBaseViewModel);
     }
@@ -316,7 +404,8 @@ public partial class KnowledgeBasesController : BaseController
                 CategoryName = u.c.Name,
                 NumberOfVotes = u.k.NumberOfVotes,
                 CreateDate = u.k.CreateDate,
-                NumberOfComments = u.k.NumberOfComments
+                NumberOfComments = u.k.NumberOfComments,
+                IsProcessed = u.k.IsProcessed
             })
             .ToListAsync();
 
@@ -430,6 +519,8 @@ public partial class KnowledgeBasesController : BaseController
             NumberOfVotes = knowledgeBase.NumberOfVotes,
 
             NumberOfReports = knowledgeBase.NumberOfReports,
+
+            IsProcessed = knowledgeBase.IsProcessed
         };
     }
 
@@ -455,7 +546,9 @@ public partial class KnowledgeBasesController : BaseController
 
             Workaround = request.Workaround,
 
-            Note = request.Note
+            Note = request.Note,
+
+            IsProcessed = false
         };
         if (request.Labels?.Length > 0)
         {
@@ -515,7 +608,10 @@ public partial class KnowledgeBasesController : BaseController
 
     private static void UpdateKnowledgeBase(KnowledgeBaseCreateRequest request, KnowledgeBase knowledgeBase)
     {
-        knowledgeBase.CategoryId = request.CategoryId;
+        if (request.CategoryId != 0)
+        {
+            knowledgeBase.CategoryId = request.CategoryId;
+        }
 
         knowledgeBase.Title = request.Title;
 
@@ -537,6 +633,11 @@ public partial class KnowledgeBasesController : BaseController
         knowledgeBase.Workaround = request.Workaround;
 
         knowledgeBase.Note = request.Note;
+
+        if (request.IsProcessed != null)
+        {
+            knowledgeBase.IsProcessed = request.IsProcessed;
+        }
 
         if (request.Labels != null)
         {

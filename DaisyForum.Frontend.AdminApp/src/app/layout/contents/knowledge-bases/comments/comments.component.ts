@@ -18,6 +18,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
     public bsModalRef: BsModalRef;
     public blockedPanel = false;
     public entityId: number;
+    public screenTitle: string;
     /**
      * Paging
      */
@@ -42,17 +43,27 @@ export class CommentsComponent implements OnInit, OnDestroy {
     }
 
     loadData(selectedId = null) {
-        this.blockedPanel = true;
+        // this.blockedPanel = true;
         this.subscription.add(this.commentsService.getAllPaging(this.entityId, this.keyword, this.pageIndex, this.pageSize)
             .subscribe((response: Pagination<Comment>) => {
                 this.processLoadData(selectedId, response);
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             }, error => {
-                setTimeout(() => { this.blockedPanel = false; }, 1000);
+                setTimeout(() => { this.blockedPanel = false; }, 100);
             }));
     }
+
     private processLoadData(selectedId = null, response: Pagination<Comment>) {
-        this.items = response.items;
+        const now = new Date(); // Lấy thời điểm hiện tại
+        const comments = response.items.map(comment => {
+            const timeDiff = now.getTime() - new Date(comment.createDate).getTime();
+            const timeDiffString = this.getTimeDiffString(timeDiff);
+            return {
+                ...mapNavigation(comment),
+                timeDiff: timeDiffString
+            };
+        });
+        this.items = comments;
         this.pageIndex = this.pageIndex;
         this.pageSize = this.pageSize;
         this.totalRecords = response.totalRecords;
@@ -63,6 +74,28 @@ export class CommentsComponent implements OnInit, OnDestroy {
             this.selectedItems = this.items.filter(x => x.Id === selectedId);
         }
     }
+
+    private getTimeDiffString(timeDiff: number): string {
+        const seconds = Math.floor(timeDiff / 1000);
+        if (seconds < 60) {
+            return 'khoảng vài giây trước';
+        }
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) {
+            return `khoảng ${minutes} phút trước`;
+        }
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) {
+            return `khoảng ${hours} giờ trước`;
+        }
+        const days = Math.floor(hours / 24);
+        if (days < 7) {
+            return `khoảng ${days} ngày trước`;
+        }
+        const weeks = Math.floor(days / 7);
+        return `khoảng ${weeks} tuần trước`;
+    }
+
     pageChanged(event: any): void {
         this.pageIndex = event.page + 1;
         this.pageSize = event.rows;
@@ -94,14 +127,14 @@ export class CommentsComponent implements OnInit, OnDestroy {
             () => this.deleteItemsConfirm(commentId, knowledgeBaseId));
     }
     deleteItemsConfirm(commentId, knowledgeBaseId) {
-        this.blockedPanel = true;
+        // this.blockedPanel = true;
         this.subscription.add(this.commentsService.delete(knowledgeBaseId, commentId).subscribe(() => {
             this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
             this.loadData();
             this.selectedItems = [];
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         }, error => {
-            setTimeout(() => { this.blockedPanel = false; }, 1000);
+            setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     }
 
@@ -109,3 +142,15 @@ export class CommentsComponent implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 }
+
+function mapNavigation(comment: Comment): Comment {
+    if (comment.navigationScore >= 0.3) {
+        comment.navigation = "Tích cực";
+    } else if (comment.navigationScore <= -0.3) {
+        comment.navigation = "Tiêu cực";
+    } else {
+        comment.navigation = "Trung tính";
+    }
+    return comment;
+}
+

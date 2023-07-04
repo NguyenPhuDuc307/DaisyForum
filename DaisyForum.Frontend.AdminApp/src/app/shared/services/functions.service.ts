@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BaseService } from './base.service';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '@environments/environment';
 import { Function, Pagination, CommandAssign } from '../models';
+import { Observable } from 'rxjs';
+import { TreeNode } from 'primeng/api';
 
 @Injectable({ providedIn: 'root' })
 export class FunctionsService extends BaseService {
@@ -34,13 +36,29 @@ export class FunctionsService extends BaseService {
             );
     }
 
-    getAll() {
-        return this.http.get<Function[]>(`${environment.apiUrl}/api/functions`, { headers: this._sharedHeaders })
-            .pipe(map((response: Function[]) => {
-                return response;
-            }), catchError(this.handleError));
+    getAll(): Observable<TreeNode[]> {
+        return this.http.get<Function[]>(`${environment.apiUrl}/api/functions/`, { headers: this._sharedHeaders })
+            .pipe(
+                map((response: Function[]) => {
+                    return response;
+                }),
+                catchError(this.handleError)
+            );
     }
 
+    getAllPaging(filter: string, pageIndex: number, pageSize: number): Observable<TreeNode[]> {
+        const params = new HttpParams()
+            .set('pageIndex', pageIndex.toString())
+            .set('pageSize', pageSize.toString())
+            .set('filter', filter);
+        return this.http.get<Function[]>(`${environment.apiUrl}/api/functions/filter`, { params, headers: this._sharedHeaders })
+            .pipe(
+                map((response: Function[]) => {
+                    return response;
+                }),
+                catchError(this.handleError)
+            );
+    }
 
     getAllByParentId(parentId) {
         let url = '';

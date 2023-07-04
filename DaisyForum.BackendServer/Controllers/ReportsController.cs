@@ -18,7 +18,9 @@ public partial class KnowledgeBasesController
         var query = from r in _context.Reports
                     join u in _context.Users
                         on r.ReportUserId equals u.Id
-                    select new { r, u };
+                    join k in _context.KnowledgeBases
+                    on r.KnowledgeBaseId equals k.Id
+                    select new { r, u, k };
         if (knowledgeBaseId.HasValue)
         {
             query = query.Where(x => x.r.KnowledgeBaseId == knowledgeBaseId.Value);
@@ -40,7 +42,8 @@ public partial class KnowledgeBasesController
                 LastModifiedDate = c.r.LastModifiedDate,
                 IsProcessed = false,
                 ReportUserId = c.r.ReportUserId,
-                ReportUserName = c.u.FirstName + " " + c.u.LastName
+                ReportUserName = c.u.FirstName + " " + c.u.LastName,
+                KnowledgeTitle = c.k.Title
             })
             .ToListAsync();
 

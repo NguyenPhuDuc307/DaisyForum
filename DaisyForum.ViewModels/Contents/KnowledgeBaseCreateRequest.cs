@@ -41,5 +41,7 @@ namespace DaisyForum.ViewModels.Contents
 
         [Display(Name = "Tệp đính kèm")]
         public List<IFormFile>? Attachments { get; set; }
+        public bool? IsProcessed { get; set; }
+        public List<TreeNode>? TreeNodes { get; set; }
     }
 }

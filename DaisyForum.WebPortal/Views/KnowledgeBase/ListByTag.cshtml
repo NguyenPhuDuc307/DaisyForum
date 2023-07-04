@@ -5,6 +5,24 @@
     ViewData["Title"] = Model.LabelVm.Name + suffixPage;
     ViewData["Description"] = "Các bài viết liên quan đến thẻ " + Model.LabelVm.Name + suffixPage;
 }
+
+<style>
+    .isolate {
+        max-height: calc(1.2em * 5);
+        /* Chiều cao tối đa của 5 dòng văn bản */
+        overflow: hidden;
+        /* Ẩn nội dung vượt quá chiều cao tối đa */
+        text-overflow: ellipsis;
+        /* Thêm dấu "..." vào cuối nội dung bị ẩn */
+        display: -webkit-box;
+        /* Sử dụng các thuộc tính tương thích với trình duyệt Safari */
+        -webkit-line-clamp: 5;
+        /* Giới hạn số dòng hiển thị là 5 */
+        -webkit-box-orient: vertical;
+        /* Hiển thị các dòng theo chiều dọc */
+    }
+</style>
+
 <!-- start of page content -->
 <ul class="list-group list-group-flush">
     @foreach (var item in Model.Data.Items)
@@ -14,30 +32,30 @@
 
 
             <label class="post-title h4">
-                <a href="@url">@Html.Raw(item.Title)</a>
+                <a class="text-decoration-none text-light-emphasis" href="@url">@item.Title</a>
             </label>
 
             <div class="d-flex">
                 <span class="d-block opacity-50 me-2">@item.CreateDate.ToString("dd/MM/yyyy")
                     trong
                 </span>
-                <span class="me-3"><a href="/tag/@item.SeoAlias-@item.Id"
+                <span class="me-3"><a class="text-decoration-none" href="/danh-muc/@item.CategoryAlias-@item.CategoryId"
                         title="Xem tất cả bài viết trong @item.CategoryName">@item.CategoryName</a></span>
 
                 <a href="@url" style="width: fit-content"
-                    class="me-2 badge d-flex align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill">
+                    class="me-2 badge d-flex align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle rounded-pill text-decoration-none">
                     <i class="bi bi-chat-quote-fill me-1"></i>Bình luận
                     @item.NumberOfComments.GetValueOrDefault(0).ToString("N0")
                 </a>
 
                 <a href="@url" style="width: fit-content"
-                    class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                    class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill text-decoration-none">
                     <i class="bi bi-hand-thumbs-up-fill me-1"></i>Thích
                     @item.NumberOfVotes.GetValueOrDefault(0).ToString("N0")
                 </a>
             </div>
             <p>
-                @item.Description
+                @Html.Raw(item.Description)
             </p>
         </li>
     }
