@@ -42,16 +42,29 @@ public class ApplicationDbContext : IdentityDbContext<User>
         builder.Entity<User>().Property(x => x.Id).HasMaxLength(50).IsUnicode(false);
 
         builder.Entity<LabelInKnowledgeBase>()
-                    .HasKey(c => new { c.LabelId, c.KnowledgeBaseId });
+                .HasKey(c => new { c.LabelId, c.KnowledgeBaseId });
 
         builder.Entity<Permission>()
-                   .HasKey(c => new { c.RoleId, c.FunctionId, c.CommandId });
+                .HasKey(c => new { c.RoleId, c.FunctionId, c.CommandId });
 
         builder.Entity<Vote>()
-                    .HasKey(c => new { c.KnowledgeBaseId, c.UserId });
+                .HasKey(c => new { c.KnowledgeBaseId, c.UserId });
 
         builder.Entity<CommandInFunction>()
-                   .HasKey(c => new { c.CommandId, c.FunctionId });
+                .HasKey(c => new { c.CommandId, c.FunctionId });
+
+        builder.Entity<Room>().HasOne(s => s.Admin)
+                .WithMany(u => u.Rooms)
+                .IsRequired();
+
+        builder.Entity<Message>()
+                .HasOne(s => s.ToRoom)
+                .WithMany(m => m.Messages)
+                .HasForeignKey(s => s.ToRoomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Follower>()
+                        .HasKey(c => new { c.OwnerUserId, c.FollowerId });
 
         builder.HasSequence("Daisy_Forum_Seq");
     }
@@ -69,4 +82,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Report> Reports { set; get; } = default!;
     public DbSet<Vote> Votes { set; get; } = default!;
     public DbSet<Attachment> Attachments { get; set; } = default!;
+    public DbSet<Room> Rooms { get; set; } = default!;
+    public DbSet<Message> Messages { get; set; } = default!;
+    public DbSet<Follower> Followers { get; set; } = default!;
 }

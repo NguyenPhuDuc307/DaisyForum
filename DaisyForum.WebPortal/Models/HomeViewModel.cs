@@ -6,6 +6,7 @@ namespace DaisyForum.WebPortal.Models
     {
         public List<KnowledgeBaseQuickViewModel>? LatestKnowledgeBases { get; set; }
         public List<KnowledgeBaseQuickViewModel>? PopularKnowledgeBases { get; set; }
+        public List<KnowledgeBaseQuickViewModel>? SuggestedKnowledgeBases { get; set; }
         public List<LabelViewModel>? PopularLabels { get; set; }
     }
 }

@@ -1,17 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MessageConstants } from '@app/shared/constants';
 import { CategoriesDetailComponent } from './categories-detail/categories-detail.component';
 import { CategoriesService, NotificationService, UtilitiesService } from '@app/shared/services';
-import { Pagination, Category } from '@app/shared/models';
+import { Category } from '@app/shared/models';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
 import { BaseComponent } from '@app/layout/base/base.component';
 import { TreeNode } from 'primeng/api/treenode';
+import { Paginator } from 'primeng/paginator';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-categories',
   templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.css']
+  styleUrls: ['./categories.component.css'],
+  providers: [MessageService]
 })
 export class CategoriesComponent extends BaseComponent implements OnInit, OnDestroy {
 
@@ -23,19 +26,24 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
   /**
    * Paging
    */
-  public pageIndex = 1;
-  public pageSize = 10;
-  public pageDisplay = 10;
+  public page: number = 0;
+  public rows: number = 10;
   public totalRecords: number;
   public keyword = '';
   // Role
-  public items: any[];
-  public selectedItems = [];
+  public items: TreeNode[];
+  public selectedItems: TreeNode[];
+  public selection: TreeNode[] = []; // thêm biến selection
+
+  @ViewChild('paginator') paginator: Paginator;
+
   constructor(private categoriesService: CategoriesService,
     private notificationService: NotificationService,
     private modalService: BsModalService,
-    private utilitiesService: UtilitiesService) {
+    private utilitiesService: UtilitiesService,
+    private messageService: MessageService) {
     super('CONTENT_CATEGORY');
+    this.selectedItems = [];
   }
 
   ngOnInit(): void {
@@ -43,30 +51,44 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
     this.loadData();
   }
 
-
-  loadData(selectedId = null) {
+  loadData() {
     this.blockedPanel = true;
-    this.categoriesService.getAll()
+    this.categoriesService.getAllPaging(this.keyword, this.page, this.rows)
       .subscribe((response: any) => {
-        const functionTree = this.utilitiesService.UnflatteringForTree(response);
-        this.items = <TreeNode[]>functionTree;
+        const categories: Category[] = response.items;
+        const treeNodes: TreeNode[] = categories.map(category => this.utilitiesService.convertToTreeNode(category));
+        this.items = treeNodes;
+
         if (this.selectedItems.length === 0 && this.items.length > 0) {
           this.selectedItems.push(this.items[0]);
         }
-        // Nếu có là sửa thì chọn selection theo Id
-        if (selectedId != null && this.items.length > 0) {
-          this.selectedItems = this.items.filter(x => x.data.id == selectedId);
-        }
 
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        this.totalRecords = response.totalRecords;
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       });
   }
 
+  nodeSelect(event) {
+    this.selection = [];
+    this.selection.push(event.node);
+    //this.propagateSelectionDown(event.node, true);
+    this.selectedItems = this.selection;
+  }
+
+  nodeUnSelect(event) {
+    const index = this.selection.findIndex(node => node.key === event.node.key);
+    if (index !== -1) {
+      this.selection.splice(index, 1);
+      // this.propagateSelectionDown(event.node, false);
+      this.selectedItems = this.selection;
+    }
+  }
+
   pageChanged(event: any): void {
-    this.pageIndex = event.page + 1;
-    this.pageSize = event.rows;
+    this.page = event.page;
+    this.rows = event.rows;
     this.loadData();
   }
 
@@ -82,13 +104,14 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
       this.selectedItems = [];
     });
   }
+
   showEditModal() {
     if (this.selectedItems.length === 0) {
       this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
       return;
     }
     const initialState = {
-      entityId: this.selectedItems[0].id
+      entityId: this.selectedItems[0]?.data?.id
     };
     this.bsModalRef = this.modalService.show(CategoriesDetailComponent,
       {
@@ -99,7 +122,7 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
 
     this.subscription.add(this.bsModalRef.content.savedEvent.subscribe((response) => {
       this.bsModalRef.hide();
-      this.loadData(response.id);
+      this.loadData();
     }));
   }
 
@@ -108,7 +131,7 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
       this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
       return;
     }
-    const id = this.selectedItems[0].id;
+    const id = this.selectedItems[0].data.id;
     this.notificationService.showConfirmation(MessageConstants.CONFIRM_DELETE_MSG,
       () => this.deleteItemsConfirm(id));
   }
@@ -119,13 +142,32 @@ export class CategoriesComponent extends BaseComponent implements OnInit, OnDest
       this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
       this.loadData();
       this.selectedItems = [];
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     });
   }
 
-  ngOnDestroy(): void {
+  /**
+   * Đoạn code để sửa lỗi
+   * PhƯơng thức nodeSelect() và nodeUnSelect() trước khi sử dụng Paginator
+   */
+  propagateSelectionDown(node: TreeNode, isSelected: boolean) {
+    node.children?.forEach(childNode => {
+      this.propagateSelectionDown(childNode, isSelected);
+      if (isSelected) {
+        this.selection.push(childNode);
+      } else {
+        const index = this.selection.findIndex(node => node.key === childNode.key);
+        if (index !== -1) {
+          this.selection.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  ngOnDestroy() {
     this.subscription.unsubscribe();
   }
+
 }

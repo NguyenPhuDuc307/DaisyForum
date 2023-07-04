@@ -1,48 +1,73 @@
-<p>{{screenTitle}}</p>
+<h4 class="text-muted">{{screenTitle}}</h4>
 <div class="animated fadeIn">
-    <p-panel #pnl [style]="{'margin-bottom':'10px'}">
-        <p-header>
-            <div class="ui-g-6">
-                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="year" type="number">
+    <p-table #pnl #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
+        [responsive]="true" [scrollable]="true" styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="caption">
+            <div class="d-flex">
+                <span class="p-input-icon-left mr-2">
+                    <i class="pi pi-calendar"></i>
+                    <input class="form-control mr-1" pInputText (keyup.enter)="loadData()" [(ngModel)]="year"
+                        type="number">
+                </span>
+                <p-button styleClass="btn" type="button" label="Tải báo cáo" icon="pi pi-filter"
+                    (click)="loadData()"></p-button>
             </div>
-            <div class="ui-g-6">
-                <button pButton type="button" label="Tải báo cáo" icon="fa fa-plus" (click)="loadData()"></button>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th [pSortableColumn]="'month'">Tháng
+                    <p-sortIcon [field]="'month'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'numberOfComments'">Bình luận
+                    <p-sortIcon [field]="'numberOfComments'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'numberOfPositiveComments'">Bình luận tích cực
+                    <p-sortIcon [field]="'numberOfPositiveComments'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'numberOfNeutralComments'">Bình luận trung tính
+                    <p-sortIcon [field]="'numberOfNeutralComments'"></p-sortIcon>
+                </th>
+                <th [pSortableColumn]="'numberOfNegativeComments'">Bình luận tiêu cực
+                    <p-sortIcon [field]="'numberOfNegativeComments'"></p-sortIcon>
+                </th>
+            </tr>
+
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+            <tr [pSelectableRow]="row">
+                <td>
+                    <span class="ui-column-title">Tháng: </span>{{row.month}}
+                </td>
+                <td>
+                    <span class="ui-column-title">Số bình luận: </span>{{row.numberOfComments | number}}
+                </td>
+                <td>
+                    <span class="ui-column-title">Số bình luận tích cực: </span>{{row.numberOfPositiveComments |
+                    number}}
+                </td>
+                <td>
+                    <span class="ui-column-title">Số bình luận trung tính: </span>{{row.numberOfNeutralComments |
+                    number}}
+                </td>
+                <td>
+                    <span class="ui-column-title">Số bình luận tiêu cực: </span>{{row.numberOfNegativeComments |
+                    number}}
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div style="text-align: left">
+                Tổng: {{totalItems | number}}
             </div>
-        </p-header>
-        <p-table #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
-            [responsive]="true" [scrollable]="true">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th [pSortableColumn]="'month'">Tháng
-                        <p-sortIcon [field]="'month'"></p-sortIcon>
-                    </th>
-                    <th [pSortableColumn]="'numberOfComments'">Bình luận
-                        <p-sortIcon [field]="'numberOfComments'"></p-sortIcon>
-                    </th>
-                </tr>
+        </ng-template>
+    </p-table>
+    <br>
+    <hr>
+    <label for="" class="text-uppercase text-center">Biểu đồ {{screenTitle}}</label>
+    <p-chart type="bar" [data]="data" [options]="options" height="400"></p-chart>
 
-            </ng-template>
-            <ng-template pTemplate="body" let-row>
-                <tr [pSelectableRow]="row">
-                    <td>
-                        <span class="ui-column-title">Tháng</span>{{row.month}}
-                    </td>
-                    <td>
-                        <span class="ui-column-title">Số bình luận</span>{{row.numberOfComments | number}}
-                    </td>
-
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="summary">
-                <div style="text-align: left">
-                    Tổng: {{totalItems | number}}
-                </div>
-            </ng-template>
-        </p-table>
-
-        <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-            <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
-        </p-blockUI>
-    </p-panel>
+    <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+        <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+            strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+    </p-blockUI>
 </div>

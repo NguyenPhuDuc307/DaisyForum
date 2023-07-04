@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using DaisyForum.ViewModels.Contents.Validators;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Builder;
+using DaisyForum.WebPortal.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -19,11 +19,11 @@ services.AddHttpClient("BackendApi").ConfigurePrimaryHttpMessageHandler(() =>
     var handler = new HttpClientHandler();
     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-    //if (environment == Environments.Development)
-    //{
-    //    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-    //}
-    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    if (environment == Environments.Development)
+    {
+        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+    }
+    // handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
     return handler;
 });
 services.AddSession(options =>
@@ -158,6 +158,9 @@ services.AddTransient<ICategoryApiClient, CategoryApiClient>();
 services.AddTransient<IKnowledgeBaseApiClient, KnowledgeBaseApiClient>();
 services.AddTransient<ILabelApiClient, LabelApiClient>();
 services.AddTransient<IUserApiClient, UserApiClient>();
+services.AddSingleton<IRecaptchaExtension, RecaptchaExtension>();
+services.AddHttpClient();
+services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -182,11 +185,6 @@ app.UseSession();
 
 app.UseHttpsRedirection();
 
-app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
-app.UseXContentTypeOptions();
-app.UseReferrerPolicy(opts => opts.NoReferrer());
-app.UseXXssProtection(options => options.EnabledWithBlockMode());
-app.UseXfo(options => options.Deny());
 //app.UseCsp(opts => opts
 //        .BlockAllMixedContent()
 //        .StyleSources(s => s.Self())
@@ -205,7 +203,6 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
         name: "My KBs",

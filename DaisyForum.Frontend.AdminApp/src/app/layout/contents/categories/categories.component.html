@@ -1,59 +1,75 @@
-<p>{{screenTitle}}</p>
+<p-toast></p-toast>
+<h4 class="text-muted">{{screenTitle}}</h4>
 <div class="animated fadeIn">
-    <p-panel #pnl>
-        <p-header>
-            <div class="ui-g-6">
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="CREATE" pButton type="button"
-                    label="Thêm" icon="fa fa-plus" (click)="showAddModal()"></button>
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="DELETE" pButton type="button"
-                    label="Xóa" icon="fa fa-trash" class="ui-button-danger" *ngIf="selectedItems.length > 0"
-                    (click)="deleteItems()"></button>
-                <button appPermission appFunction="CONTENT_CATEGORY" appAction="UPDATE" pButton type="button"
-                    label="Sửa" icon="fa fa-edit" class="ui-button-warning" *ngIf="selectedItems.length== 1"
-                    (click)="showEditModal()"></button>
+    <p-treeTable #pnl *ngIf="items" [value]="items" selectionMode="multiple" [(selection)]="selectedItems"
+        [tableStyle]="{'min-width':'50rem'}" [metaKeySelection]="true" (onNodeSelect)="nodeSelect($event)"
+        (onNodeUnselect)="nodeUnSelect($event)" styleClass="p-treetable-gridlines">
+        <ng-template styleClass="border" pTemplate="caption">
+            <div class="d-flex">
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="CREATE" label="Thêm"
+                    (click)="showAddModal()" icon="pi pi-plus" styleClass="btn mr-2"></p-button>
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="UPDATE" label="Sửa"
+                    icon="pi pi-pencil" *ngIf="selectedItems && selectedItems.length > 0" (click)="showEditModal()"
+                    styleClass="p-button-warning btn mr-2"></p-button>
+                <p-button appPermission appFunction="CONTENT_CATEGORY" appAction="DELETE" label="Xóa"
+                    *ngIf="selectedItems && selectedItems.length > 0" (click)="deleteItems()" icon="pi pi-trash"
+                    styleClass="p-button-danger btn mr-2"></p-button>
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input class="form-control" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                        placeholder="Nhập từ khóa..." type="text">
+                </span>
             </div>
-            <div class="ui-g-6">
-                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
-                    placeholder="Nhập từ khóa..." type="text">
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th ttSortableColumn="id">
+                    Mã danh mục
+                    <p-treeTableSortIcon field="id"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="name">
+                    Tên danh mục
+                    <p-treeTableSortIcon field="name"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="seoAlias">
+                    Tiêu đề SEO
+                    <p-treeTableSortIcon field="seoAlias"></p-treeTableSortIcon>
+                </th>
+                <th ttSortableColumn="sortOrder">
+                    Thứ tự
+                    <p-treeTableSortIcon field="sortOrder"></p-treeTableSortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+            <tr [ttSelectableRow]="rowNode">
+                <td>
+                    <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                    <p-treeTableCheckbox [value]="rowNode"></p-treeTableCheckbox>
+                    {{rowData.id}}
+                </td>
+                <td>
+                    {{rowData.name}}
+                </td>
+                <td>
+                    {{rowData.seoAlias}}
+                </td>
+                <td>
+                    {{rowData.sortOrder}}
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div style="text-align: left">
+                Tổng số bản ghi: {{totalRecords | number}}
             </div>
-        </p-header>
-
-        <p-treeTable *ngIf="items" [value]="items" selectionMode="multiple" [(selection)]="selectedItems"
-            [metaKeySelection]="true" (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnSelect($event)"
-            [scrollable]="true">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 10%;">
-                        <p-treeTableHeaderCheckbox></p-treeTableHeaderCheckbox>
-                    </th>
-                    <th>Mã</th>
-                    <th class="pgrid-hidden-xs">Tên</th>
-                    <th class="pgrid-hidden-xs">Alias</th>
-                    <th>Thứ tự</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-                <tr [ttSelectableRow]="rowNode">
-                    <td style="width: 10%;">
-                        <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-                        <p-treeTableCheckbox [value]="rowNode"></p-treeTableCheckbox>
-                    </td>
-                    <td>
-                        {{rowData.id}}
-                    </td>
-                    <td>
-                        {{rowData.name}}
-                    </td>
-                    <td class="pgrid-hidden-xs">
-                        {{rowData.seoAlias}}
-                    </td>
-                    <td class="pgrid-hidden-sm">
-                        {{rowData.sortOrder}}
-                    </td>
-
-                </tr>
-            </ng-template>
-        </p-treeTable>
-
-    </p-panel>
+        </ng-template>
+    </p-treeTable>
+    <p-footer>
+        <p-paginator [rows]="rows" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+            [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+        <p-blockUI [blocked]="blockedPanel">
+            <p-progressSpinner></p-progressSpinner>
+        </p-blockUI>
+    </p-footer>
 </div>

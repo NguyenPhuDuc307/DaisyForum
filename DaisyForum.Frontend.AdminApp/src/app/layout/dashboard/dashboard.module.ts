@@ -4,9 +4,17 @@ import { NgbCarouselModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
+import { FormsModule } from '@angular/forms';
+
+import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { BlockUIModule } from 'primeng/blockui';
+import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ChartModule } from 'primeng/chart';
 import {
     TimelineComponent,
-    NotificationComponent,
     ChatComponent
 } from './components';
 import { StatModule } from '../../shared';
@@ -17,13 +25,20 @@ import { StatModule } from '../../shared';
         NgbCarouselModule,
         NgbAlertModule,
         DashboardRoutingModule,
-        StatModule
+        StatModule,
+        ChartModule,
+        TableModule,
+        PanelModule,
+        FormsModule,
+        ButtonModule,
+        BlockUIModule,
+        InputTextModule,
+        ProgressSpinnerModule
     ],
     declarations: [
         DashboardComponent,
         TimelineComponent,
-        NotificationComponent,
         ChatComponent
     ]
 })
-export class DashboardModule {}
+export class DashboardModule { }

@@ -34,15 +34,53 @@ public class AccountController : Controller
     }
 
     [Authorize]
+    [Route("my-profile")]
     public async Task<ActionResult> MyProfile()
     {
         var user = await _userApiClient.GetById(User.GetUserId());
         return View(user);
     }
 
+    [Route("profile")]
+    public async Task<ActionResult> Profile(string id, int page = 1, int pageSize = 15)
+    {
+        var user = await _userApiClient.GetById(id);
+        var kbs = await _userApiClient.GetKnowledgeBasesByUserId(id, page, pageSize);
+        ViewBag.User = user;
+        return View(kbs);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> Labels()
+    {
+        var user = await _userApiClient.GetById(User.GetUserId());
+        return View(user);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> Labels(string txt_label_submit)
+    {
+        if (txt_label_submit == null)
+        {
+            return BadRequest(ModelState);
+        }
+
+        string[] listLabel = txt_label_submit.Split(',');
+
+        var result = await _userApiClient.PutLabels(User.GetUserId(), listLabel);
+        Response.Cookies.Delete("suggestedKbs");
+        return RedirectToAction("MyProfile");
+    }
+
+    public async Task<ActionResult> GetLabels(string? keyword, int page = 1, int pageSize = 100)
+    {
+        var labels = await _userApiClient.GetLabels(keyword, page, pageSize);
+        return Ok(labels);
+    }
+
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> MyKnowledgeBases(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> MyKnowledgeBases(int page = 1, int pageSize = 15)
     {
         var kbs = await _userApiClient.GetKnowledgeBasesByUserId(User.GetUserId(), page, pageSize);
         return View(kbs);
@@ -52,7 +90,14 @@ public class AccountController : Controller
     public async Task<IActionResult> CreateNewKnowledgeBase()
     {
         await SetCategoriesViewBag();
-        return View();
+        var categories = await _categoryApiClient.GetCategories();
+        var treeNodes = TreeNode.ConvertToTreeNodes(categories);
+        var viewModel = new KnowledgeBaseCreateRequest()
+        {
+            TreeNodes = treeNodes,
+        };
+
+        return View(viewModel);
     }
 
     [HttpPost]
@@ -79,8 +124,13 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> EditKnowledgeBase(int id)
     {
+
+        var categories = await _categoryApiClient.GetCategories();
+        var treeNodes = TreeNode.ConvertToTreeNodes(categories);
+
         var knowledgeBase = await _knowledgeBaseApiClient.GetKnowledgeBaseDetail(id);
         await SetCategoriesViewBag();
+
         return View(new KnowledgeBaseCreateRequest()
         {
             CategoryId = knowledgeBase.CategoryId,
@@ -93,7 +143,9 @@ public class AccountController : Controller
             StepToReproduce = knowledgeBase.StepToReproduce,
             Title = knowledgeBase.Title,
             Workaround = knowledgeBase.Workaround,
-            Id = knowledgeBase.Id
+            Id = knowledgeBase.Id,
+            TreeNodes = treeNodes,
+            IsProcessed = knowledgeBase.IsProcessed
         });
     }
 
@@ -116,7 +168,6 @@ public class AccountController : Controller
     private async Task SetCategoriesViewBag(int? selectedValue = null)
     {
         var categories = await _categoryApiClient.GetCategories();
-
         var items = categories.Select(i => new SelectListItem()
         {
             Text = i.Name,
@@ -129,5 +180,34 @@ public class AccountController : Controller
             Text = "--Chọn danh mục--"
         });
         ViewBag.Categories = new SelectList(items, "Value", "Text", selectedValue);
+    }
+
+    public async Task<IActionResult> DeleteKnowledgeBases(int id)
+    {
+        var result = await _knowledgeBaseApiClient.DeleteKnowledgeBase(id);
+        return RedirectToAction("MyKnowledgeBases");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Follow([FromForm] FollowerCreateRequest request)
+    {
+        var result = await _userApiClient.Follow(request);
+        return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Notification([FromForm] NotificationCreateRequest request)
+    {
+        var result = await _userApiClient.Notification(request);
+        return Ok(result);
+    }
+
+    [Route("followers")]
+    public async Task<ActionResult> Followers(int page = 1, int pageSize = 15)
+    {
+        var followers = await _userApiClient.GetFollowers(User.GetUserId(), page, pageSize);
+        var subscribers = await _userApiClient.GetSubscribers(User.GetUserId(), page, pageSize);
+        ViewBag.Subscribers = subscribers;
+        return View(followers);
     }
 }

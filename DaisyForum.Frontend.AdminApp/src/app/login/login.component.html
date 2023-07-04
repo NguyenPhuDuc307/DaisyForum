@@ -1,11 +1,47 @@
-<div class="login-page" [@routerTransition]>
-    <div class="row justify-content-md-center">
-        <div class="col-md-4">
-            <img src="/assets/images/logo.png" width="150px" class="user-avatar" />
-            <h1>Daisy Forumistration</h1>
+<div class="login-page d-flex justify-content-center align-items-center mx-5" [@routerTransition]>
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <img src="/assets/images/favicon.svg" width="150px" class="user-avatar" />
+            <h1 class="p-0 m-0">Daisy Forum</h1>
+            <h2 class="">Administration</h2>
+            <label class="type-writer">Trang quản lý hệ thống website diễn đàn Daisy Forum.</label>
             <form role="form">
-                <a class="btn rounded-btn" (click)="login()">{{ 'Log in' | translate }}</a>
+                <a class="btn btn-outline-success w-100" (click)="login()">{{ 'Access' | translate }}</a>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    .type-writer {
+        overflow: hidden;
+        border-right: .1em solid green;
+        white-space: nowrap;
+        letter-spacing: .1em;
+        animation: typing 3.5s steps(40, end), infinite, blink-caret .75s step-end infinite;
+    }
+
+    /* The typing effect */
+    @keyframes typing {
+        from {
+            width: 0
+        }
+
+        to {
+            width: 100%
+        }
+    }
+
+    /* The typewriter cursor effect */
+    @keyframes blink-caret {
+
+        from,
+        to {
+            border-color: transparent
+        }
+
+        50% {
+            border-color: green;
+        }
+    }
+</style>

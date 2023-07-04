@@ -6,16 +6,43 @@
     Layout = "_SubLayout";
 }
 @inject IConfiguration Configuration
-<div class="span8 page-content">
+
+<div class="">
     <ul class="breadcrumb">
         <li><a href="/">Trang chủ</a><span class="divider">/</span></li>
         <li class="active">Thông tin cá nhân</li>
     </ul>
 
-    <article class=" type-post format-standard hentry clearfix">
+    <div>
+        @if (string.IsNullOrEmpty(Model.Avatar))
+        {
+            @* <span class="avatar avatar-lg mx-2 text-uppercase">@Model.LastName?.ElementAt(0)</span> *@
+        }
+        else
+        {
+            <img style="object-fit: cover;" class="rounded-circle me-1 mb-2" width="42" height="42"
+                src="@Configuration["BackendApiUrl"]/avatars/@Model.Avatar" alt="">
+        }
+        <h1 class="post-title m-0">@Model.UserName</h1>
+        <p class="d-flex">
+            @Html.Raw(Model.Description)
+        </p>
+        <a asp-controller="Account" asp-action="SignOut" class="btn btn-sm btn-danger">Đăng xuất</a>
 
-        <h1 class="post-title"><a href="#">@Model.UserName</a></h1>
-        <table class="table table-bordered">
+        <style>
+            .post-title {
+                display: inline-block;
+            }
+        </style>
+        <style>
+            .post-title {
+                text-align: left;
+            }
+        </style>
+
+
+
+        <table class="table table-bordered mt-2">
             <tr>
                 <td>Họ tên</td>
                 <td>@Model.FirstName @Model.LastName</td>
@@ -35,14 +62,29 @@
             <tr>
                 <td colspan="2">
                     <button class="btn btn-success" onclick="openNewWindow()">Chỉnh sửa</button>
-
                     <script>
                         function openNewWindow() {
                             window.open("@Configuration["BackendApiUrl"]/Account/Manage", "newWindow", "width=600, height=800");
                         }
                     </script>
+
                 </td>
             </tr>
         </table>
-    </article>
+
+        <hr>
+        <label>Nhãn dán đề xuất bài viết</label>
+        <a asp-controller="Account" asp-action="Labels" class="ml-2 mb-2">Cập nhật nhãn dán của tôi</a>
+        @if (Model.Labels != null)
+        {
+            <div class="tagcloud d-flex flex-wrap">
+                @foreach (var item in Model.Labels)
+                {
+                    <a
+                        class="m-1 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill text-decoration-none flex-fill"><i
+                            class="bi bi-bookmark me-1"></i>@item</a>
+                }
+            </div>
+        }
+    </div>
 </div>

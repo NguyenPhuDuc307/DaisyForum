@@ -1,6 +1,8 @@
 using DaisyForum.BackendServer.Data;
 using DaisyForum.BackendServer.Data.Entities;
 using DaisyForum.BackendServer.Extensions;
+using DaisyForum.BackendServer.Helpers;
+using DaisyForum.BackendServer.Hubs;
 using DaisyForum.BackendServer.IdentityServer;
 using DaisyForum.BackendServer.Services;
 using DaisyForum.ViewModels;
@@ -20,7 +22,9 @@ var services = builder.Services;
 var configuration = builder.Configuration;
 
 var DaisyForumSpecificOrigins = "DaisyForumSpecificOrigins";
-var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>(); builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
+var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 //1. Setup entity framework
 services.AddDbContextPool<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -56,9 +60,13 @@ services.AddCors(options =>
     builder =>
     {
         if (allowedOrigins != null)
+        {
             builder.WithOrigins(allowedOrigins)
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+                               .AllowAnyMethod()
+                               .AllowAnyHeader()
+                               .AllowCredentials()
+                               .SetIsOriginAllowed(origin => true);
+        }
     });
 });
 
@@ -87,7 +95,10 @@ services.Configure<ApiBehaviorOptions>(options =>
 });
 
 // Add services to the container.
+services.AddSingleton<IRecaptchaExtension, RecaptchaExtension>();
+services.AddHttpClient();
 services.AddControllersWithViews();
+services.AddSignalR();
 
 // Add validator to the service collection
 services.AddFluentValidationAutoValidation();
@@ -171,6 +182,8 @@ services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 services.AddTransient<IViewRenderService, ViewRenderService>();
 services.AddTransient<ICacheService, DistributedCacheService>();
 services.AddTransient<IOneSignalService, OneSignalService>();
+services.AddTransient<IContentBasedService, ContentBasedService>();
+services.AddTransient<IFileValidator, FileValidator>();
 
 services.AddSwaggerGen(c =>
 {
@@ -206,6 +219,8 @@ services.AddDistributedSqlServerCache(o =>
     o.SchemaName = "dbo";
     o.TableName = "CacheTable";
 });
+
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
@@ -254,6 +269,8 @@ app.UseCors(DaisyForumSpecificOrigins);
 app.MapDefaultControllerRoute();
 
 app.MapRazorPages();
+
+app.MapHub<ChatHub>("/chatHub");
 
 app.UseSwagger();
 

@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "daisyforum",
+    "private_key_id": "0bce299974d015f54c983a18ec7e46ac307f2a94",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQChvWLwk715n7tl\nwV3trheYS/txf5f9H4dWsz93NzB8MMLgyX6NXB4NRm9RNDXYp661Izrf0kvTfgZE\n17WgyxluHbZmMk9K6TRNtxc5NXtf3oAz2MXa91b4nKhEIFWXbYKzSMPWgRe5wtyX\nIjsaa9F7iHYSCpQWxACh041aKwIEhzk4mJiwqQ9QapgjfuDBQC/rve60d0Ec35Bo\ndvFGJJyjnZHLrw5ksm4DSGniWo7VoQ5bWeQXq+GBzp5FN+oLmMxmh3eYU6g0lz7x\n4h0fXu9qDWVZqooXFkR5RyHcszXpvqh73CAf8Rfjsv2q9aHLbvDhlVqXuVw/CvH4\nxf5IqMclAgMBAAECggEAOz5ZTuD27uVs6Z1WL/jsaJswW4cOn6ecVcwri5n6Fwtv\nXpI/2jyrP1aU8MwsixMEwhHI/3IS10Gavz26KE8snfKhPLbh54EbaPoPNiPacKfa\nEuOsuYOO5lrPocCsSV7SGKSnI1u+2oq/bVabCpcCsPqvsPUSAHLD/oK0jJojT4+5\neqGXtImWS02QFlW/ikAp/EObvf0V55aZoUgVn347y11IVGl2QiG+B3MegEnmXke/\nSYsThfubT5VxTtbg6tN//VYnqugLVT07tOMGjqM2DfuhBWBmSQlLWnrt+IWuaaBj\nG/cSnjqzM/T/bN2yADjijAgXlBb2kkszeb5Sl9bNowKBgQDLrtFb/3Ar+pbP2mD5\n4oUcXSiAzBZw5X6JShf1NN03+ZcsZYmyDSy8Uc+tTXVi+PwujsFW5KcuZum2AMyn\n0Ah9iIO8xL1uoGh7FuiozayQblprQ4ICljJE998G1Wx6E7PTcEMPUYT1RobjIBFo\ncESXxj8ChiZTxr7ftrRpjiT12wKBgQDLSJkH3vlUwB0gcUevgxdG2OmPLzTZ6eBx\nDY59S7RQhLXFwkQGHCeN0RbnUclLGywnjOJLQEiD/8hzcseaUoI3nviylnZqk/KG\nAGihJlgFjQuR5Eb6sZqbqgNURkSrwEzTQrgmphZAadfeRRJQ9PitNKstPpknEtBB\nvxfEmTpG/wKBgDyVGdZ4Sr/6AAOA29lXg+ok11g/2+jmidWCAVBA0g/FIC7nYKZh\n/s1gtBnC8Uhn8HJUqbMTvZoyqA8ne7fqS6wy/6QVDJcsBQefj8Itssce26wN30yv\nqfITm/WnY2WIGLOqL3gN8jMWMCa8MhFTW0Odhr5Ucm/2rG1UJaND0UCDAoGAbYWe\nlUQHlyauSqVdlu0M5GnHZBJt6h38g0xngZABBQSLHpHsrlIK6XhGW7iPt/xazLA1\n1485woxThgfIDJf5elgW67ju8brmBlZACNqsv8je++o+Z6C6iLWPd58oLlS7z3J5\n3rDK+kdMO3+BP8bMGB1xQD4iq4+STmnTN2PKpycCgYBeoFiwrLJIEGDIctg4GNOq\n449ueZy6wCLymP2e6r7K+CanoPm/uRJxdtp07DqgtDj5tCvTbWh/HCh47qKZXeh1\nKYMNqyZQlPPkW2rvj/HpKqA4Y8tfKKNFZRNyznPmfw4tuj+kXZ7h8Ppnhr5B73Iw\njRE5pbflo+u9nZMOHTh76Q==\n-----END PRIVATE KEY-----\n",
+    "client_email": "nguyenphuduc62001@daisyforum.iam.gserviceaccount.com",
+    "client_id": "110514629975720793885",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/nguyenphuduc62001%40daisyforum.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+}

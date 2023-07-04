@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DaisyForum.ViewModels.Contents;
 using DaisyForum.WebPortal.Extensions;
 using DaisyForum.WebPortal.Models;
 using DaisyForum.WebPortal.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace DaisyForum.WebPortal.Controllers
 {
@@ -113,6 +108,20 @@ namespace DaisyForum.WebPortal.Controllers
             }
 
             var result = await _knowledgeBaseApiClient.PostComment(request);
+            if (result != null)
+                return Ok(result);
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, int commentId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _knowledgeBaseApiClient.DeleteComment(knowledgeBaseId, commentId);
             if (result != null)
                 return Ok(result);
             return BadRequest();

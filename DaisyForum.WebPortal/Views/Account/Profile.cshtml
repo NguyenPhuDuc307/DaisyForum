@@ -1,0 +1,162 @@
+@model DaisyForum.ViewModels.Pagination<DaisyForum.ViewModels.Contents.KnowledgeBaseQuickViewModel>
+@using Microsoft.Extensions.Configuration
+
+@{
+    ViewData["Title"] = "Thông tin người dùng";
+    Layout = "_SubLayout";
+}
+@inject IConfiguration Configuration
+
+@section scripts{
+    <script src="~/lib/mustache.js/mustache.min.js"></script>
+    <script src="~/js/controllers/accountController.js" asp-append-version="true"></script>
+    <script>
+        var controller = new accountController();
+        controller.initialize();
+    </script>
+}
+
+<div class="span8 page-content">
+    <ul class="breadcrumb">
+        <li><a href="/">Trang chủ</a><span class="divider">/</span></li>
+        <li class="active">Thông tin người dùng</li>
+    </ul>
+
+    <article class=" type-post format-standard hentry clearfix">
+        @if (string.IsNullOrEmpty(ViewBag.User.Avatar))
+        {
+            @* <span class="avatar avatar-lg mx-2 text-uppercase">@ViewBag.User.LastName?.ElementAt(0)</span> *@
+        }
+        else
+        {
+            <img style="object-fit: cover;" class="rounded-circle me-1 mb-2" width="42" height="42"
+                src="@Configuration["BackendApiUrl"]/avatars/@ViewBag.User.Avatar" alt="">
+        }
+        <h1 class="post-title m-0">@ViewBag.User.UserName</h1>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form id="frm_follow" action="#" method="post">
+                <input type="hidden" name="ownerUserId" value="@ViewBag.User.Id">
+                <span style="width: fit-content; cursor: pointer;"
+                    class="follower-it badge d-flex p-2 align-items-center text-light-emphasis bg-light-subtle border border-libg-light-subtle rounded-pill">
+                    <i class="bi bi-bookmark-fill mx-1"></i>
+                    <span class="pe-1">Theo dõi</span>
+                    <span id="follower-num" class="me-1">@ViewBag.User.NumberOfFollowers</span>
+                </span>
+
+            </form>
+        }
+        <p class="d-flex">
+            @Html.Raw(ViewBag.User.Description)
+        </p>
+
+        <style>
+            .post-title {
+                display: inline-block;
+            }
+        </style>
+        <style>
+            .post-title {
+                text-align: left;
+            }
+
+            .btn-logout {
+                margin-left: 20px;
+                margin-top: 8px;
+            }
+        </style>
+
+
+
+        <table class="table table-bordered mt-2">
+            <tr>
+                <td>Họ tên</td>
+                <td>@ViewBag.User.FirstName @ViewBag.User.LastName</td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td>@ViewBag.User.Email</td>
+            </tr>
+            <tr>
+                <td>Tài khoản</td>
+                <td>@ViewBag.User.UserName</td>
+            </tr>
+            <tr>
+                <td>Số điện thoại</td>
+                <td>@ViewBag.User.PhoneNumber</td>
+            </tr>
+        </table>
+    </article>
+    <hr>
+    <article class=" type-post format-standard hentry clearfix">
+        <label class="post-title">Bài viết của @ViewBag.User.FirstName @ViewBag.User.LastName</label>
+        <div class="list-group list-group-checkable d-grid gap-2 border-0">
+            @foreach (var item in Model.Items)
+            {
+                var url = "/bai-dang/" + item.SeoAlias + "-" + item.Id + "/";
+                <label class="list-group-item border-top rounded py-3 w-100">
+                    <div class="d-flex">
+                        @if (item.IsProcessed != null && item.IsProcessed == true)
+                        {
+                            <span
+                                class="me-2 badge bg-success-subtle border border-success-subtle text-success text-decoration-none">
+                                <i class="bi bi-check-square-fill"></i>&nbsp;Đã được xử lý
+                            </span>
+                        }
+                        else
+                        {
+                            <span
+                                class="me-2 badge bg-warning-subtle border border-warning-subtle text-warning text-decoration-none">
+                                <i class="bi bi-exclamation-triangle-fill"></i>&nbsp;Chưa được xử lý
+                            </span>
+                        }
+                        <span class="d-block small opacity-50 me-2">@item.CreateDate.ToString("dd/MM/yyyy")
+                            trong
+                        </span>
+
+                        <a style="max-width: 200px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            href="/danh-muc/@item.CategoryAlias-@item.CategoryId"
+                            title="Xem tất cả bài đăng trong @Html.Raw(item.CategoryName)"
+                            class="m-0 badge align-items-center p-1 pe-2 text-primary bg-primary-subtle border border-primary-subtle text-decoration-none">
+                            @item.CategoryName</a>
+                    </div>
+
+                    <a class="text-decoration-none text-light-emphasis"
+                        style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;"
+                        href="@url">@item.Title</a>
+
+                    @if (@item.NumberOfVotes == null || item.NumberOfVotes == 0)
+                    {
+                        <span style="width: fit-content"
+                            class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                            <i class="bi bi-hand-thumbs-up-fill me-1"></i> 0
+                        </span>
+                    }
+                    else
+                    {
+                        <span style="width: fit-content"
+                            class="m-0 badge d-flex align-items-center p-1 pe-2 text-success bg-success-subtle border border-success-subtle rounded-pill">
+                            <i class="bi bi-hand-thumbs-up-fill me-1"></i> @item.NumberOfVotes
+                        </span>
+                    }
+                    @if (item.Labels != null)
+                    {
+                        <div class="mt-1"
+                            style="display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 2;overflow: hidden;">
+                            @foreach (var label in item.Labels)
+                            {
+                                <a
+                                    class="m-0 badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill text-decoration-none">
+                                    <i class="bi bi-bookmark me-1"></i>@label
+                                </a>
+                            }
+                        </div>
+
+                    }
+                </label>
+            }
+            @(await Component.InvokeAsync("Pager", Model))
+        </div>
+    </article>
+</div>
+

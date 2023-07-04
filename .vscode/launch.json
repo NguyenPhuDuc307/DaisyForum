@@ -50,6 +50,13 @@
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
+        },
+        {
+            "type": "msedge",
+            "request": "launch",
+            "name": "Admin App",
+            "url": "https://localhost:4200",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }

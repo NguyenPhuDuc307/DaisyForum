@@ -79,6 +79,11 @@ namespace DaisyForum.WebPortal.Services
             return await PostAsync<CommentCreateRequest, CommentViewModel>($"/api/knowledgeBases/{request.KnowledgeBaseId}/comments", request);
         }
 
+        public async Task<bool> DeleteComment(int knowledgeBaseId, int commentId)
+        {
+            return await DeleteAsync<bool>($"/api/knowledgeBases/{knowledgeBaseId}/comments/{commentId}");
+        }
+
         public async Task<bool> PostKnowledgeBase(KnowledgeBaseCreateRequest request)
         {
             var client = _httpClientFactory.CreateClient("BackendApi");
@@ -143,15 +148,17 @@ namespace DaisyForum.WebPortal.Services
                     requestContent.Add(bytes, "attachments", item.FileName);
                 }
             }
+
             requestContent.Add(new StringContent(request.CategoryId.ToString()), "categoryId");
-            requestContent.Add(new StringContent(request.Title.ToString()), "title");
-            requestContent.Add(new StringContent(request.Problem.ToString()), "problem");
-            requestContent.Add(new StringContent(request.Note.ToString()), "note");
-            requestContent.Add(new StringContent(request.Description.ToString()), "description");
-            requestContent.Add(new StringContent(request.Environment.ToString()), "environment");
-            requestContent.Add(new StringContent(request.StepToReproduce.ToString()), "stepToReproduce");
-            requestContent.Add(new StringContent(request.ErrorMessage.ToString()), "errorMessage");
-            requestContent.Add(new StringContent(request.Workaround.ToString()), "workaround");
+            requestContent.Add(new StringContent(request.Title != null ? request.Title.ToString() : ""), "title");
+            requestContent.Add(new StringContent(request.Problem != null ? request.Problem.ToString() : ""), "problem");
+            requestContent.Add(new StringContent(request.Note != null ? request.Note.ToString() : ""), "note");
+            requestContent.Add(new StringContent(request.Description != null ? request.Description.ToString() : ""), "description");
+            requestContent.Add(new StringContent(request.Environment != null ? request.Environment.ToString() : ""), "environment");
+            requestContent.Add(new StringContent(request.StepToReproduce != null ? request.StepToReproduce.ToString() : ""), "stepToReproduce");
+            requestContent.Add(new StringContent(request.ErrorMessage != null ? request.ErrorMessage.ToString() : ""), "errorMessage");
+            requestContent.Add(new StringContent(request.Workaround != null ? request.Workaround.ToString() : ""), "workaround");
+            requestContent.Add(new StringContent(request.IsProcessed == true ? "true" : "false"), "isProcessed");
             if (request.Labels?.Length > 0)
             {
                 foreach (var label in request.Labels)
@@ -186,6 +193,11 @@ namespace DaisyForum.WebPortal.Services
         public async Task<ReportViewModel> PostReport(ReportCreateRequest request)
         {
             return await PostAsync<ReportCreateRequest, ReportViewModel>($"/api/knowledgeBases/{request.KnowledgeBaseId}/reports", request);
+        }
+
+        public async Task<bool> DeleteKnowledgeBase(int id)
+        {
+            return await DeleteAsync<bool>($"/api/knowledgeBases/{id}");
         }
     }
 }

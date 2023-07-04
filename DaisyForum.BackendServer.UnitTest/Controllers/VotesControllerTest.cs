@@ -8,11 +8,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace DaisyForum.BackendServer.UnitTest.Controllers
 {
@@ -26,6 +22,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         private Mock<IViewRenderService> _mockViewRenderService;
         private Mock<ICacheService> _mockCacheService;
         private Mock<IOneSignalService> _mockOneSignalService;
+        private Mock<IContentBasedService> _mockCSVService;
 
         public VotesControllerTest()
         {
@@ -37,13 +34,14 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
             _mockViewRenderService = new Mock<IViewRenderService>();
             _mockCacheService = new Mock<ICacheService>();
             _mockOneSignalService = new Mock<IOneSignalService>();
+            _mockCSVService = new Mock<IContentBasedService>();
         }
 
         [Fact]
         public async Task GetVotes_ValidKbId_RecordMatch()
         {
             var controller = new KnowledgeBasesController(_context, _mockSequenceService.Object, _mockStorageService.Object,
-                           _mockLoggerService.Object, _mockEmailSender.Object, _mockViewRenderService.Object, _mockCacheService.Object, _mockOneSignalService.Object);
+                           _mockLoggerService.Object, _mockEmailSender.Object, _mockViewRenderService.Object, _mockCacheService.Object, _mockOneSignalService.Object, _mockCSVService.Object);
             _context.Votes.AddRange(new List<Vote>()
             {
                 new Vote(){ KnowledgeBaseId = 1, UserId = Guid.NewGuid().ToString(), CreateDate = DateTime.Now},
@@ -67,7 +65,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         {
             var controller = new KnowledgeBasesController(_context, _mockSequenceService.Object, _mockStorageService.Object,
                                      _mockLoggerService.Object, _mockEmailSender.Object, _mockViewRenderService.Object,
-                                     _mockCacheService.Object, _mockOneSignalService.Object);
+                                     _mockCacheService.Object, _mockOneSignalService.Object, _mockCSVService.Object);
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{
                     new Claim(ClaimTypes.NameIdentifier, "1"),
                 }, "mock"));
@@ -96,7 +94,7 @@ namespace DaisyForum.BackendServer.UnitTest.Controllers
         {
             var controller = new KnowledgeBasesController(_context, _mockSequenceService.Object, _mockStorageService.Object,
                                      _mockLoggerService.Object, _mockEmailSender.Object, _mockViewRenderService.Object,
-                                     _mockCacheService.Object, _mockOneSignalService.Object);
+                                     _mockCacheService.Object, _mockOneSignalService.Object, _mockCSVService.Object);
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{
                     new Claim(ClaimTypes.NameIdentifier, "1"),
                 }, "mock"));

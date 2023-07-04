@@ -22,7 +22,7 @@ export class StatisticsService extends BaseService {
     }
 
     getMonthlyNewKbs(year: number) {
-        return this.http.get<MonthlyNewKb[]>(`${environment.apiUrl}/api/statistics/monthly-newkbs?year=${year}`,
+        return this.http.get<MonthlyNewKb[]>(`${environment.apiUrl}/api/statistics/monthly-newKnowledgeBases?year=${year}`,
             { headers: this._sharedHeaders })
             .pipe(map((response: MonthlyNewKb[]) => {
                 return response;

@@ -109,9 +109,9 @@ export class KnowledgeBasesDetailComponent implements OnInit, OnDestroy {
         labels: response.labels
       });
       this.attachments = response.attachments;
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }, error => {
-      setTimeout(() => { this.blockedPanel = false; }, 1000);
+      setTimeout(() => { this.blockedPanel = false; }, 100);
     }));
   }
   public selectAttachments($event) {
@@ -133,10 +133,10 @@ export class KnowledgeBasesDetailComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
         this.attachments.splice(this.attachments.findIndex(item => item.id === attachmentId), 1);
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
 
       }, error => {
-        setTimeout(() => { this.blockedPanel = false; }, 1000);
+        setTimeout(() => { this.blockedPanel = false; }, 100);
       }));
     return false;
   }
@@ -160,7 +160,7 @@ export class KnowledgeBasesDetailComponent implements OnInit, OnDestroy {
           }
 
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     } else {
       this.subscription.push(this.knowledgeBasesService.add(formData)
@@ -170,7 +170,7 @@ export class KnowledgeBasesDetailComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl('/contents/knowledge-bases');
           }
         }, error => {
-          setTimeout(() => { this.blockedPanel = false; }, 1000);
+          setTimeout(() => { this.blockedPanel = false; }, 100);
         }));
     }
     return false;

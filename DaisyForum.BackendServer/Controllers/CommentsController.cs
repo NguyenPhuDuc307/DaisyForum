@@ -6,6 +6,7 @@ using DaisyForum.BackendServer.Helpers;
 using DaisyForum.BackendServer.Models;
 using DaisyForum.ViewModels;
 using DaisyForum.ViewModels.Contents;
+using Google.Cloud.Language.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,10 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = c.c.KnowledgeBaseId,
                 LastModifiedDate = c.c.LastModifiedDate,
                 OwnerUserId = c.c.OwnerUserId,
-                OwnerName = c.u.FirstName + " " + c.u.LastName
+                Avatar = c.u.Avatar,
+                OwnerName = c.u.FirstName + " " + c.u.LastName,
+                NavigationScore = c.c.NavigationScore,
+                Note = c.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             })
             .ToListAsync();
 
@@ -55,6 +59,29 @@ public partial class KnowledgeBasesController
         };
         return Ok(pagination);
     }
+
+    [HttpGet("natural-language")]
+    public async Task<IActionResult> AnalyzeSentiment([FromQuery] string content)
+    {
+        var document = new Document
+        {
+            Content = content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
+
+        var result = new
+        {
+            Score = sentiment.Score,
+            Magnitude = sentiment.Magnitude
+        };
+
+        return Ok(result);
+    }
+
 
     [HttpGet("{knowledgeBaseId}/comments/{commentId}")]
     [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
@@ -75,7 +102,10 @@ public partial class KnowledgeBasesController
             KnowledgeBaseId = comment.KnowledgeBaseId,
             LastModifiedDate = comment.LastModifiedDate,
             OwnerUserId = comment.OwnerUserId,
-            OwnerName = user.FirstName + " " + user.LastName
+            Avatar = user.Avatar,
+            OwnerName = user.FirstName + " " + user.LastName,
+            NavigationScore = comment.NavigationScore,
+            Note = comment.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
         };
 
         return Ok(commentViewModel);
@@ -84,12 +114,23 @@ public partial class KnowledgeBasesController
     [HttpPost("{knowledgeBaseId}/comments")]
     public async Task<IActionResult> PostComment(int knowledgeBaseId, [FromBody] CommentCreateRequest request)
     {
+        var document = new Document
+        {
+            Content = request.Content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
+
         var comment = new Comment()
         {
             Content = request.Content,
             KnowledgeBaseId = knowledgeBaseId,
             OwnerUserId = User.GetUserId(),
-            ReplyId = request.ReplyId
+            ReplyId = request.ReplyId,
+            NavigationScore = sentiment.Score
         };
         _context.Comments.Add(comment);
 
@@ -135,6 +176,15 @@ public partial class KnowledgeBasesController
     [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.UPDATE)]
     public async Task<IActionResult> PutComment(int commentId, [FromBody] CommentCreateRequest request)
     {
+        var document = new Document
+        {
+            Content = request.Content,
+            Type = Document.Types.Type.Html
+        };
+
+        var response = await _languageServiceClient.AnalyzeSentimentAsync(document);
+
+        var sentiment = response.DocumentSentiment;
         var comment = await _context.Comments.FindAsync(commentId);
         if (comment == null)
             return BadRequest(new ApiBadRequestResponse($"Cannot found comment with id: {commentId}"));
@@ -143,6 +193,7 @@ public partial class KnowledgeBasesController
                 return Forbid();
 
         comment.Content = request.Content;
+        comment.NavigationScore = sentiment.Score;
         _context.Comments.Update(comment);
 
         var result = await _context.SaveChangesAsync();
@@ -181,7 +232,8 @@ public partial class KnowledgeBasesController
                 CreateDate = comment.CreateDate,
                 KnowledgeBaseId = comment.KnowledgeBaseId,
                 LastModifiedDate = comment.LastModifiedDate,
-                OwnerUserId = comment.OwnerUserId
+                OwnerUserId = comment.OwnerUserId,
+                Note = comment.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             };
             return Ok(commentViewModel);
         }
@@ -206,12 +258,16 @@ public partial class KnowledgeBasesController
             var comments = await query.Take(take).Select(x => new CommentViewModel()
             {
                 Id = x.c.Id,
+                Content = x.c.Content,
                 CreateDate = x.c.CreateDate,
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
+                Avatar = x.u.Avatar,
                 KnowledgeBaseTitle = x.k.Title,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
-                KnowledgeBaseSeoAlias = x.k.SeoAlias
+                KnowledgeBaseSeoAlias = x.k.SeoAlias,
+                NavigationScore = x.c.NavigationScore,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             }).ToListAsync();
 
             await _cacheService.SetAsync(CacheConstants.RecentComments, comments);
@@ -221,71 +277,6 @@ public partial class KnowledgeBasesController
         return Ok(cachedData);
     }
 
-    // [HttpGet("{knowledgeBaseId}/comments/tree")]
-    // [AllowAnonymous]
-    // public async Task<IActionResult> GetCommentTreeByKnowledgeBaseId(int knowledgeBaseId, int pageIndex, int pageSize)
-    // {
-    //     var query = from c in _context.Comments
-    //                 join u in _context.Users
-    //                     on c.OwnerUserId equals u.Id
-    //                 where c.KnowledgeBaseId == knowledgeBaseId
-    //                 select new { c, u };
-
-    //     var totalRecords = await query.CountAsync();
-    //     var rootComments = await query.OrderByDescending(x => x.c.CreateDate)
-    //         .Skip((pageIndex - 1) * pageSize)
-    //         .Take(pageSize)
-    //         .Select(x => new CommentViewModel()
-    //         {
-    //             Id = x.c.Id,
-    //             CreateDate = x.c.CreateDate,
-    //             KnowledgeBaseId = x.c.KnowledgeBaseId,
-    //             OwnerUserId = x.c.OwnerUserId,
-    //             OwnerName = x.u.FirstName + " " + x.u.LastName,
-    //             Content = x.c.Content
-    //         })
-    //         .ToListAsync();
-
-    //     foreach (var comment in rootComments)
-    //     {
-    //         var repliedQuery = from c in _context.Comments
-    //                            join u in _context.Users
-    //                                on c.OwnerUserId equals u.Id
-    //                            where c.KnowledgeBaseId == knowledgeBaseId
-    //                            where c.ReplyId == comment.Id
-    //                            select new { c, u };
-
-    //         var totalRepliedCommentsRecords = await repliedQuery.CountAsync();
-    //         var repliedComments = await repliedQuery.OrderByDescending(x => x.c.CreateDate)
-    //             .Take(pageSize)
-    //             .Select(x => new CommentViewModel()
-    //             {
-    //                 Id = x.c.Id,
-    //                 CreateDate = x.c.CreateDate,
-    //                 KnowledgeBaseId = x.c.KnowledgeBaseId,
-    //                 OwnerUserId = x.c.OwnerUserId,
-    //                 OwnerName = x.u.FirstName + " " + x.u.LastName,
-    //                 Content = x.c.Content
-    //             })
-    //             .ToListAsync();
-
-    //         comment.Children = new Pagination<CommentViewModel>()
-    //         {
-    //             PageIndex = 1,
-    //             PageSize = 10,
-    //             Items = repliedComments,
-    //             TotalRecords = totalRepliedCommentsRecords
-    //         };
-    //     }
-
-    //     return Ok(new Pagination<CommentViewModel>
-    //     {
-    //         PageIndex = pageIndex,
-    //         PageSize = pageSize,
-    //         Items = rootComments,
-    //         TotalRecords = totalRecords
-    //     });
-    // }
 
     [HttpGet("{knowledgeBaseId}/comments/tree")]
     [AllowAnonymous]
@@ -307,7 +298,9 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
+                Avatar = x.u.Avatar,
                 Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
                 {
                     PageIndex = pageIndex,
@@ -352,7 +345,9 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
+                Avatar = x.u.Avatar,
                 Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null,
                 Children = new Pagination<CommentViewModel>()
                 {
                     PageIndex = pageIndex,
@@ -402,7 +397,9 @@ public partial class KnowledgeBasesController
                 KnowledgeBaseId = x.c.KnowledgeBaseId,
                 OwnerUserId = x.c.OwnerUserId,
                 OwnerName = x.u.FirstName + " " + x.u.LastName,
-                Content = x.c.Content
+                Avatar = x.u.Avatar,
+                Content = x.c.Content,
+                Note = x.c.NavigationScore <= -0.3 ? "Bình luận này có thể mang tính chất tiêu cực." : null
             })
             .ToListAsync();
 

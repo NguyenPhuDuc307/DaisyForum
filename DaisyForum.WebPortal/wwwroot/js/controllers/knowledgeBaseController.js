@@ -5,24 +5,37 @@ var knowledgeBaseController = function () {
         registerEvents();
     };
 
+    function ToastSimple(success, message) {
+        if (success) {
+            $('#liveToast').addClass('bg-success').addClass('text-white');
+            $('#message').text(message);
+            const toastLiveExample = document.getElementById('liveToast')
+            const toast = new bootstrap.Toast(toastLiveExample)
+            toast.show()
+        } else {
+            $('#liveToast').addClass('bg-danger').addClass('text-white');
+            $('#message').text(message);
+            const toastLiveExample = document.getElementById('liveToast')
+            const toast = new bootstrap.Toast(toastLiveExample)
+            toast.show()
+        }
+    }
+
     function registerEvents() {
         // this is the id of the form
         $("#commentform").submit(function (e) {
             e.preventDefault(); // avoid to execute the actual submit of the form.
             var form = $(this);
             var url = form.attr('action');
+            var content = $("#txt_new_comment_content").val();
 
             $.post(url, form.serialize()).done(function (response) {
-                var content = $("#txt_new_comment_content").val();
-
                 var template = $('#tmpl_comments').html();
                 var newComment = Mustache.render(template, {
                     id: response.id,
                     content: content,
                     createDate: formatRelativeTime(),
                     ownerName: $('#hid_current_login_name').val(),
-
-
                 });
                 $("#txt_new_comment_content").val('');
 
@@ -31,23 +44,17 @@ var knowledgeBaseController = function () {
                 $('#hid_number_comments').val(numberOfComments);
                 $('#comments-title').text('(' + numberOfComments + ') bình luận');
 
-                $('#message-result').removeClass('alert-danger')
-                    .addClass('alert-success')
-                    .html('Bình luận thành công')
-                    .show();
+                ToastSimple(true, 'Bình luận thành công');
             }).error(function (err) {
                 $('#message-result').html('');
                 if (err.status === 400 && err.responseText) {
                     var errMsgs = JSON.parse(err.responseText);
                     for (field in errMsgs) {
-                        $('#message-result').append(errMsgs[field] + '<br>');
+                        ToastSimple(false, errMsgs[field])
                     }
-                    $('#message-result')
-                        .removeClass('alert-success"')
-                        .addClass('alert-danger')
-                        .show();
                 }
             });
+
         });
 
         //Binding reply comment event
@@ -67,21 +74,163 @@ var knowledgeBaseController = function () {
             else {
                 $('#reply_comment_' + commentId).html(html);
 
-                ClassicEditor
-                    .create(document.querySelector('#txt_reply_content_' + commentId))
-                    .catch(error => {
-                        console.error(error);
-                    });
+
+                CKEDITOR.ClassicEditor.create(document.getElementById('txt_reply_content_' + commentId), {
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/toolbar/toolbar.html#extended-toolbar-configuration-format
+                    toolbar: {
+                        items: [
+                            'exportPDF', 'exportWord', 'findAndReplace', '|',
+                            'heading', '|',
+                            'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', 'removeFormat', '|',
+                            'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent', '|',
+                            'undo', 'redo',
+                            '-',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                            'alignment', '|',
+                            'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', 'codeBlock', 'htmlEmbed', '|',
+                            'specialCharacters', 'horizontalLine', 'pageBreak', '|',
+                            'textPartLanguage', '|',
+                            'sourceEditing'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    // Changing the language of the interface requires loading the language file using the <script> tag.
+                    // language: 'es',
+                    list: {
+                        properties: {
+                            styles: true,
+                            startIndex: true,
+                            reversed: true
+                        }
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/headings.html#configuration
+                    heading: {
+                        options: [
+                            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                            { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                            { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                            { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                        ]
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/editor-placeholder.html#using-the-editor-configuration
+                    placeholder: 'Nhập nội dung',
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-family-feature
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Courier New, Courier, monospace',
+                            'Georgia, serif',
+                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                            'Tahoma, Geneva, sans-serif',
+                            'Times New Roman, Times, serif',
+                            'Trebuchet MS, Helvetica, sans-serif',
+                            'Verdana, Geneva, sans-serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-size-feature
+                    fontSize: {
+                        options: [10, 12, 14, 'default', 18, 20, 22],
+                        supportAllValues: true
+                    },
+                    // Be careful with the setting below. It instructs CKEditor to accept ALL HTML markup.
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/general-html-support.html#enabling-all-html-features
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ]
+                    },
+                    // Be careful with enabling previews
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/html-embed.html#content-previews
+                    htmlEmbed: {
+                        showPreviews: true
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/link.html#custom-link-attributes-decorators
+                    link: {
+                        decorators: {
+                            addTargetToExternalLinks: true,
+                            defaultProtocol: 'https://',
+                            toggleDownloadable: {
+                                mode: 'manual',
+                                label: 'Downloadable',
+                                attributes: {
+                                    download: 'file'
+                                }
+                            }
+                        }
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html#configuration
+                    mention: {
+                        feeds: [
+                            {
+                                marker: '@',
+                                feed: [
+                                    '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
+                                    '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
+                                    '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
+                                    '@sugar', '@sweet', '@topping', '@wafer'
+                                ],
+                                minimumCharacters: 1
+                            }
+                        ]
+                    },
+                    // The "super-build" contains more premium features that require additional configuration, disable them below.
+                    // Do not turn them on unless you read the documentation and know how to configure them and setup the editor.
+                    removePlugins: [
+                        // These two are commercial, but you can try them out without registering to a trial.
+                        // 'ExportPdf',
+                        // 'ExportWord',
+                        'CKBox',
+                        'CKFinder',
+                        'EasyImage',
+                        // This sample uses the Base64UploadAdapter to handle image uploads as it requires no configuration.
+                        // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/base64-upload-adapter.html
+                        // Storing images as Base64 is usually a very bad idea.
+                        // Replace it on production website with other solutions:
+                        // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/image-upload.html
+                        // 'Base64UploadAdapter',
+                        'RealTimeCollaborativeComments',
+                        'RealTimeCollaborativeTrackChanges',
+                        'RealTimeCollaborativeRevisionHistory',
+                        'PresenceList',
+                        'Comments',
+                        'TrackChanges',
+                        'TrackChangesData',
+                        'RevisionHistory',
+                        'Pagination',
+                        'WProofreader',
+                        // Careful, with the Mathtype plugin CKEditor will not load when loading this sample
+                        // from a local file system (file://) - load this site via HTTP server if you enable MathType.
+                        'MathType',
+                        // The following features are part of the Productivity Pack and require additional license.
+                        'SlashCommand',
+                        'Template',
+                        'DocumentOutline',
+                        'FormatPainter',
+                        'TableOfContents'
+                    ]
+                });
+
+
                 // this is the id of the form
                 $("#frm_reply_comment_" + commentId).submit(function (e) {
                     e.preventDefault(); // avoid to execute the actual submit of the form.
                     var form = $(this);
                     var url = form.attr('action');
+                    var content = $("#txt_reply_content_" + commentId).val();
+
 
                     $.post(url, form.serialize()).done(function (response) {
-                        var content = $("#txt_reply_content_" + commentId).val();
                         var template = $('#tmpl_children_comments').html();
-
                         var newComment = Mustache.render(template, {
                             id: commentId,
                             content: content,
@@ -100,32 +249,20 @@ var knowledgeBaseController = function () {
                         var numberOfComments = parseInt($('#hid_number_comments').val()) + 1;
                         $('#hid_number_comments').val(numberOfComments);
                         $('#comments-title').text('(' + numberOfComments + ') bình luận');
-
-                        $('#liveToast').addClass('bg-success');
-                        $('#message').text('Bình luận thành công');
-                        const toastLiveExample = document.getElementById('liveToast')
-                        const toast = new bootstrap.Toast(toastLiveExample)
-                        toast.show()
-                    }).error(function (err) {
-                        $('#message-result-reply-' + commentId).html('');
-                        if (err.status === 400 && err.responseText) {
-                            var errMsgs = JSON.parse(err.responseText);
-                            for (field in errMsgs) {
-                                $('#message-result-reply-' + commentId).append(errMsgs[field] + '<br>');
-                                $('#message').text(errMsgs[field]);
+                        ToastSimple(true, 'Bình luận thành công');
+                    })
+                        .error(function (err) {
+                            $('#message-result-reply-' + commentId).html('');
+                            if (err.status === 400 && err.responseText) {
+                                var errMsgs = JSON.parse(err.responseText);
+                                for (field in errMsgs) {
+                                    ToastSimple(false, errMsgs[field])
+                                }
                             }
-
-                            $('#liveToast').addClass('bg-danger');
-
-                            const toastLiveExample = document.getElementById('liveToast')
-                            const toast = new bootstrap.Toast(toastLiveExample)
-                            toast.show()
-                        }
-                    });
+                        });
                 });
             }
         });
-
 
 
         //Binding reply comment event
@@ -138,27 +275,165 @@ var knowledgeBaseController = function () {
             });
 
             var form = $('#reply_comment_child_' + commentId).html();
-
             if (form.length > 0) {
                 $('#reply_comment_child_' + commentId).html('');
             }
             else {
                 $('#reply_comment_child_' + commentId).html(html);
-                ClassicEditor
-                    .create(document.querySelector('#txt_reply_content_' + commentId))
-                    .catch(error => {
-                        console.error(error);
-                    });
+                CKEDITOR.ClassicEditor.create(document.getElementById('txt_reply_content_' + commentId), {
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/toolbar/toolbar.html#extended-toolbar-configuration-format
+                    toolbar: {
+                        items: [
+                            'exportPDF', 'exportWord', 'findAndReplace', '|',
+                            'heading', '|',
+                            'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', 'removeFormat', '|',
+                            'bulletedList', 'numberedList', 'todoList', 'outdent', 'indent', '|',
+                            'undo', 'redo',
+                            '-',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                            'alignment', '|',
+                            'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', 'codeBlock', 'htmlEmbed', '|',
+                            'specialCharacters', 'horizontalLine', 'pageBreak', '|',
+                            'textPartLanguage', '|',
+                            'sourceEditing'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    // Changing the language of the interface requires loading the language file using the <script> tag.
+                    // language: 'es',
+                    list: {
+                        properties: {
+                            styles: true,
+                            startIndex: true,
+                            reversed: true
+                        }
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/headings.html#configuration
+                    heading: {
+                        options: [
+                            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                            { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                            { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                            { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                        ]
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/editor-placeholder.html#using-the-editor-configuration
+                    placeholder: 'Nhập nội dung',
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-family-feature
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Courier New, Courier, monospace',
+                            'Georgia, serif',
+                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                            'Tahoma, Geneva, sans-serif',
+                            'Times New Roman, Times, serif',
+                            'Trebuchet MS, Helvetica, sans-serif',
+                            'Verdana, Geneva, sans-serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#configuring-the-font-size-feature
+                    fontSize: {
+                        options: [10, 12, 14, 'default', 18, 20, 22],
+                        supportAllValues: true
+                    },
+                    // Be careful with the setting below. It instructs CKEditor to accept ALL HTML markup.
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/general-html-support.html#enabling-all-html-features
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ]
+                    },
+                    // Be careful with enabling previews
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/html-embed.html#content-previews
+                    htmlEmbed: {
+                        showPreviews: true
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/link.html#custom-link-attributes-decorators
+                    link: {
+                        decorators: {
+                            addTargetToExternalLinks: true,
+                            defaultProtocol: 'https://',
+                            toggleDownloadable: {
+                                mode: 'manual',
+                                label: 'Downloadable',
+                                attributes: {
+                                    download: 'file'
+                                }
+                            }
+                        }
+                    },
+                    // https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html#configuration
+                    mention: {
+                        feeds: [
+                            {
+                                marker: '@',
+                                feed: [
+                                    '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
+                                    '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
+                                    '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
+                                    '@sugar', '@sweet', '@topping', '@wafer'
+                                ],
+                                minimumCharacters: 1
+                            }
+                        ]
+                    },
+                    // The "super-build" contains more premium features that require additional configuration, disable them below.
+                    // Do not turn them on unless you read the documentation and know how to configure them and setup the editor.
+                    removePlugins: [
+                        // These two are commercial, but you can try them out without registering to a trial.
+                        // 'ExportPdf',
+                        // 'ExportWord',
+                        'CKBox',
+                        'CKFinder',
+                        'EasyImage',
+                        // This sample uses the Base64UploadAdapter to handle image uploads as it requires no configuration.
+                        // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/base64-upload-adapter.html
+                        // Storing images as Base64 is usually a very bad idea.
+                        // Replace it on production website with other solutions:
+                        // https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/image-upload.html
+                        // 'Base64UploadAdapter',
+                        'RealTimeCollaborativeComments',
+                        'RealTimeCollaborativeTrackChanges',
+                        'RealTimeCollaborativeRevisionHistory',
+                        'PresenceList',
+                        'Comments',
+                        'TrackChanges',
+                        'TrackChangesData',
+                        'RevisionHistory',
+                        'Pagination',
+                        'WProofreader',
+                        // Careful, with the Mathtype plugin CKEditor will not load when loading this sample
+                        // from a local file system (file://) - load this site via HTTP server if you enable MathType.
+                        'MathType',
+                        // The following features are part of the Productivity Pack and require additional license.
+                        'SlashCommand',
+                        'Template',
+                        'DocumentOutline',
+                        'FormatPainter',
+                        'TableOfContents'
+                    ]
+                });
                 // this is the id of the form
                 $("#frm_reply_comment_" + commentId).submit(function (e) {
                     e.preventDefault(); // avoid to execute the actual submit of the form.
                     var form = $(this);
                     var url = form.attr('action');
+                    var content = $("#txt_reply_content_" + commentId).val();
 
                     $.post(url, form.serialize()).done(function (response) {
-                        var content = $("#txt_reply_content_" + commentId).val();
-                        var template = $('#tmpl_children_comments').html();
 
+                        var template = $('#tmpl_children_comments').html();
                         var newComment = Mustache.render(template, {
                             id: commentId,
                             content: content,
@@ -178,32 +453,54 @@ var knowledgeBaseController = function () {
                         $('#hid_number_comments').val(numberOfComments);
                         $('#comments-title').text('(' + numberOfComments + ') bình luận');
 
-                        $('#liveToast').addClass('bg-success');
-                        $('#message').text('Bình luận thành công');
-                        const toastLiveExample = document.getElementById('liveToast')
-                        const toast = new bootstrap.Toast(toastLiveExample)
-                        toast.show()
+                        ToastSimple(true, 'Bình luận thành công');
                     }).error(function (err) {
                         $('#message-result-reply-' + commentId).html('');
                         if (err.status === 400 && err.responseText) {
                             var errMsgs = JSON.parse(err.responseText);
                             for (field in errMsgs) {
                                 $('#message-result-reply-' + commentId).append(errMsgs[field] + '<br>');
-                                $('#message').text(errMsgs[field]);
+                                ToastSimple(false, errMsgs[field]);
                             }
-
-                            $('#liveToast').addClass('bg-danger');
-
-                            const toastLiveExample = document.getElementById('liveToast')
-                            const toast = new bootstrap.Toast(toastLiveExample)
-                            toast.show()
                         }
                     });
                 });
             }
         });
 
+        $(document).on('click', '[id^="delete_"]', function (e) {
+            e.preventDefault();
+            var commentId = $(this).attr('id').replace('delete_', '');
 
+            // Hiển thị modal xác nhận xóa bình luận
+            $('#confirmDeleteModal').modal('show');
+
+            // Gán commentId vào data của nút Xóa trong modal
+            $('#confirmDeleteButton').data('comment-id', commentId);
+        });
+
+        // Xử lý sự kiện click vào nút Xóa trong modal
+        $('#confirmDeleteButton').on('click', function () {
+            var commentId = $(this).data('comment-id');
+            var knowledgeBaseId = parseInt($('#hid_knowledge_base_id').val());
+
+            // Gọi API xóa bình luận tương ứng
+            $.ajax({
+                url: '/knowledgeBase/DeleteComment',
+                type: 'DELETE',
+                data: { knowledgeBaseId: knowledgeBaseId, commentId: commentId },
+                success: function (result) {
+                    ToastSimple(true, "Xóa bình luận thành công");
+                    $('#comment_' + commentId).remove();
+                },
+                error: function (xhr, statusText, error) {
+                    ToastSimple(false, "Xóa bình luận thất bại");
+                }
+            });
+
+            // Ẩn modal
+            $('#confirmDeleteModal').modal('hide');
+        });
 
         $('#frm_vote').submit(function (e) {
             e.preventDefault();
@@ -254,94 +551,8 @@ var knowledgeBaseController = function () {
             var commentId = parseInt($(this).data('id'));
             var nextPageIndex = parseInt($(this).data('page-index')) + 1;
             $(this).data('page-index', nextPageIndex);
-            loadRepliedComments(kbId, commentId, nextPageIndex);
-        });
-    }
-
-    // function loadComments(id, pageIndex) {
-    //     if (pageIndex === undefined) pageIndex = 1;
-    //     $.get('/knowledgeBase/GetCommentsByKnowledgeBaseId?knowledgeBaseId=' + id + '&pageIndex=' + pageIndex)
-    //         .done(function (response, statusText, xhr) {
-    //             if (xhr.status === 200) {
-    //                 var template = $('#tmpl_comments').html();
-    //                 var childrenTemplate = $('#tmpl_children_comments').html();
-    //                 if (response && response.items) {
-    //                     var html = '';
-    //                     $.each(response.items, function (index, item) {
-    //                         var childrenHtml = '';
-    //                         if (item.children && item.children.items) {
-    //                             $.each(item.children.items, function (childIndex, childItem) {
-    //                                 childrenHtml += Mustache.render(childrenTemplate, {
-    //                                     id: childItem.id,
-    //                                     content: childItem.content,
-    //                                     createDate: formatRelativeTime(childItem.createDate),
-    //                                     ownerName: childItem.ownerName
-    //                                 });
-    //                             });
-    //                         }
-    //                         if (response.pageIndex > response.pageCount) {
-    //                             childrenHtml += '<a href="#" class="replied-comment-pagination" id="replied-comment-pagination-' + item.id + '" data-page-index="1" data-id="' + item.id + '">Xem thêm bình luận</a>';
-    //                         }
-    //                         else {
-    //                             childrenHtml += '<a href="#" class="replied-comment-pagination" id="replied-comment-pagination-' + item.id + '" data-page-index="1" data-id="' + item.id + '" style="display:none">Xem thêm bình luận</a>';
-    //                         }
-
-    //                         html += Mustache.render(template, {
-    //                             childrenHtml: childrenHtml,
-    //                             id: item.id,
-    //                             content: item.content,
-    //                             createDate: formatRelativeTime(item.createDate),
-    //                             ownerName: item.ownerName,
-    //                             content: item.content
-    //                         });
-    //                     });
-    //                     $('#comment_list').append(html);
-    //                     if (response.pageIndex < response.pageCount) {
-    //                         $('#comment-pagination').show();
-    //                     }
-    //                     else {
-    //                         $('#comment-pagination').hide();
-    //                     }
-    //                 }
-    //             }
-    //         });
-    // }
-
-    function AIComment() {
-        var apiKey = 'YOUR_API_KEY_HERE'; // Thay thế bằng API key của bạn
-        var apiUrl = 'https://language.googleapis.com/v1/documents:analyzeSentiment?key=' + apiKey;
-        var comment = 'Fuck you'; // Thay thế bằng bình luận để phân tích
-
-        // Thiết lập dữ liệu để gửi đến API
-        var requestData = {
-            document: {
-                type: 'PLAIN_TEXT',
-                content: comment
-            },
-            encodingType: 'UTF8'
-        };
-
-        // Gửi yêu cầu API bằng jQuery
-        $.ajax({
-            url: apiUrl,
-            type: 'POST',
-            data: JSON.stringify(requestData),
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (response) {
-                if (response)
-                    if (response.documentSentiment.score < 0) {
-                        console.log('This is a negative comment');
-                        // Do something with the negative comment, such as hide it or display a warning message
-                    } else {
-                        console.log('This is not a negative comment');
-                        // Do something with the non-negative comment, such as display it
-                    }
-            },
-            error: function (error) {
-                console.log('Error:', error);
-                // Handle the error, such as displaying an error message
-            }
+            var currentUserId = $('#hid_current_id').val()
+            loadRepliedComments(kbId, commentId, nextPageIndex, currentUserId);
         });
     }
 
@@ -391,11 +602,14 @@ var knowledgeBaseController = function () {
             content: comment.content,
             createDate: formatRelativeTime(comment.createDate),
             ownerName: comment.ownerName,
-            repliedCommentPaginationHtml,
+            avatar: comment.avatar,
+            note: comment.note,
+            avatarChar: comment.ownerName.charAt(0),
+            repliedCommentPaginationHtml
         });
     }
 
-    function loadRepliedComments(id, rootCommentId, pageIndex) {
+    function loadRepliedComments(id, rootCommentId, pageIndex, currentUserId) {
         if (pageIndex === undefined) pageIndex = 1;
         $.get('/knowledgeBase/GetRepliedCommentsByKnowledgeBaseId?knowledgeBaseId=' + id + '&rootcommentId=' + rootCommentId
             + '&pageIndex=' + pageIndex)
@@ -405,12 +619,18 @@ var knowledgeBaseController = function () {
                     if (response && response.items) {
                         var html = '';
                         $.each(response.items, function (index, item) {
+                            var isCurrentUserComment = currentUserId === item.ownerUserId;
+                            var deleteButtonHtml = isCurrentUserComment ? '<a class="comment-reply-link h6 ml-3 text-danger" style="font-weight: 500" href="#" id="delete_' + item.id + '">Xóa bình luận</a>' : '';
+
                             html += Mustache.render(template, {
                                 id: item.id,
                                 content: item.content,
                                 createDate: formatRelativeTime(item.createDate),
                                 ownerName: item.ownerName,
-                                content: item.content
+                                avatar: comment.avatar,
+                                content: item.content,
+                                avatarChar: comment.ownerName.charAt(0),
+                                deleteButtonHtml: deleteButtonHtml
                             });
                         });
                         $('#children_comments_' + rootCommentId).append(html);

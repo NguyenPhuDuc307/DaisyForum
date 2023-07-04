@@ -1,0 +1,44 @@
+Id,Name,SeoAlias,SeoDescription,SortOrder,ParentId,NumberOfTickets
+1,Ngôn ngữ lập trình,ngon-ngu-lap-trinh,Ngôn ngữ lập trình,0,NULL,NULL
+2,Framework và thư viện,framework-va-thu-vien,Framework và thư viện,0,NULL,NULL
+3,Cơ sở dữ liệu,co-so-du-lieu,Cơ sở dữ liệu,0,NULL,NULL
+4,Công nghệ web và ứng dụng,cong-nghe-web-va-ung-dung,Công nghệ web và ứng dụng,0,NULL,NULL
+5,Công cụ và phần mềm,cong-cu-va-phan-mem,Công cụ và phần mềm,0,NULL,NULL
+6,Mô hình thiết kế,mo-hinh-thiet-ke,Mô hình thiết kế,0,NULL,NULL
+7,Khái niệm và kỹ thuật lập trình,khai-niem-va-ky-thuat-lap-trinh,Khái niệm và kỹ thuật lập trình,0,NULL,NULL
+8,Vấn đề bảo mật và an ninh,van-de-bao-mat-va-an-ninh,Vấn đề bảo mật và an ninh,0,NULL,NULL
+9,C#,c,C#,0,1,NULL
+10,Java,java,Java,0,1,NULL
+11,Python,python,Python,0,1,NULL
+12,JavaScript,javascript,JavaScript,0,1,NULL
+13,PHP,php,PHP,0,1,NULL
+14,.NET,net,.NET,0,2,NULL
+15,Angular,angular,Angular,0,2,NULL
+16,React,react,React,0,2,NULL
+17,Vue,vue,Vue,0,2,NULL
+18,Node.js,nodejs," Node.js",0,2,NULL
+19,jQuery,jquery,jQuery,0,2,NULL
+20,SQL Server,sql-server,SQL Server,0,3,NULL
+21,MySQL,mysql,MySQL,0,3,NULL
+22,Oracle,oracle,Oracle,0,3,NULL
+23,MongoDB,mongodb,MongoDB,0,3,NULL
+24,HTML,html,HTML,0,4,NULL
+25,CSS,css,CSS,0,4,NULL
+26,HTTP,http,HTTP,0,4,NULL
+27,SSL,ssl,SSL,0,4,NULL
+28,MVC,mvc,MVC,0,6,NULL
+29,MVVM,mvvm,MVVM,0,6,NULL
+30,Singleton,singleton,Singleton,0,6,NULL
+31,Factory,factory,Factory,0,6,NULL
+32,Visual Studio,visual-studio,Visual Studio,0,5,NULL
+33,Visual Studio Code,visual-studio-code,Visual Studio Code,0,5,NULL
+34,Eclipse,eclipse,Eclipse,0,5,NULL
+35,Git,git,Git,0,5,NULL
+36,Mã độc,ma-doc,Mã độc,0,8,NULL
+37,Tấn công DDos,tan-cong-ddos,Tấn công DDos,0,8,NULL
+38,Android Studio,android-studio,Android Studio,0,4,NULL
+39,Hệ điều hành,he-dieu-hanh,Hệ điều hành,0,NULL,NULL
+40,Windows,windows,Windows,0,39,NULL
+41,MacOS,macos,MacOS,0,39,NULL
+42,Linux,linux,Linux,0,39,NULL
+43,Windows 64 bit,windows-64-bit,Windows 64 bit,0,40,NULL
