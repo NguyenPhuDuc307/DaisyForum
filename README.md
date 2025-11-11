@@ -315,11 +315,9 @@ Tạo `appsettings.Production.json` với:
 
 ## License
 
-[Thêm license của bạn ở đây]
 
 ## Liên hệ
 
-[Thêm thông tin liên hệ của bạn ở đây]
 
 ## Đóng góp
 
